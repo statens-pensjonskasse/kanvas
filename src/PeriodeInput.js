@@ -1,0 +1,67 @@
+import { max } from "moment";
+import React from "react";
+import Periodeparser from "./Periodeparser"
+
+export default class PeriodeInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.setPerioder = props.setPerioder;
+        this.handleChange = this.handleChange.bind(this);
+        this.input = React.createRef();
+
+        this.delimiter = ";"
+        this.fraOgMedIndex = 1
+        this.tilOgMedIndex = 2
+        this.identifikatorIndex = 0
+
+        this.parser = new Periodeparser({
+            delimiter: this.delimiter,
+            fraOgMedIndex: this.fraOgMedIndex,
+            tilOgMedIndex: this.tilOgMedIndex,
+            identifikatorIndex: this.identifikatorIndex
+        });
+        this.hardkodet = [
+            "Polise 1;2000-01-01;2005-12-31;Aktiv;3010",
+            "Polise 1;2006-01-01;2006-12-31;Oppsatt;3010",
+            "Polise 1;2007-01-01;;Aktiv;3010",
+            "Polise 2;2010-01-01;;Aktiv;3010"
+        ]
+    }
+
+    componentDidMount() {
+        this.parseCurrent()
+    }
+
+    parseCurrent() {
+        this.setPerioder(this.parser.parse(this.input.current.value))
+    }
+
+    handleChange(event) {
+        event.preventDefault();
+        this.parseCurrent();
+    }
+
+    render() {
+        const exampleArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
+        exampleArray[this.identifikatorIndex] = "<Identifikator>"
+        exampleArray[this.fraOgMedIndex] = "<Fra og med>"
+        exampleArray[this.tilOgMedIndex] = "<Til og med>"
+        return (
+            <React.Fragment>
+                <div>Format: {exampleArray.join(this.delimiter)}</div>
+                <form onChange={this.handleChange}>
+                    <label>
+                        <textarea
+                            type="text"
+                            rows="20"
+                            cols="100"
+                            ref={this.input}
+                            defaultValue={this.hardkodet.join("\n")}
+                        />
+                    </label>
+                </form>
+            </React.Fragment>
+
+        );
+    }
+}
