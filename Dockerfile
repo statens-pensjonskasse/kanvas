@@ -25,7 +25,7 @@ LABEL "no.spk.team"="sterope" \
 ENV TZ=Europe/Oslo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apk add --no-cache curl && apk add --no-cache tini
-RUN npm install express
+RUN npm install express morgan
 
 USER node
 
