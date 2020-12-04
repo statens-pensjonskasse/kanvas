@@ -19,7 +19,7 @@ LABEL "no.spk.team"="sterope" \
     "no.spk.applikasjonsgruppe"="felles" \
     "no.spk.prosess"="pop" \
     "no.spk.type"="spkapps" \
-    "no.spk.system"="panda"
+    "no.spk.system"="kanvas"
 
 # Set the time zone and install curl and tini.
 ENV TZ=Europe/Oslo
@@ -33,9 +33,8 @@ USER node
 ENV NAME="kanvas" \
     PROSESS="pop" \
     APPLIKASJONSGRUPPE="felles" \
-    SYSTEM="panda" \
+    SYSTEM="kanvas" \
     TEAM="sterope"
-
 
 WORKDIR /home/node
 EXPOSE 5000
