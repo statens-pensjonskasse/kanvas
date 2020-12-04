@@ -1,5 +1,3 @@
-import moment from "moment"
-
 export default class Periode {
     constructor(fraOgMed, tilOgMed, label) {
         this.label = label || "Tidslinje"

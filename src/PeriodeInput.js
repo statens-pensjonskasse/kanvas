@@ -1,4 +1,3 @@
-import { max } from "moment";
 import React from "react";
 import Periodeparser from "./Periodeparser"
 
@@ -23,8 +22,9 @@ export default class PeriodeInput extends React.Component {
         this.hardkodet = [
             "Polise 1;2000-01-01;2005-12-31;Aktiv;3010",
             "Polise 1;2006-01-01;2006-12-31;Oppsatt;3010",
-            "Polise 1;2007-01-01;;Aktiv;3010",
-            "Polise 2;2010-01-01;;Aktiv;3010"
+            "Polise 1;2007-01-01;          ;Aktiv;3010",
+            "",
+            "Polise 2;2010-01-01;          ;Aktiv;3010"
         ]
     }
 
@@ -46,9 +46,10 @@ export default class PeriodeInput extends React.Component {
         exampleArray[this.identifikatorIndex] = "<Identifikator>"
         exampleArray[this.fraOgMedIndex] = "<Fra og med>"
         exampleArray[this.tilOgMedIndex] = "<Til og med>"
+        const hint = "CSV-format: " + exampleArray.join(this.delimiter)
         return (
             <React.Fragment>
-                <div>Format: {exampleArray.join(this.delimiter)}</div>
+                <h4>{hint}</h4>
                 <form onChange={this.handleChange}>
                     <label>
                         <textarea

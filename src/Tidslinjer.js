@@ -22,8 +22,6 @@ function Tidslinjer({ data }) {
       .filter(x => !!x)
     allDates.sort((a, b) => a - b)
 
-    console.log(allDates)
-
     const startDate = moment(min(allDates)).add(-1, "year");
     const endDate = moment(max(allDates)).add(1, "year");
 

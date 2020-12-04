@@ -1,6 +1,8 @@
 import Periode from "./Periode"
 import moment from "moment"
 
+const minsteGyldigeStartDato = moment("1814-05-17")
+
 export default class Periodeparser {
     constructor({
         delimiter,
@@ -28,8 +30,6 @@ export default class Periodeparser {
                     []
                 )
 
-        console.log(posisjoner)
-
         return rader
             .filter(rad => this.erGyldigRad(rad))
             .map(
@@ -41,17 +41,15 @@ export default class Periodeparser {
         const fraOgMed = moment(rad[this.fraOgMedIndex])
 
         const harInnhold = rad.length > 1
-        const harFraOgMed = fraOgMed.isValid()
-        const harFornuftigDato = fraOgMed.isAfter(moment("1850"))
+        const harFraOgMed = fraOgMed.isValid() && rad[this.fraOgMedIndex]?.length >= 4
+        const harFornuftigDato = fraOgMed.isAfter(minsteGyldigeStartDato)
         return harInnhold && harFraOgMed && harFornuftigDato
     }
 
     oversettRad(rad, posisjon) {
         const fraOgMed = rad[this.fraOgMedIndex]
-        const tilOgMed = rad[this.tilOgMedIndex] || undefined
+        const tilOgMed = rad[this.tilOgMedIndex]?.trim() || undefined
         const label = rad[this.identifikatorIndex]
-
-        console.log(label)
 
         return new Periode(
             moment(fraOgMed),
