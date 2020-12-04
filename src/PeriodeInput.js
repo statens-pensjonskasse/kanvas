@@ -54,6 +54,7 @@ export default class PeriodeInput extends React.Component {
                     <label>
                         <textarea
                             type="text"
+                            spellcheck="false"
                             rows="20"
                             cols="100"
                             ref={this.input}

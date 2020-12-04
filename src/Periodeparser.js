@@ -17,7 +17,7 @@ export default class Periodeparser {
     }
 
     parse(rawData) {
-        const rader = rawData.split("\n")
+        const rader = rawData.split(/\r?\n/)
             .map(rad => rad.trim())
             .map(rad => rad.split(this.delimiter))
 
