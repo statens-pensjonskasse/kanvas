@@ -4,11 +4,10 @@
   "private": true,
   "dependencies": {
     "d3": "^6.2.0",
-    "ml5": "^0.4.2",
     "moment": "^2.29.1",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-scripts": "^3.4.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "4.0.1",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
@@ -16,25 +15,13 @@
     "express": "^4.17.1"
   },
   "scripts": {
+    "serve": "node server.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "serve": "node server.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
