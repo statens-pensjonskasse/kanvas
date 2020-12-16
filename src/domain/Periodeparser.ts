@@ -1,23 +1,36 @@
 import Periode from "./Periode"
+
 import moment from "moment"
 
 const minsteGyldigeStartDato = moment("1814-05-17")
 
+type PeriodeparserProps = {
+    delimiter: string
+    fraOgMedIndex: number
+    tilOgMedIndex: number
+    identifikatorIndex: number
+}
+
 export default class Periodeparser {
+    delimiter: string
+    fraOgMedIndex: number
+    tilOgMedIndex: number
+    identifikatorIndex: number
+
     constructor({
         delimiter,
         fraOgMedIndex,
         tilOgMedIndex,
         identifikatorIndex
-    }) {
+    }: PeriodeparserProps) {
         this.delimiter = delimiter
         this.fraOgMedIndex = fraOgMedIndex
         this.tilOgMedIndex = tilOgMedIndex
         this.identifikatorIndex = identifikatorIndex
     }
 
-    parse(rawData) {
-        const rader = rawData.split(/\r?\n/)
+    parse(rawData: string) {
+        const rader: string[][] = rawData.split(/\r?\n/)
             .map(rad => rad.trim())
             .map(rad => rad.split(this.delimiter))
 
@@ -26,7 +39,7 @@ export default class Periodeparser {
             rader.map(rad => rad[this.identifikatorIndex])
                 .filter(identifikator => !!identifikator)
                 .reduce(
-                    (acc, current) => acc.includes(current) ? acc : [current, ...acc],
+                    (acc: string[], current: string) => acc.includes(current) ? acc : [current, ...acc],
                     []
                 )
 
@@ -37,28 +50,26 @@ export default class Periodeparser {
             )
     }
 
-    erGyldigRad(rad) {
+    erGyldigRad(rad: string[]): boolean {
         const fraOgMed = moment(rad[this.fraOgMedIndex])
 
-        const harInnhold = rad.length > 1
+        const harInnhold = rad.length > 2
         const harFraOgMed = fraOgMed.isValid() && rad[this.fraOgMedIndex]?.length >= 4
         const harFornuftigDato = fraOgMed.isAfter(minsteGyldigeStartDato)
         return harInnhold && harFraOgMed && harFornuftigDato
     }
 
-    oversettRad(rad, posisjon) {
+    oversettRad(rad: string[], posisjon: number): Periode {
         const fraOgMed = rad[this.fraOgMedIndex]
         const tilOgMed = rad[this.tilOgMedIndex]?.trim() || undefined
         const label = rad[this.identifikatorIndex]
 
         return new Periode(
-            moment(fraOgMed),
-            tilOgMed ? moment(tilOgMed) : undefined,
-            label
+            label,
+            moment(fraOgMed).toDate(),
+            tilOgMed ? moment(tilOgMed).add(1, "day").toDate() : undefined,
         )
-            .posisjon(posisjon)
-            .egenskaper({
-                data: rad.slice(this.tilOgMedIndex + 1)
-            })
+            .setPosisjon(posisjon)
+            .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))
     }
 }

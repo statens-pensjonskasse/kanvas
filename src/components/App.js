@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Tidslinjer from "./Tidslinjer";
 import PeriodeInput from "./PeriodeInput";
-import "./App.css";
+import "../css/App.css";
 
 function App() {
   const [perioder, setPerioder] = useState([])

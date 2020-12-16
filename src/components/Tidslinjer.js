@@ -1,17 +1,20 @@
 import React, { useRef, useEffect } from "react";
 import { select, min, max, scaleLinear, axisBottom, scalePoint } from "d3";
-import useResizeObserver from "./useResizeObserver";
+import useResizeObserver from "../util/useResizeObserver";
 import moment from "moment"
+import 'moment/locale/nb'
+moment.locale('nb')
 
 function Tidslinjer({ data }) {
-  console.log(data)
   const svgRef = useRef();
+  const xAxisRef = useRef();
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
 
   // will be called initially and on every data change
   useEffect(() => {
     const svg = select(svgRef.current);
+    const xAxis = select(xAxisRef.current);
     if (!dimensions) return;
 
     // finner alle datoer som skal på x-aksen
@@ -31,17 +34,24 @@ function Tidslinjer({ data }) {
         ...allDates,
         endDate
       ])
-      .range([0, dimensions.width]);
+      .range([0, dimensions.width-1]);
+
+    const allLabels = new Set([...data.map(periode => periode.label)])
+    const timelineHeight = 100;
+    const numLabels = Math.max(allLabels.size, 5);
+    const height = numLabels * timelineHeight;
+
+    svg.style("height", `${height}px`)
 
     const yScale = scaleLinear()
-      .domain([10, 0])
-      .range([0, dimensions.height]);
+      .domain([numLabels, 0])
+      .range([timelineHeight, height]);
 
     svg
       .selectAll(".periode")
       .data(data)
       .join("line")
-      .attr("class", periode => periode.tilOgMed? "periode" : "periode running")
+      .attr("class", periode => periode.tilOgMed ? "periode" : "periode running")
       .attr("stroke", "black")
       .attr("stroke-width", 1.5)
       .attr("x1", periode => xScale(periode.fraOgMed))
@@ -79,7 +89,7 @@ function Tidslinjer({ data }) {
       .join("text")
       .attr('class', 'periodeEgenskaper')
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
-      .attr("y", periode => yScale(periode.posisjon + 0.2))
+      .attr("y", periode => yScale(periode.posisjon) - (timelineHeight/10))
       .text(periode => Object.values(periode.egenskaper).join(", "));
 
     svg
@@ -87,31 +97,38 @@ function Tidslinjer({ data }) {
       .data(data)
       .join("text")
       .attr('class', 'periodeLabel')
-      .attr("x", periode => xScale(startDate))
-      .attr("y", periode => yScale(periode.posisjon + 0.2))
+      .attr("x", xScale(startDate)+20)
+      .attr("y", periode => yScale(periode.posisjon))
       .text(periode => periode.label)
 
-    const xAxis = axisBottom(xScale)
+    const foo = axisBottom(xScale)
       .tickFormat(
         dato => [startDate, endDate].includes(dato) ?
           "" :
-          dato.format('YYYY.MM.DD')
+          moment(dato).format('YYYY.MM.DD')
       );
 
-    svg
+    xAxis
       .select(".x-axis")
-      .style("transform", `translateY(${dimensions.height}px)`)
-      .call(xAxis);
+      .style("transform", `translateY(0)`)
+      .call(foo);
+
 
     // draw the gauge
   }, [data, dimensions]);
 
   return (
-    <div ref={wrapperRef} style={{ marginBottom: "10rem" }}>
-      <svg ref={svgRef}>
-        <g className="x-axis" />
-      </svg>
+    <div className="svg-wrapper">
+      <div ref={wrapperRef} className="svg-timeline-wrapper">
+        <svg ref={svgRef} className="svg-timelines" />
+      </div>
+      <div>
+        <svg ref={xAxisRef} className="svg-x-axis">
+          <g className="x-axis" />
+        </svg>
+      </div>
     </div>
+
   );
 }
 

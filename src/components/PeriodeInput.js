@@ -1,5 +1,5 @@
 import React from "react";
-import Periodeparser from "./Periodeparser"
+import Periodeparser from "../domain/Periodeparser"
 
 export default class PeriodeInput extends React.Component {
     constructor(props) {
@@ -20,11 +20,11 @@ export default class PeriodeInput extends React.Component {
             identifikatorIndex: this.identifikatorIndex
         });
         this.hardkodet = [
-            "Polise 1;2000-01-01;2005-12-31;Aktiv;3010",
-            "Polise 1;2006-01-01;2006-12-31;Oppsatt;3010",
-            "Polise 1;2007-01-01;          ;Aktiv;3010",
+            "Polise 1;2000-01-01;2005-12-31;Aktiv",
+            "Polise 1;2006-01-01;2006-12-31;Oppsatt",
+            "Polise 1;2007-01-01;          ;Aktiv",
             "",
-            "Polise 2;2010-01-01;          ;Aktiv;3010"
+            "Polise 2;2010-01-01;          ;Aktiv"
         ]
     }
 
@@ -53,11 +53,11 @@ export default class PeriodeInput extends React.Component {
                 <form onChange={this.handleChange}>
                     <label>
                         <textarea
+                            className="csv-input"
                             type="text"
-                            spellcheck="false"
-                            rows="20"
-                            cols="100"
+                            spellCheck="false"
                             ref={this.input}
+                            placeholder={`Legg inn tidsperioder med ${hint}`}
                             defaultValue={this.hardkodet.join("\n")}
                         />
                     </label>
