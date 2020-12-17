@@ -1,8 +1,8 @@
 import Periode from "./Periode"
 
-import moment from "moment"
+import { DateTime } from "luxon"
 
-const minsteGyldigeStartDato = moment("1814-05-17")
+const minsteGyldigeStartDato = DateTime.fromISO("1814-05-17")
 
 type PeriodeparserProps = {
     delimiter: string
@@ -51,11 +51,11 @@ export default class Periodeparser {
     }
 
     erGyldigRad(rad: string[]): boolean {
-        const fraOgMed = moment(rad[this.fraOgMedIndex])
+        const fraOgMed = DateTime.fromISO(rad[this.fraOgMedIndex])
 
         const harInnhold = rad.length > 2
-        const harFraOgMed = fraOgMed.isValid() && rad[this.fraOgMedIndex]?.length >= 4
-        const harFornuftigDato = fraOgMed.isAfter(minsteGyldigeStartDato)
+        const harFraOgMed = fraOgMed.isValid && rad[this.fraOgMedIndex]?.length >= 4
+        const harFornuftigDato = fraOgMed > minsteGyldigeStartDato
         return harInnhold && harFraOgMed && harFornuftigDato
     }
 
@@ -66,8 +66,8 @@ export default class Periodeparser {
 
         return new Periode(
             label,
-            moment(fraOgMed).toDate(),
-            tilOgMed ? moment(tilOgMed).add(1, "day").toDate() : undefined,
+            DateTime.fromISO(fraOgMed).toJSDate(),
+            tilOgMed ? DateTime.fromISO(tilOgMed).plus({day: 1}).toJSDate() : undefined,
         )
             .setPosisjon(posisjon)
             .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))

@@ -19,6 +19,7 @@ export default class PeriodeInput extends React.Component {
             tilOgMedIndex: this.tilOgMedIndex,
             identifikatorIndex: this.identifikatorIndex
         });
+
         this.hardkodet = [
             "Polise 1;2000-01-01;2005-12-31;Aktiv",
             "Polise 1;2006-01-01;2006-12-31;Oppsatt",
@@ -33,7 +34,9 @@ export default class PeriodeInput extends React.Component {
     }
 
     parseCurrent() {
-        this.setPerioder(this.parser.parse(this.input.current.value))
+        this.setPerioder(
+            this.parser.parse(this.input.current.value)
+        )
     }
 
     handleChange(event) {
@@ -43,13 +46,13 @@ export default class PeriodeInput extends React.Component {
 
     render() {
         const exampleArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
-        exampleArray[this.identifikatorIndex] = "<Identifikator>"
-        exampleArray[this.fraOgMedIndex] = "<Fra og med>"
-        exampleArray[this.tilOgMedIndex] = "<Til og med>"
+        exampleArray[this.identifikatorIndex] = "[Identifikator]"
+        exampleArray[this.fraOgMedIndex] = "[Fra og med]"
+        exampleArray[this.tilOgMedIndex] = "[Til og med]"
         const hint = "CSV-format: " + exampleArray.join(this.delimiter)
         return (
             <React.Fragment>
-                <h4>{hint}</h4>
+                <h4 className="csv-hint">{hint}</h4>
                 <form onChange={this.handleChange}>
                     <label>
                         <textarea

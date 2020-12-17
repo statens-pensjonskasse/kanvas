@@ -12,7 +12,12 @@ function App() {
       <Tidslinjer data={perioder} />
       <PeriodeInput setPerioder={setPerioder} />
       <footer>
+        <a href="mailto:jarle.mathiesen@spk.no?subject=kanvas" target="_blank" rel="noopener noreferrer">tilbakemelding/forslag</a>
+        <span> ✉️ </span>
+        <br></br>
+        <br></br>
         <a href="http://git.spk.no/projects/INC/repos/kanvas/browse" target="_blank" rel="noopener noreferrer">kildekode</a>
+        <span> 🖥️</span>
       </footer>
     </React.Fragment>
   );

@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { select, min, max, scaleLinear, axisBottom, scalePoint } from "d3";
+import { DateTime } from "luxon";
+
 import useResizeObserver from "../util/useResizeObserver";
-import moment from "moment"
-import 'moment/locale/nb'
-moment.locale('nb')
 
 function Tidslinjer({ data }) {
   const svgRef = useRef();
@@ -25,8 +24,8 @@ function Tidslinjer({ data }) {
       .filter(x => !!x)
     allDates.sort((a, b) => a - b)
 
-    const startDate = moment(min(allDates)).add(-1, "year");
-    const endDate = moment(max(allDates)).add(1, "year");
+    const startDate = DateTime.fromJSDate((min(allDates)));
+    const endDate = DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()
       .domain([
@@ -105,7 +104,7 @@ function Tidslinjer({ data }) {
       .tickFormat(
         dato => [startDate, endDate].includes(dato) ?
           "" :
-          moment(dato).format('YYYY.MM.DD')
+          DateTime.fromJSDate(dato).toFormat('yyyy.MM.dd')
       );
 
     xAxis

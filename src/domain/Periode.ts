@@ -1,4 +1,4 @@
-import Moment from "moment";
+import { DateTime } from "luxon";
 
 export default class Periode {
     readonly fraOgMed: Date;
@@ -16,12 +16,12 @@ export default class Periode {
     }
 
     valider() {
-        if (this.tilOgMed && Moment(this.fraOgMed).isAfter(this.tilOgMed)) {
+        if (this.tilOgMed && DateTime.fromJSDate(this.fraOgMed) > DateTime.fromJSDate(this.tilOgMed)) {
             console.error("Fra og med kan ikke være etter til og med dato")
         }
     }
 
-    setEgenskaper(egenskaper: string[] ) {
+    setEgenskaper(egenskaper: string[]) {
         this.egenskaper = egenskaper
         return this
     }

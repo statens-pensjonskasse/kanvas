@@ -20,9 +20,10 @@
 
 .csv-input {
   font-size: 1.2em;
-  width: 80%;
-  min-height: 20vh;
-  min-width: 50%;
+  width: 50em;
+  min-height: 15em;
+  min-width: 30em;
+  max-width: 100em;
 }
 
 #root {
@@ -35,4 +36,16 @@
   text-align: center;
   box-sizing: border-box;
   overflow: auto;
+}
+
+.csv-hint {
+  color: gray
+}
+
+footer {
+  margin: 2em;
+}
+
+footer > a {
+  color: gray;
 }
