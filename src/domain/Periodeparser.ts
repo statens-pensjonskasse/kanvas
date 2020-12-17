@@ -44,13 +44,13 @@ export default class Periodeparser {
                 )
 
         return rader
-            .filter(rad => this.erGyldigRad(rad))
+            .filter(rad => this.kanOversettes(rad))
             .map(
                 rad => this.oversettRad(rad, posisjoner.indexOf(rad[this.identifikatorIndex]) + 1)
             )
     }
 
-    erGyldigRad(rad: string[]): boolean {
+    kanOversettes(rad: string[]): boolean {
         const fraOgMed = DateTime.fromISO(rad[this.fraOgMedIndex])
 
         const harInnhold = rad.length > 2

@@ -1,10 +1,12 @@
 import React from "react";
 import Periodeparser from "../domain/Periodeparser"
+import Colorparser from "../domain/Colorparser"
 
 export default class PeriodeInput extends React.Component {
     constructor(props) {
         super(props);
         this.setPerioder = props.setPerioder;
+        this.setColors = props.setColors;
         this.handleChange = this.handleChange.bind(this);
         this.input = React.createRef();
 
@@ -13,11 +15,15 @@ export default class PeriodeInput extends React.Component {
         this.tilOgMedIndex = 2
         this.identifikatorIndex = 0
 
-        this.parser = new Periodeparser({
+        this.periodeparser = new Periodeparser({
             delimiter: this.delimiter,
             fraOgMedIndex: this.fraOgMedIndex,
             tilOgMedIndex: this.tilOgMedIndex,
             identifikatorIndex: this.identifikatorIndex
+        });
+
+        this.colorparser = new Colorparser({
+            delimiter: this.delimiter
         });
 
         this.hardkodet = [
@@ -25,7 +31,10 @@ export default class PeriodeInput extends React.Component {
             "Polise 1;2006-01-01;2006-12-31;Oppsatt;_3010",
             "Polise 1;2007-01-01;          ;Aktiv;_3010",
             "",
-            "Polise 2;2010-01-01;          ;Aktiv;_3010"
+            "Polise 2;2010-01-01;          ;Aktiv;_3010",
+            "",
+            "",
+            "Polise 2;COLOR;blue"
         ]
     }
 
@@ -35,7 +44,10 @@ export default class PeriodeInput extends React.Component {
 
     parseCurrent() {
         this.setPerioder(
-            this.parser.parse(this.input.current.value)
+            this.periodeparser.parse(this.input.current.value)
+        )
+        this.setColors(
+            this.colorparser.parse(this.input.current.value)
         )
     }
 

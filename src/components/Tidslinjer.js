@@ -1,10 +1,13 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { select, min, max, scaleLinear, axisBottom, scalePoint } from "d3";
 import { DateTime } from "luxon";
 
 import useResizeObserver from "../util/useResizeObserver";
 
-function Tidslinjer({ data }) {
+function Tidslinjer(props) {
+  const colors = props.colors;
+  const data = props.perioder;
+
   const svgRef = useRef();
   const xAxisRef = useRef();
   const wrapperRef = useRef();
@@ -51,7 +54,7 @@ function Tidslinjer({ data }) {
       .data(data)
       .join("line")
       .attr("class", periode => periode.tilOgMed ? "periode" : "periode running")
-      .attr("stroke", "black")
+      .attr("stroke", periode => colors.get(periode.label) || "black")
       .attr("stroke-width", 1.5)
       .attr("x1", periode => xScale(periode.fraOgMed))
       .attr("y1", periode => yScale(periode.posisjon))
@@ -63,7 +66,7 @@ function Tidslinjer({ data }) {
       .data(data)
       .join("line")
       .attr("class", "periodeStartDelimiter")
-      .attr("stroke", "black")
+      .attr("stroke", periode => colors.get(periode.label) || "black")
       .attr("stroke-width", 1.5)
       .attr("x1", periode => xScale(periode.fraOgMed))
       .attr("y1", periode => yScale(periode.posisjon) + 5)
@@ -75,7 +78,7 @@ function Tidslinjer({ data }) {
       .data(data.filter(periode => !!periode.tilOgMed))
       .join("line")
       .attr("class", "periodeStartDelimiter")
-      .attr("stroke", "black")
+      .attr("stroke", periode => colors.get(periode.label) || "black")
       .attr("stroke-width", 1.5)
       .attr("x1", periode => xScale(periode.tilOgMed || endDate))
       .attr("y1", periode => yScale(periode.posisjon) + 5)
@@ -86,7 +89,8 @@ function Tidslinjer({ data }) {
       .selectAll(".periodeEgenskaper")
       .data(data)
       .join("text")
-      .attr('class', 'periodeEgenskaper')
+      .attr("class", "periodeEgenskaper")
+      .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) - (timelineHeight / 10))
       .text(
@@ -101,6 +105,7 @@ function Tidslinjer({ data }) {
       .data(data)
       .join("text")
       .attr('class', 'periodeEgenskaper')
+      .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) + (timelineHeight / 5))
       .text(
@@ -115,26 +120,27 @@ function Tidslinjer({ data }) {
       .selectAll(".periodeLabel")
       .data(data)
       .join("text")
-      .attr('class', 'periodeLabel')
+      .attr("class", "periodeLabel")
+      .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", xScale(startDate) + 20)
       .attr("y", periode => yScale(periode.posisjon))
       .text(periode => periode.label)
 
-    const foo = axisBottom(xScale)
-      .tickFormat(
-        dato => [startDate, endDate].includes(dato) ?
-          "" :
-          DateTime.fromJSDate(dato).toFormat('yyyy.MM.dd')
-      );
-
     xAxis
       .select(".x-axis")
-      .style("transform", `translateY(0)`)
-      .call(foo);
+      .style("font-size", "0.8em")
+      .call(
+        axisBottom(xScale)
+          .tickFormat(
+            dato => [startDate, endDate].includes(dato) ?
+              "" :
+              DateTime.fromJSDate(dato).toFormat('yyyy.MM.dd')
+          )
+      );
 
 
     // draw the gauge
-  }, [data, dimensions]);
+  }, [colors, data, dimensions]);
 
   return (
     <div className="svg-wrapper">
