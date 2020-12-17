@@ -33,7 +33,7 @@ function Tidslinjer({ data }) {
         ...allDates,
         endDate
       ])
-      .range([0, dimensions.width-1]);
+      .range([0, dimensions.width - 1]);
 
     const allLabels = new Set([...data.map(periode => periode.label)])
     const timelineHeight = 100;
@@ -88,15 +88,35 @@ function Tidslinjer({ data }) {
       .join("text")
       .attr('class', 'periodeEgenskaper')
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
-      .attr("y", periode => yScale(periode.posisjon) - (timelineHeight/10))
-      .text(periode => Object.values(periode.egenskaper).join(", "));
+      .attr("y", periode => yScale(periode.posisjon) - (timelineHeight / 10))
+      .text(
+        periode => Object.values(periode.egenskaper)
+          .map(egenskap => egenskap.trim())
+          .filter(egenskap => !egenskap.startsWith("_"))
+          .join(", ")
+      );
+
+    svg
+      .selectAll(".periodeUndertekst")
+      .data(data)
+      .join("text")
+      .attr('class', 'periodeEgenskaper')
+      .attr("x", periode => xScale(periode.fraOgMed) + 20)
+      .attr("y", periode => yScale(periode.posisjon) + (timelineHeight / 5))
+      .text(
+        periode => Object.values(periode.egenskaper)
+          .map(egenskap => egenskap.trim())
+          .filter(egenskap => egenskap.startsWith("_"))
+          .map(egenskap => egenskap.slice(1))
+          .join(", ")
+      );
 
     svg
       .selectAll(".periodeLabel")
       .data(data)
       .join("text")
       .attr('class', 'periodeLabel')
-      .attr("x", xScale(startDate)+20)
+      .attr("x", xScale(startDate) + 20)
       .attr("y", periode => yScale(periode.posisjon))
       .text(periode => periode.label)
 

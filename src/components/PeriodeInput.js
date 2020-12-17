@@ -21,11 +21,11 @@ export default class PeriodeInput extends React.Component {
         });
 
         this.hardkodet = [
-            "Polise 1;2000-01-01;2005-12-31;Aktiv",
-            "Polise 1;2006-01-01;2006-12-31;Oppsatt",
-            "Polise 1;2007-01-01;          ;Aktiv",
+            "Polise 1;2000-01-01;2005-12-31;Aktiv;_3010",
+            "Polise 1;2006-01-01;2006-12-31;Oppsatt;_3010",
+            "Polise 1;2007-01-01;          ;Aktiv;_3010",
             "",
-            "Polise 2;2010-01-01;          ;Aktiv"
+            "Polise 2;2010-01-01;          ;Aktiv;_3010"
         ]
     }
 
