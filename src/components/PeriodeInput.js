@@ -78,6 +78,7 @@ export default class PeriodeInput extends React.Component {
                     <label>
                         <textarea
                             className="csv-input"
+                            autoFocus
                             type="text"
                             spellCheck="false"
                             ref={this.input}
