@@ -57,7 +57,7 @@ function Tidslinjer(props) {
       .attr("data-tip", periode => periode.label)
       .attr("class", periode => periode.tilOgMed ? "periode" : "periode running")
       .attr("stroke", periode => colors.get(periode.label) || "black")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 2)
       .attr("x1", periode => xScale(periode.fraOgMed))
       .attr("y1", periode => yScale(periode.posisjon))
       .attr("x2", periode => xScale(periode.tilOgMed || endDate))
@@ -69,7 +69,7 @@ function Tidslinjer(props) {
       .join("line")
       .attr("class", "periodeStartDelimiter")
       .attr("stroke", periode => colors.get(periode.label) || "black")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 2)
       .attr("x1", periode => xScale(periode.fraOgMed))
       .attr("y1", periode => yScale(periode.posisjon) + 5)
       .attr("x2", periode => xScale(periode.fraOgMed))
@@ -81,7 +81,7 @@ function Tidslinjer(props) {
       .join("line")
       .attr("class", "periodeStartDelimiter")
       .attr("stroke", periode => colors.get(periode.label) || "black")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 2)
       .attr("x1", periode => xScale(periode.tilOgMed || endDate))
       .attr("y1", periode => yScale(periode.posisjon) + 5)
       .attr("x2", periode => xScale(periode.tilOgMed || endDate))
@@ -153,8 +153,8 @@ function Tidslinjer(props) {
         <svg ref={xAxisRef} className="svg-x-axis">
           <g className="x-axis" />
         </svg>
+        <ReactTooltip multiline />
       </div>
-      <ReactTooltip multiline />
 
     </div>
 

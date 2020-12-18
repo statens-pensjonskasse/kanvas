@@ -62,7 +62,8 @@ export default class Periodeparser {
 
     oversettRad(rad: string[], posisjon: number): Periode {
         const fraOgMed = rad[this.fraOgMedIndex]
-        const tilOgMed = rad[this.tilOgMedIndex]?.trim() || undefined
+        const tilOgMedRaw = rad[this.tilOgMedIndex]?.trim()
+        const tilOgMed = this.erGyldigDato(tilOgMedRaw) ? tilOgMedRaw : undefined
         const label = rad[this.identifikatorIndex]
 
         return new Periode(
@@ -72,6 +73,10 @@ export default class Periodeparser {
         )
             .setPosisjon(posisjon)
             .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))
+    }
+
+    erGyldigDato(dato: string) {
+        return dato && (this.norskDato.test(dato) || DateTime.fromISO(dato).isValid)
     }
 
     oversettDato(dato: string): DateTime {
