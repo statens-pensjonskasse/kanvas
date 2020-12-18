@@ -16,6 +16,7 @@ export default class Periodeparser {
     fraOgMedIndex: number
     tilOgMedIndex: number
     identifikatorIndex: number
+    norskDato: RegExp
 
     constructor({
         delimiter,
@@ -27,6 +28,7 @@ export default class Periodeparser {
         this.fraOgMedIndex = fraOgMedIndex
         this.tilOgMedIndex = tilOgMedIndex
         this.identifikatorIndex = identifikatorIndex
+        this.norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
     }
 
     parse(rawData: string[]) {
@@ -50,7 +52,7 @@ export default class Periodeparser {
     }
 
     kanOversettes(rad: string[]): boolean {
-        const fraOgMed = DateTime.fromISO(rad[this.fraOgMedIndex])
+        const fraOgMed = this.oversettDato(rad[this.fraOgMedIndex])
 
         const harInnhold = rad.length > 2
         const harFraOgMed = fraOgMed.isValid && rad[this.fraOgMedIndex]?.length >= 4
@@ -65,10 +67,14 @@ export default class Periodeparser {
 
         return new Periode(
             label,
-            DateTime.fromISO(fraOgMed).toJSDate(),
-            tilOgMed ? DateTime.fromISO(tilOgMed).plus({ day: 1 }).toJSDate() : undefined,
+            this.oversettDato(fraOgMed).toJSDate(),
+            tilOgMed ? this.oversettDato(tilOgMed).plus({ day: 1 }).toJSDate() : undefined,
         )
             .setPosisjon(posisjon)
             .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))
+    }
+
+    oversettDato(dato: string): DateTime {
+        return this.norskDato.test(dato) ? DateTime.fromFormat(dato, "d.M.yyyy") : DateTime.fromISO(dato);
     }
 }
