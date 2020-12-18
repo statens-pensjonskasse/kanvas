@@ -29,9 +29,8 @@ export default class Periodeparser {
         this.identifikatorIndex = identifikatorIndex
     }
 
-    parse(rawData: string) {
-        const rader: string[][] = rawData.split(/\r?\n/)
-            .map(rad => rad.trim())
+    parse(rawData: string[]) {
+        const rader: string[][] = rawData
             .map(rad => rad.split(this.delimiter))
 
         // posisjoner blir satt etter rekkefølgen identifikatorer er definert
@@ -67,7 +66,7 @@ export default class Periodeparser {
         return new Periode(
             label,
             DateTime.fromISO(fraOgMed).toJSDate(),
-            tilOgMed ? DateTime.fromISO(tilOgMed).plus({day: 1}).toJSDate() : undefined,
+            tilOgMed ? DateTime.fromISO(tilOgMed).plus({ day: 1 }).toJSDate() : undefined,
         )
             .setPosisjon(posisjon)
             .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))

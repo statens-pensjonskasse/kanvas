@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { select, min, max, scaleLinear, axisBottom, scalePoint } from "d3";
 import { DateTime } from "luxon";
+import ReactTooltip from 'react-tooltip';
 
 import useResizeObserver from "../util/useResizeObserver";
 
@@ -53,6 +54,7 @@ function Tidslinjer(props) {
       .selectAll(".periode")
       .data(data)
       .join("line")
+      .attr("data-tip", periode => periode.label)
       .attr("class", periode => periode.tilOgMed ? "periode" : "periode running")
       .attr("stroke", periode => colors.get(periode.label) || "black")
       .attr("stroke-width", 1.5)
@@ -152,6 +154,8 @@ function Tidslinjer(props) {
           <g className="x-axis" />
         </svg>
       </div>
+      <ReactTooltip multiline />
+
     </div>
 
   );

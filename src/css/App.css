@@ -24,6 +24,7 @@
   min-height: 15em;
   min-width: 30em;
   max-width: 100em;
+  margin: 1em;
 }
 
 #root {
@@ -39,7 +40,7 @@
 }
 
 .csv-hint {
-  color: gray
+  color: gray;
 }
 
 footer {

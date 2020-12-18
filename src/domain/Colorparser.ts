@@ -17,9 +17,8 @@ export default class Colorparser {
         this.colorIndex = 2
     }
 
-    parse(rawData: string): Map<string, string> {
-        const rader: string[][] = rawData.split(/\r?\n/)
-            .map(rad => rad.trim())
+    parse(rawData: string[]): Map<string, string> {
+        const rader: string[][] = rawData
             .map(rad => rad.split(this.delimiter))
 
         const oversatteRader: (readonly [string, string])[] = rader
@@ -27,7 +26,7 @@ export default class Colorparser {
             .map(
                 (rad: string[]) => this.oversettRad(rad)
             )
-            
+
         return new Map(oversatteRader)
     }
 

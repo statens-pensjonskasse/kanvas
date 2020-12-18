@@ -1,4 +1,6 @@
 import React from "react";
+import ReactTooltip from 'react-tooltip';
+
 import Periodeparser from "../domain/Periodeparser"
 import Colorparser from "../domain/Colorparser"
 
@@ -27,13 +29,13 @@ export default class PeriodeInput extends React.Component {
         });
 
         this.hardkodet = [
-            "Polise 1;2000-01-01;2005-12-31;Aktiv;_3010",
-            "Polise 1;2006-01-01;2006-12-31;Oppsatt;_3010",
-            "Polise 1;2007-01-01;          ;Aktiv;_3010",
+            "Polise 1;2000-01-01;2005-12-31;Aktiv;_100%",
+            "Polise 1;2006-01-01;2006-12-31;Oppsatt",
+            "Polise 1;2007-01-01;          ;Aktiv;_100%",
             "",
-            "Polise 2;2010-01-01;          ;Aktiv;_3010",
+            "Polise 2;2010-01-01;          ;Aktiv;_100%",
             "",
-            "",
+            "# Farging av tidslinjer",
             "Polise 2;COLOR;blue"
         ]
     }
@@ -43,11 +45,16 @@ export default class PeriodeInput extends React.Component {
     }
 
     parseCurrent() {
+        const content = this.input.current.value
+            .split(/\r?\n/)
+            .filter(rad => !rad.startsWith("#"))
+            .map(rad => rad.trim());
+
         this.setPerioder(
-            this.periodeparser.parse(this.input.current.value)
+            this.periodeparser.parse(content)
         )
         this.setColors(
-            this.colorparser.parse(this.input.current.value)
+            this.colorparser.parse(content)
         )
     }
 
@@ -57,14 +64,16 @@ export default class PeriodeInput extends React.Component {
     }
 
     render() {
-        const exampleArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
-        exampleArray[this.identifikatorIndex] = "[Identifikator]"
-        exampleArray[this.fraOgMedIndex] = "[Fra og med]"
-        exampleArray[this.tilOgMedIndex] = "[Til og med]"
-        const hint = "CSV-format: " + exampleArray.join(this.delimiter)
+        const csvHintArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
+        csvHintArray[this.identifikatorIndex] = "[Identifikator]"
+        csvHintArray[this.fraOgMedIndex] = "[Fra og med]"
+        csvHintArray[this.tilOgMedIndex] = "[Til og med]"
+
+        const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(this.delimiter)
+        const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
+
         return (
             <React.Fragment>
-                <h4 className="csv-hint">{hint}</h4>
                 <form onChange={this.handleChange}>
                     <label>
                         <textarea
@@ -72,11 +81,13 @@ export default class PeriodeInput extends React.Component {
                             type="text"
                             spellCheck="false"
                             ref={this.input}
-                            placeholder={`Legg inn tidsperioder med ${hint}`}
+                            placeholder={`Legg inn tidsperioder med ${periodeHint}`}
                             defaultValue={this.hardkodet.join("\n")}
                         />
                     </label>
                 </form>
+                <div className="csv-hint" data-tip={[periodeHint, colorHint].join("<br><br>")}>?</div>
+                <ReactTooltip multiline />
             </React.Fragment>
 
         );
