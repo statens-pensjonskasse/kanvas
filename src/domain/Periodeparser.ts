@@ -52,7 +52,7 @@ export default class Periodeparser {
     }
 
     kanOversettes(rad: string[]): boolean {
-        const fraOgMed = this.oversettDato(rad[this.fraOgMedIndex])
+        const fraOgMed = this.oversettDato(rad[this.fraOgMedIndex]?.trim())
 
         const harInnhold = rad.length > 2
         const harFraOgMed = fraOgMed.isValid && rad[this.fraOgMedIndex]?.length >= 4
@@ -61,7 +61,7 @@ export default class Periodeparser {
     }
 
     oversettRad(rad: string[], posisjon: number): Periode {
-        const fraOgMed = rad[this.fraOgMedIndex]
+        const fraOgMed = rad[this.fraOgMedIndex]?.trim()
         const tilOgMedRaw = rad[this.tilOgMedIndex]?.trim()
         const tilOgMed = this.erGyldigDato(tilOgMedRaw) ? tilOgMedRaw : undefined
         const label = rad[this.identifikatorIndex]
