@@ -136,7 +136,7 @@ function Tidslinjer(props) {
           .tickFormat(
             dato => [startDate, endDate].includes(dato) ?
               "" :
-              DateTime.fromJSDate(dato).toFormat('yyyy.MM.dd')
+              DateTime.fromJSDate(dato).toFormat('d.M.yyyy')
           )
       );
 
