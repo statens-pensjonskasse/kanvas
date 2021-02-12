@@ -29,14 +29,13 @@ export default class PeriodeInput extends React.Component {
         });
 
         this.hardkodet = [
-            "Polise 1;1.1.2000;31.12.2005;Aktiv;_100%",
-            "Polise 1;1.1.2006;31.12.2006;Oppsatt",
-            "Polise 1;1.1.2007;          ;Aktiv;_100%",
+            "Stillingsforhold 1;2000;2006;Konduktør;_100%",
+            "Stillingsforhold 1;2006;2010;Konduktør;_100%",
             "",
-            "Polise 2;1.1.2010;          ;Aktiv;_100%",
+            "Stillingsforhold 2;2010;;Lokomotivfører;_100%",
             "",
             "# Farging av tidslinjer",
-            "Polise 2;COLOR;blue"
+            "Stillingsforhold 2;COLOR;blue"
         ]
     }
 

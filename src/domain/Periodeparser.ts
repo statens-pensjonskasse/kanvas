@@ -17,6 +17,7 @@ export default class Periodeparser {
     tilOgMedIndex: number
     identifikatorIndex: number
     norskDato: RegExp
+    kunÅrstall: RegExp
 
     constructor({
         delimiter,
@@ -29,6 +30,7 @@ export default class Periodeparser {
         this.tilOgMedIndex = tilOgMedIndex
         this.identifikatorIndex = identifikatorIndex
         this.norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
+        this.kunÅrstall = new RegExp(/^(?:[0-9]{4}$)/)
     }
 
     parse(rawData: string[]) {
@@ -69,10 +71,17 @@ export default class Periodeparser {
         return new Periode(
             label,
             this.oversettDato(fraOgMed).toJSDate(),
-            tilOgMed ? this.oversettDato(tilOgMed).plus({ day: 1 }).toJSDate() : undefined,
+            tilOgMed ? this.oversettTilOgMed(tilOgMed) : undefined,
         )
             .setPosisjon(posisjon)
             .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))
+    }
+
+    private oversettTilOgMed(tilOgMed: string): Date {
+        if (this.kunÅrstall.test(tilOgMed)) {
+            return this.oversettDato(tilOgMed).toJSDate()
+        }
+        return this.oversettDato(tilOgMed).plus({ day: 1 }).toJSDate()
     }
 
     erGyldigDato(dato: string) {
