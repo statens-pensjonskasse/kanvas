@@ -8,6 +8,15 @@
   height: 2em;
 }
 
+.tidslinjeLabel {
+  font-weight: bold;
+}
+
+.tick > text {
+  font-weight: bold;
+  color: gray;
+}
+
 .svg-timeline-wrapper {
   overflow: auto;
   width: 100%;

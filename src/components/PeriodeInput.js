@@ -1,13 +1,13 @@
 import React from "react";
 import ReactTooltip from 'react-tooltip';
 
-import Periodeparser from "../domain/Periodeparser"
+import Tidslinjeparser from "../domain/Tidslinjeparser"
 import Colorparser from "../domain/Colorparser"
 
 export default class PeriodeInput extends React.Component {
     constructor(props) {
         super(props);
-        this.setPerioder = props.setPerioder;
+        this.setTidslinjer = props.setTidslinjer;
         this.setColors = props.setColors;
         this.handleChange = this.handleChange.bind(this);
         this.input = React.createRef();
@@ -17,7 +17,7 @@ export default class PeriodeInput extends React.Component {
         this.tilOgMedIndex = 2
         this.identifikatorIndex = 0
 
-        this.periodeparser = new Periodeparser({
+        this.tidslinjeparser = new Tidslinjeparser({
             delimiter: this.delimiter,
             fraOgMedIndex: this.fraOgMedIndex,
             tilOgMedIndex: this.tilOgMedIndex,
@@ -49,8 +49,8 @@ export default class PeriodeInput extends React.Component {
             .filter(rad => !rad.startsWith("#"))
             .map(rad => rad.trim());
 
-        this.setPerioder(
-            this.periodeparser.parse(content)
+        this.setTidslinjer(
+            this.tidslinjeparser.parse(content)
         )
         this.setColors(
             this.colorparser.parse(content)

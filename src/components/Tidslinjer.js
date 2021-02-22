@@ -7,7 +7,7 @@ import useResizeObserver from "../util/useResizeObserver";
 
 function Tidslinjer(props) {
   const colors = props.colors;
-  const data = props.perioder;
+  const tidslinjer = props.tidslinjer;
 
   const svgRef = useRef();
   const xAxisRef = useRef();
@@ -21,11 +21,10 @@ function Tidslinjer(props) {
     if (!dimensions) return;
 
     // finner alle datoer som skal på x-aksen
-    const allDates = data.flatMap(
-      periode => [periode.fraOgMed, periode.tilOgMed]
+    const allDates = tidslinjer.flatMap(
+      tidslinje => tidslinje.datoer
     )
       .flatMap(x => x)
-      .filter(x => !!x)
     allDates.sort((a, b) => a - b)
 
     const startDate = DateTime.fromJSDate((min(allDates)));
@@ -39,7 +38,7 @@ function Tidslinjer(props) {
       ])
       .range([0, dimensions.width - 1]);
 
-    const allLabels = new Set([...data.map(periode => periode.label)])
+    const allLabels = new Set([...tidslinjer.map(tidslinje => tidslinje.label)])
     const timelineHeight = 100;
     const numLabels = Math.max(allLabels.size, 5);
     const height = numLabels * timelineHeight;
@@ -51,45 +50,42 @@ function Tidslinjer(props) {
       .range([timelineHeight, height]);
 
     svg
-      .selectAll(".periode")
-      .data(data)
+      .selectAll(".tidslinje")
+      .data(tidslinjer)
       .join("line")
-      .attr("data-tip", periode => periode.label)
-      .attr("class", periode => periode.tilOgMed ? "periode" : "periode running")
-      .attr("stroke", periode => colors.get(periode.label) || "black")
+      .attr("data-tip", tidslinje => tidslinje.label)
+      .attr("class", tidslinje => tidslinje.tilOgMed ? "tidslinje" : "tidslinje running")
+      .attr("stroke", tidslinje => colors.get(tidslinje.label) || "black")
       .attr("stroke-width", 2)
-      .attr("x1", periode => xScale(periode.fraOgMed))
-      .attr("y1", periode => yScale(periode.posisjon))
-      .attr("x2", periode => xScale(periode.tilOgMed || endDate))
-      .attr("y2", periode => yScale(periode.posisjon));
+      .attr("x1", tidslinje => xScale(tidslinje.fraOgMed))
+      .attr("y1", tidslinje => yScale(tidslinje.posisjon))
+      .attr("x2", tidslinje => xScale(tidslinje.tilOgMed || endDate))
+      .attr("y2", tidslinje => yScale(tidslinje.posisjon));
 
     svg
-      .selectAll(".periodeStartDelimiter")
-      .data(data)
+      .selectAll(".periodeDelimiter")
+      .data(tidslinjer.flatMap(
+        tidslinje => tidslinje.datoerMedSammenlåtteDager().map(
+          dato => ({
+            label: tidslinje.label,
+            dato: dato,
+            posisjon: tidslinje.posisjon,
+            color: colors.get(tidslinje.label) || "black"
+          })
+        )
+      ))
       .join("line")
-      .attr("class", "periodeStartDelimiter")
-      .attr("stroke", periode => colors.get(periode.label) || "black")
+      .attr("class", "periodeDelimiter")
+      .attr("stroke", periode => periode.color)
       .attr("stroke-width", 2)
-      .attr("x1", periode => xScale(periode.fraOgMed))
+      .attr("x1", periode => xScale(periode.dato))
       .attr("y1", periode => yScale(periode.posisjon) + 5)
-      .attr("x2", periode => xScale(periode.fraOgMed))
-      .attr("y2", periode => yScale(periode.posisjon) - 5);
-
-    svg
-      .selectAll(".periodeSluttDelimiter")
-      .data(data.filter(periode => !!periode.tilOgMed))
-      .join("line")
-      .attr("class", "periodeStartDelimiter")
-      .attr("stroke", periode => colors.get(periode.label) || "black")
-      .attr("stroke-width", 2)
-      .attr("x1", periode => xScale(periode.tilOgMed || endDate))
-      .attr("y1", periode => yScale(periode.posisjon) + 5)
-      .attr("x2", periode => xScale(periode.tilOgMed || endDate))
+      .attr("x2", periode => xScale(periode.dato))
       .attr("y2", periode => yScale(periode.posisjon) - 5);
 
     svg
       .selectAll(".periodeEgenskaper")
-      .data(data)
+      .data(tidslinjer.flatMap(tidslinje => tidslinje.perioder))
       .join("text")
       .attr("class", "periodeEgenskaper")
       .attr("fill", periode => colors.get(periode.label) || "black")
@@ -104,7 +100,7 @@ function Tidslinjer(props) {
 
     svg
       .selectAll(".periodeUndertekst")
-      .data(data)
+      .data(tidslinjer.flatMap(tidslinje => tidslinje.perioder))
       .join("text")
       .attr('class', 'periodeEgenskaper')
       .attr("fill", periode => colors.get(periode.label) || "black")
@@ -119,14 +115,14 @@ function Tidslinjer(props) {
       );
 
     svg
-      .selectAll(".periodeLabel")
-      .data(data)
+      .selectAll(".tidslinjeLabel")
+      .data(tidslinjer)
       .join("text")
-      .attr("class", "periodeLabel")
-      .attr("fill", periode => colors.get(periode.label) || "black")
+      .attr("class", "tidslinjeLabel")
+      .attr("fill", tidslinje => colors.get(tidslinje.label) || "black")
       .attr("x", xScale(startDate) + 20)
-      .attr("y", periode => yScale(periode.posisjon))
-      .text(periode => periode.label)
+      .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
+      .text(tidslinje => tidslinje.label)
 
     xAxis
       .select(".x-axis")
@@ -142,7 +138,7 @@ function Tidslinjer(props) {
 
 
     // draw the gauge
-  }, [colors, data, dimensions]);
+  }, [colors, tidslinjer, dimensions]);
 
   return (
     <div className="svg-wrapper">

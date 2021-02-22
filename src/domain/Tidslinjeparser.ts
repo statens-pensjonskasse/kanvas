@@ -1,39 +1,38 @@
 import Periode from "./Periode"
 
 import { DateTime } from "luxon"
+import Tidslinje from "./Tidslinje"
 
 const minsteGyldigeStartDato = DateTime.fromISO("1814-05-17")
 
-type PeriodeparserProps = {
+type TidslinjeparserProps = {
     delimiter: string
     fraOgMedIndex: number
     tilOgMedIndex: number
     identifikatorIndex: number
 }
 
-export default class Periodeparser {
+export default class Tidslinjeparser {
     delimiter: string
     fraOgMedIndex: number
     tilOgMedIndex: number
     identifikatorIndex: number
     norskDato: RegExp
-    kunÅrstall: RegExp
 
     constructor({
         delimiter,
         fraOgMedIndex,
         tilOgMedIndex,
         identifikatorIndex
-    }: PeriodeparserProps) {
+    }: TidslinjeparserProps) {
         this.delimiter = delimiter
         this.fraOgMedIndex = fraOgMedIndex
         this.tilOgMedIndex = tilOgMedIndex
         this.identifikatorIndex = identifikatorIndex
         this.norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
-        this.kunÅrstall = new RegExp(/^(?:[0-9]{4}$)/)
     }
 
-    parse(rawData: string[]) {
+    parse(rawData: string[]): Tidslinje[] {
         const rader: string[][] = rawData
             .map(rad => rad.split(this.delimiter))
 
@@ -46,10 +45,20 @@ export default class Periodeparser {
                     []
                 )
 
-        return rader
+        const perioderPerLabel: Map<string, Periode[]> = rader
             .filter(rad => this.kanOversettes(rad))
             .map(
                 rad => this.oversettRad(rad, posisjoner.indexOf(rad[this.identifikatorIndex]) + 1)
+            )
+            .reduce(
+                (acc: Map<string, Periode[]>, current: Periode) => {
+                    return acc.set(current.label, [...acc.get(current.label) || [], current])
+                }, new Map()
+            );
+
+        return Array.from(perioderPerLabel.values())
+            .map(
+                perioder => new Tidslinje(perioder)
             )
     }
 
@@ -78,10 +87,7 @@ export default class Periodeparser {
     }
 
     private oversettTilOgMed(tilOgMed: string): Date {
-        if (this.kunÅrstall.test(tilOgMed)) {
-            return this.oversettDato(tilOgMed).toJSDate()
-        }
-        return this.oversettDato(tilOgMed).plus({ day: 1 }).toJSDate()
+        return this.oversettDato(tilOgMed).toJSDate()
     }
 
     erGyldigDato(dato: string) {
