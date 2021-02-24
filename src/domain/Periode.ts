@@ -21,13 +21,23 @@ export default class Periode {
         }
     }
 
-    setEgenskaper(egenskaper: string[]) {
+    medEgenskaper(egenskaper: string[]) {
         this.egenskaper = egenskaper
         return this
     }
 
-    setPosisjon(posisjon: number) {
+    medPosisjon(posisjon: number) {
         this.posisjon = posisjon
         return this
+    }
+
+    medSluttDato(nySluttdato: Date): Periode {
+        return new Periode(
+            this.label,
+            this.fraOgMed,
+            nySluttdato
+        )
+        .medEgenskaper( this.egenskaper )
+        .medPosisjon( this.posisjon );
     }
 }

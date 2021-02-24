@@ -65,7 +65,7 @@ function Tidslinjer(props) {
     svg
       .selectAll(".periodeDelimiter")
       .data(tidslinjer.flatMap(
-        tidslinje => tidslinje.datoerMedSammenlåtteDager().map(
+        tidslinje => tidslinje.datoer.map(
           dato => ({
             label: tidslinje.label,
             dato: dato,

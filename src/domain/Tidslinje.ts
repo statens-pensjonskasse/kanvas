@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 import Periode from "./Periode";
 
 export default class Tidslinje {
@@ -12,33 +12,42 @@ export default class Tidslinje {
     constructor(perioder: Periode[]) {
         this.label = perioder[0].label || "Tidslinje"
         this.posisjon = perioder[0].posisjon || -1
-        this.perioder = perioder
-        this.datoer = perioder
+        this.perioder = this.justerSammenhengendePerioder(perioder)
+        this.datoer = this.perioder
             .flatMap(periode => periode.tilOgMed ? [periode.fraOgMed, periode.tilOgMed] : [periode.fraOgMed])
             .flatMap(x => x)
 
-        this.fraOgMed = this.utledStartdato(perioder)
-        this.tilOgMed = this.utledSluttdato(perioder)
+        this.fraOgMed = this.utledStartdato()
+        this.tilOgMed = this.utledSluttdato()
 
         this.valider()
         // console.log(`Opprettet tidslinje for ${this.label} med størrelse ${this.perioder.length}`)
     }
-
-    datoerMedSammenlåtteDager(): Date[] {
-        return this.datoer
-            .sort()
+    justerSammenhengendePerioder(perioder: Periode[]): Periode[] {
+        return perioder
+            .sort((a, b) => b.fraOgMed.getTime() - a.fraOgMed.getTime())
             .reduce(
-                (acc: Date[], current: Date) => DateTime.fromJSDate(acc[acc.length - 1]).plus({ days: 1 }) === DateTime.fromJSDate(current) ? acc : [...acc, current]
-                , [this.fraOgMed]
+                (acc: Periode[], current: Periode) => [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
+                , [perioder[0]]
             )
     }
 
-    private utledStartdato(perioder: Periode[]): Date {
-        return DateTime.min(...perioder.map(periode => DateTime.fromJSDate(periode.fraOgMed))).toJSDate();
+    private kombinerSammenhengende(next: Periode, current: Periode): Periode {
+        if (!current.tilOgMed) {
+            return current.medSluttDato(next.fraOgMed);
+        }
+        else if(Interval.fromDateTimes(DateTime.fromJSDate(current.tilOgMed), DateTime.fromJSDate(next.fraOgMed)).length("days") === 1) {
+            return current.medSluttDato(next.fraOgMed)
+        }
+        return current;
     }
 
-    private utledSluttdato(perioder: Periode[]): Date | undefined {
-        return perioder.filter(periode => !periode.tilOgMed).length > 0 ? undefined : DateTime.max(...perioder.map(periode => DateTime.fromJSDate(periode.tilOgMed || new Date(-100000)))).toJSDate();
+    private utledStartdato(): Date {
+        return DateTime.min(...this.perioder.map(periode => DateTime.fromJSDate(periode.fraOgMed))).toJSDate();
+    }
+
+    private utledSluttdato(): Date | undefined {
+        return this.perioder.filter(periode => !periode.tilOgMed).length > 0 ? undefined : DateTime.max(...this.perioder.map(periode => DateTime.fromJSDate(periode.tilOgMed || new Date(-100000)))).toJSDate();
     }
 
     valider() {

@@ -82,8 +82,8 @@ export default class Tidslinjeparser {
             this.oversettDato(fraOgMed).toJSDate(),
             tilOgMed ? this.oversettTilOgMed(tilOgMed) : undefined,
         )
-            .setPosisjon(posisjon)
-            .setEgenskaper(rad.slice(this.tilOgMedIndex + 1))
+            .medPosisjon(posisjon)
+            .medEgenskaper(rad.slice(this.tilOgMedIndex + 1))
     }
 
     private oversettTilOgMed(tilOgMed: string): Date {
