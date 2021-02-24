@@ -27,8 +27,8 @@ export default class Tidslinje {
         return perioder
             .sort((a, b) => b.fraOgMed.getTime() - a.fraOgMed.getTime())
             .reduce(
-                (acc: Periode[], current: Periode) => [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
-                , [perioder[0]]
+                (acc: Periode[], current: Periode) => acc.length === 0? [current] : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
+                , []
             )
     }
 
