@@ -81,7 +81,7 @@ export default class PeriodeInput extends React.Component {
                             type="text"
                             spellCheck="false"
                             ref={this.input}
-                            placeholder={`Legg inn tidsperioder med ${periodeHint}`}
+                            placeholder={`${periodeHint}`}
                             defaultValue={this.hardkodet.join("\n")}
                         />
                     </label>

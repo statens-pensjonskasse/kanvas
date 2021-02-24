@@ -51,7 +51,7 @@ function Tidslinjer(props) {
 
     svg
       .selectAll(".tidslinje")
-      .data(tidslinjer)
+      .data(tidslinjer.flatMap(t => t.perioder))
       .join("line")
       .attr("data-tip", tidslinje => tidslinje.label)
       .attr("class", tidslinje => tidslinje.tilOgMed ? "tidslinje" : "tidslinje running")
