@@ -27,7 +27,7 @@ function Tidslinjer(props) {
       .flatMap(x => x)
     allDates.sort((a, b) => a - b)
 
-    const startDate = DateTime.fromJSDate((min(allDates)));
+    const startDate = allDates.size > 1? DateTime.fromJSDate((min(allDates))) : DateTime.min();
     const endDate = DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()

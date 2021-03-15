@@ -80,7 +80,7 @@ export default class Tidslinjeparser {
         return new Periode(
             label,
             this.oversettDato(fraOgMed).toJSDate(),
-            tilOgMed ? this.oversettTilOgMed(tilOgMed) : undefined,
+            tilOgMed && tilOgMed.length >= 4 ? this.oversettTilOgMed(tilOgMed) : undefined,
         )
             .medPosisjon(posisjon)
             .medEgenskaper(rad.slice(this.tilOgMedIndex + 1))
