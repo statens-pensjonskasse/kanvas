@@ -10,6 +10,7 @@ export default class PeriodeInput extends React.Component {
         this.setTidslinjer = props.setTidslinjer;
         this.setColors = props.setColors;
         this.handleChange = this.handleChange.bind(this);
+        this.handlePaste = this.handlePaste.bind(this);
         this.input = React.createRef();
 
         this.delimiter = ";"
@@ -44,7 +45,11 @@ export default class PeriodeInput extends React.Component {
     }
 
     parseCurrent() {
-        const content = this.input.current.value
+        this.parseContent(this.input.current.value)
+    }
+
+    parseContent(rawString) {
+        const content = rawString
             .split(/\r?\n/)
             .filter(rad => !rad.startsWith("#"))
             .map(rad => rad.trim());
@@ -62,6 +67,21 @@ export default class PeriodeInput extends React.Component {
         this.parseCurrent();
     }
 
+    handlePaste(event) {
+        // fjerner doble newlines ved paste (Miro legger inn ekstra newlines i tekst)
+        const doubleNewline = /^\n\n/gm;
+        let paste = (event.clipboardData || window.clipboardData).getData('text');
+        const doubleNewlines = paste.match(doubleNewline) || [];
+        if (doubleNewlines.length > 0) {
+            console.log('yarp')
+            paste = paste.replace(/\n\n/gm, '\n')
+            paste = paste.replace(doubleNewline, '\n')
+            this.input.current.value = paste;
+            this.parseContent(paste)
+            event.preventDefault()
+        }
+    }
+
     render() {
         const csvHintArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
         csvHintArray[this.identifikatorIndex] = "[Identifikator]"
@@ -73,7 +93,7 @@ export default class PeriodeInput extends React.Component {
 
         return (
             <React.Fragment>
-                <form onChange={this.handleChange}>
+                <form onChange={this.handleChange} onPaste={this.handlePaste}>
                     <label>
                         <textarea
                             className="csv-input"
