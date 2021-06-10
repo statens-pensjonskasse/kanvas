@@ -10,8 +10,8 @@ export default class Tidslinje {
     readonly posisjon: number;
 
     constructor(perioder: Periode[]) {
-        this.label = perioder[0].label || "Tidslinje"
-        this.posisjon = perioder[0].posisjon || -1
+        this.label = perioder[0]?.label || "Tidslinje"
+        this.posisjon = perioder[0]?.posisjon || -1
         this.perioder = this.justerSammenhengendePerioder(perioder)
         this.datoer = this.perioder
             .flatMap(periode => periode.tilOgMed ? [periode.fraOgMed, periode.tilOgMed] : [periode.fraOgMed])
@@ -24,19 +24,34 @@ export default class Tidslinje {
         // console.log(`Opprettet tidslinje for ${this.label} med størrelse ${this.perioder.length}`)
     }
     justerSammenhengendePerioder(perioder: Periode[]): Periode[] {
-        return perioder
+        const kombinertePerioder = perioder
             .sort((a, b) => b.fraOgMed.getTime() - a.fraOgMed.getTime())
             .reduce(
-                (acc: Periode[], current: Periode) => acc.length === 0? [current] : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
+                (acc: Periode[], current: Periode) => acc.length === 0 ? [current] : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
                 , []
             )
+
+
+        const sistePeriode = kombinertePerioder[0]
+        const sluttdato = sistePeriode.tilOgMed ?
+            DateTime.fromJSDate(sistePeriode.tilOgMed).plus({ days: 0 }).toJSDate() :
+            sistePeriode.tilOgMed
+
+        const justertePerioder = sluttdato ?
+            [
+                sistePeriode.medSluttDato(sluttdato),
+                ...kombinertePerioder.slice(1)
+            ] :
+            kombinertePerioder
+
+        return justertePerioder
     }
 
     private kombinerSammenhengende(next: Periode, current: Periode): Periode {
         if (!current.tilOgMed) {
             return current.medSluttDato(next.fraOgMed);
         }
-        else if(Interval.fromDateTimes(DateTime.fromJSDate(current.tilOgMed), DateTime.fromJSDate(next.fraOgMed)).length("days") === 1) {
+        else if (Interval.fromDateTimes(DateTime.fromJSDate(current.tilOgMed), DateTime.fromJSDate(next.fraOgMed)).length("days") === 1) {
             return current.medSluttDato(next.fraOgMed)
         }
         return current;
@@ -47,7 +62,15 @@ export default class Tidslinje {
     }
 
     private utledSluttdato(): Date | undefined {
-        return this.perioder.filter(periode => !periode.tilOgMed).length > 0 ? undefined : DateTime.max(...this.perioder.map(periode => DateTime.fromJSDate(periode.tilOgMed || new Date(-100000)))).toJSDate();
+        return this.perioder
+            .filter(
+                periode => !periode.tilOgMed).length > 0 ?
+            undefined :
+            DateTime.max(
+                ...this.perioder.map(
+                    periode => DateTime.fromJSDate(periode.tilOgMed || new Date(-100000))
+                )
+            ).toJSDate();
     }
 
     valider() {
@@ -66,6 +89,12 @@ export default class Tidslinje {
                 periode
             ]
 
+        )
+    }
+
+    medPosisjon(posisjon: number) {
+        return new Tidslinje(
+            this.perioder.map(periode => periode.medPosisjon(posisjon))
         )
     }
 }

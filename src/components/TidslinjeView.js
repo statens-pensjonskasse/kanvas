@@ -5,7 +5,7 @@ import ReactTooltip from 'react-tooltip';
 
 import useResizeObserver from "../util/useResizeObserver";
 
-function Tidslinjer(props) {
+function TidslinjerView(props) {
   const colors = props.colors;
   const tidslinjer = props.tidslinjer;
 
@@ -25,9 +25,12 @@ function Tidslinjer(props) {
       tidslinje => tidslinje.datoer
     )
       .flatMap(x => x)
+      .filter((date, i, self) =>
+        self.findIndex(d => d.getTime() === date.getTime()) === i
+      )
     allDates.sort((a, b) => a - b)
 
-    const startDate = allDates.size > 1? DateTime.fromJSDate((min(allDates))) : DateTime.min();
+    const startDate = allDates.size > 1 ? DateTime.fromJSDate((min(allDates))) : DateTime.min();
     const endDate = DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()
@@ -38,16 +41,16 @@ function Tidslinjer(props) {
       ])
       .range([0, dimensions.width - 1]);
 
-    const allLabels = new Set([...tidslinjer.map(tidslinje => tidslinje.label)])
+    const numTimelines = Math.max(...tidslinjer.map(t => t.posisjon), 5) - 1
+
     const timelineHeight = 100;
-    const numLabels = Math.max(allLabels.size, 5);
-    const height = numLabels * timelineHeight;
+    const height = numTimelines * timelineHeight;
 
     svg.style("height", `${height}px`)
 
     const yScale = scaleLinear()
-      .domain([numLabels, 0])
-      .range([timelineHeight, height]);
+      .domain([numTimelines, 0])
+      .range([timelineHeight * 2, height]);
 
     svg
       .selectAll(".tidslinje")
@@ -85,33 +88,71 @@ function Tidslinjer(props) {
 
     svg
       .selectAll(".periodeEgenskaper")
-      .data(tidslinjer.flatMap(tidslinje => tidslinje.perioder))
+      .data(
+        tidslinjer
+          .flatMap(
+            tidslinje => tidslinje.perioder.map(
+              periode => Object.assign(
+                periode,
+                {
+                  maksBokstaver: 0.13*(xScale(periode.tilOgMed || endDate) - xScale(periode.fraOgMed)),
+                  antallPerioder: tidslinje.perioder.length
+                }
+              )
+            )
+          )
+      )
       .join("text")
       .attr("class", "periodeEgenskaper")
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) - (timelineHeight / 10))
       .text(
-        periode => Object.values(periode.egenskaper)
-          .map(egenskap => egenskap.trim())
-          .filter(egenskap => !egenskap.startsWith("_"))
-          .join(", ")
+        periode => {
+          const fullTekst = Object.values(periode.egenskaper)
+            .map(egenskap => egenskap.trim())
+            .filter(egenskap => !egenskap.startsWith("_"))
+            .join(", ")
+
+          return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
+            .slice(0, periode.maksBokstaver)
+            .replace(/.{3}$/g, "...")
+        }
       );
 
     svg
       .selectAll(".periodeUndertekst")
-      .data(tidslinjer.flatMap(tidslinje => tidslinje.perioder))
+      .data(
+        tidslinjer
+          .flatMap(
+            tidslinje => tidslinje.perioder.map(
+              periode => Object.assign(
+                periode,
+                {
+                  maksBokstaver: 0.13*(xScale(periode.tilOgMed || endDate) - xScale(periode.fraOgMed)),
+                  antallPerioder: tidslinje.perioder.length
+                }
+              )
+            )
+          )
+      )
       .join("text")
-      .attr('class', 'periodeEgenskaper')
+      .attr('class', 'periodeUndertekst')
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) + (timelineHeight / 5))
       .text(
-        periode => Object.values(periode.egenskaper)
-          .map(egenskap => egenskap.trim())
-          .filter(egenskap => egenskap.startsWith("_"))
-          .map(egenskap => egenskap.slice(1))
-          .join(", ")
+        periode => {
+          const fullTekst = Object.values(periode.egenskaper)
+            .map(egenskap => egenskap.trim())
+            .filter(egenskap => egenskap.startsWith("_"))
+            .map(egenskap => egenskap.slice(1))
+            .join(", ")
+
+          return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
+            .slice(0, periode.maksBokstaver)
+            .replace(/.{3}$/g, "...")
+        }
       );
 
     svg
@@ -157,4 +198,4 @@ function Tidslinjer(props) {
   );
 }
 
-export default Tidslinjer;
+export default TidslinjerView;

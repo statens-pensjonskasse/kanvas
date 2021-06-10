@@ -1,7 +1,8 @@
-import Periode from "./Periode"
+import Periode from "../domain/Periode"
+import Tidslinjeparser from "./Tidslinjeparser"
 
 import { DateTime } from "luxon"
-import Tidslinje from "./Tidslinje"
+import Tidslinje from "../domain/Tidslinje"
 
 const minsteGyldigeStartDato = DateTime.fromISO("1814-05-17")
 
@@ -12,7 +13,7 @@ type TidslinjeparserProps = {
     identifikatorIndex: number
 }
 
-export default class Tidslinjeparser {
+export default class CSVTidslinjeparser implements Tidslinjeparser {
     delimiter: string
     fraOgMedIndex: number
     tilOgMedIndex: number
@@ -87,7 +88,7 @@ export default class Tidslinjeparser {
     }
 
     private oversettTilOgMed(tilOgMed: string): Date {
-        return this.oversettDato(tilOgMed).toJSDate()
+        return new Date(this.oversettDato(tilOgMed).toJSDate().toDateString())
     }
 
     erGyldigDato(dato: string) {

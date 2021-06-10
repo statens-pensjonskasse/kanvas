@@ -1,8 +1,8 @@
 import React from "react";
 import ReactTooltip from 'react-tooltip';
 
-import Tidslinjeparser from "../domain/Tidslinjeparser"
-import Colorparser from "../domain/Colorparser"
+import CSVTidslinjeparser from "../parsers/CSVTidslinjeparser"
+import Colorparser from "../parsers/CSVColorparser"
 
 export default class PeriodeInput extends React.Component {
     constructor(props) {
@@ -10,7 +10,6 @@ export default class PeriodeInput extends React.Component {
         this.setTidslinjer = props.setTidslinjer;
         this.setColors = props.setColors;
         this.handleChange = this.handleChange.bind(this);
-        this.handlePaste = this.handlePaste.bind(this);
         this.input = React.createRef();
 
         this.delimiter = ";"
@@ -18,7 +17,7 @@ export default class PeriodeInput extends React.Component {
         this.tilOgMedIndex = 2
         this.identifikatorIndex = 0
 
-        this.tidslinjeparser = new Tidslinjeparser({
+        this.tidslinjeparser = new CSVTidslinjeparser({
             delimiter: this.delimiter,
             fraOgMedIndex: this.fraOgMedIndex,
             tilOgMedIndex: this.tilOgMedIndex,
@@ -67,21 +66,6 @@ export default class PeriodeInput extends React.Component {
         this.parseCurrent();
     }
 
-    handlePaste(event) {
-        // fjerner doble newlines ved paste (Miro legger inn ekstra newlines i tekst)
-        const doubleNewline = /^\n\n/gm;
-        let paste = (event.clipboardData || window.clipboardData).getData('text');
-        const doubleNewlines = paste.match(doubleNewline) || [];
-        if (doubleNewlines.length > 0) {
-            console.log('yarp')
-            paste = paste.replace(/\n\n/gm, '\n')
-            paste = paste.replace(doubleNewline, '\n')
-            this.input.current.value = paste;
-            this.parseContent(paste)
-            event.preventDefault()
-        }
-    }
-
     render() {
         const csvHintArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
         csvHintArray[this.identifikatorIndex] = "[Identifikator]"
@@ -93,7 +77,7 @@ export default class PeriodeInput extends React.Component {
 
         return (
             <React.Fragment>
-                <form onChange={this.handleChange} onPaste={this.handlePaste}>
+                <form onChange={this.handleChange}>
                     <label>
                         <textarea
                             className="csv-input"
