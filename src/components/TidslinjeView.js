@@ -43,7 +43,7 @@ function TidslinjerView(props) {
 
     const numTimelines = Math.max(...tidslinjer.map(t => t.posisjon), 5) - 1
 
-    const timelineHeight = 100;
+    const timelineHeight = 150;
     const height = numTimelines * timelineHeight;
 
     svg.style("height", `${height}px`)
@@ -95,7 +95,8 @@ function TidslinjerView(props) {
               periode => Object.assign(
                 periode,
                 {
-                  maksBokstaver: 0.13*(xScale(periode.tilOgMed || endDate) - xScale(periode.fraOgMed)),
+                  // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
+                  maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
                   antallPerioder: tidslinje.perioder.length
                 }
               )
@@ -106,7 +107,7 @@ function TidslinjerView(props) {
       .attr("class", "periodeEgenskaper")
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
-      .attr("y", periode => yScale(periode.posisjon) - (timelineHeight / 10))
+      .attr("y", periode => yScale(periode.posisjon) - 10)
       .text(
         periode => {
           const fullTekst = Object.values(periode.egenskaper)
@@ -129,7 +130,8 @@ function TidslinjerView(props) {
               periode => Object.assign(
                 periode,
                 {
-                  maksBokstaver: 0.13*(xScale(periode.tilOgMed || endDate) - xScale(periode.fraOgMed)),
+                  // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
+                  maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
                   antallPerioder: tidslinje.perioder.length
                 }
               )
@@ -140,7 +142,7 @@ function TidslinjerView(props) {
       .attr('class', 'periodeUndertekst')
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
-      .attr("y", periode => yScale(periode.posisjon) + (timelineHeight / 5))
+      .attr("y", periode => yScale(periode.posisjon) + 20)
       .text(
         periode => {
           const fullTekst = Object.values(periode.egenskaper)
