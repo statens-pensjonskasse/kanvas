@@ -7,6 +7,7 @@ import useResizeObserver from "../util/useResizeObserver";
 
 function TidslinjerView(props) {
   const colors = props.colors;
+  const filters = props.filters;
   const tidslinjer = props.tidslinjer;
 
   const svgRef = useRef();
@@ -91,16 +92,24 @@ function TidslinjerView(props) {
       .data(
         tidslinjer
           .flatMap(
-            tidslinje => tidslinje.perioder.map(
-              periode => Object.assign(
-                periode,
-                {
-                  // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-                  maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
-                  antallPerioder: tidslinje.perioder.length
-                }
+            tidslinje => {
+              const filter = filters.get(tidslinje.label)
+              return tidslinje.perioder.map(
+                periode => Object.assign(
+                  periode,
+                  {
+                    // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
+                    maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
+                    antallPerioder: tidslinje.perioder.length,
+                    filtrerteEgenskaper: periode.egenskaper
+                      .filter(egenskap => !egenskap.startsWith("_"))
+                      .filter(e => filter?.test(e) ?? true)
+                      .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
+                      .filter(e => e !== "")
+                  }
+                )
               )
-            )
+            }
           )
       )
       .join("text")
@@ -110,7 +119,7 @@ function TidslinjerView(props) {
       .attr("y", periode => yScale(periode.posisjon) - 10)
       .text(
         periode => {
-          const fullTekst = Object.values(periode.egenskaper)
+          const fullTekst = Object.values(periode.filtrerteEgenskaper)
             .map(egenskap => egenskap.trim())
             .filter(egenskap => !egenskap.startsWith("_"))
             .join(", ")
@@ -126,16 +135,24 @@ function TidslinjerView(props) {
       .data(
         tidslinjer
           .flatMap(
-            tidslinje => tidslinje.perioder.map(
-              periode => Object.assign(
-                periode,
-                {
-                  // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-                  maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
-                  antallPerioder: tidslinje.perioder.length
-                }
+            tidslinje => {
+              const filter = filters.get(tidslinje.label)
+              return tidslinje.perioder.map(
+                periode => Object.assign(
+                  periode,
+                  {
+                    // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
+                    maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
+                    antallPerioder: tidslinje.perioder.length,
+                    filtrerteEgenskaper: periode.egenskaper
+                      .filter(e => e.startsWith("_"))
+                      .filter(e => filter?.test(e.slice(1)) ?? true)
+                      .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "_") : e) // henter kun ut verdien dersom det finnes et filter
+                      .filter(e => e !== "_")
+                  }
+                )
               )
-            )
+            }
           )
       )
       .join("text")
@@ -145,7 +162,7 @@ function TidslinjerView(props) {
       .attr("y", periode => yScale(periode.posisjon) + 20)
       .text(
         periode => {
-          const fullTekst = Object.values(periode.egenskaper)
+          const fullTekst = Object.values(periode.filtrerteEgenskaper)
             .map(egenskap => egenskap.trim())
             .filter(egenskap => egenskap.startsWith("_"))
             .map(egenskap => egenskap.slice(1))
@@ -181,7 +198,7 @@ function TidslinjerView(props) {
 
 
     // draw the gauge
-  }, [colors, tidslinjer, dimensions]);
+  }, [colors, tidslinjer, filters, dimensions]);
 
   return (
     <div className="svg-wrapper">

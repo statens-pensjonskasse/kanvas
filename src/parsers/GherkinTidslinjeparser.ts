@@ -104,7 +104,7 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
             .medPosisjon(posisjon)
             .medEgenskaper(
                 rad
-                    .map((cell, index) => `${headerRad[index]} ${cell?.trim()}`)
+                    .map((cell, index) => `${headerRad[index]?.trim()}: ${cell?.trim()}`)
                     .slice(this.tilOgMedIndex + 1)
                     .map(cell => cell.trim())
                     .filter(cell => cell !== "")

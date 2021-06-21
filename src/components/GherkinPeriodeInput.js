@@ -1,6 +1,7 @@
 import React from "react";
 
 import Colorparser from "../parsers/CSVColorparser"
+import Filterparser from "../parsers/CSVFilterparser"
 import GherkinTidslinjeparser from "../parsers/GherkinTidslinjeparser";
 
 export default class PeriodeInput extends React.Component {
@@ -8,6 +9,7 @@ export default class PeriodeInput extends React.Component {
         super(props);
         this.setTidslinjer = props.setTidslinjer;
         this.setColors = props.setColors;
+        this.setFilters = props.setFilters;
         this.handleChange = this.handleChange.bind(this);
         this.input = React.createRef();
 
@@ -17,7 +19,19 @@ export default class PeriodeInput extends React.Component {
             delimiter: ";"
         });
 
+        this.filterparser = new Filterparser({
+            delimiter: ";"
+        });
+
         this.hardkodet = [
+            "# 👇 Filtre kan brukes for å velge egenskapene som skal vises",
+            "Polise;filter;Polisestatus;Avtale",
+            "Avtaleunderlag;filter;Avtalenummer",
+            "Stillingsforholdunderlag;filter;Deltidsjustert",
+            "Avtalekobling;filter;Avtalenummer",
+
+            "",
+            "# Eksempelscenario",
 
             "Bakgrunn: Fellesinformasjon for alle eksemplene nedover",
             "",
@@ -144,11 +158,16 @@ export default class PeriodeInput extends React.Component {
             .split(/\r?\n/)
             .map(rad => rad.trim());
 
-        this.setTidslinjer(
-            this.tidslinjeparser.parse(content)
+        this.setFilters(
+            this.filterparser.parse(content)
         )
+
         this.setColors(
             this.colorparser.parse(content)
+        )
+
+        this.setTidslinjer(
+            this.tidslinjeparser.parse(content)
         )
     }
 
@@ -173,7 +192,7 @@ export default class PeriodeInput extends React.Component {
                         />
                     </label>
                 </form>
-                <div className="csv-hint">?</div>
+                <div className="csv-hint" data-tip="Cucumber format">?</div>
             </React.Fragment>
 
         );

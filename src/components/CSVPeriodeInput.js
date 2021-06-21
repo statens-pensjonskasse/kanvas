@@ -53,11 +53,12 @@ export default class PeriodeInput extends React.Component {
             .filter(rad => !rad.startsWith("#"))
             .map(rad => rad.trim());
 
-        this.setTidslinjer(
-            this.tidslinjeparser.parse(content)
-        )
         this.setColors(
             this.colorparser.parse(content)
+        )
+
+        this.setTidslinjer(
+            this.tidslinjeparser.parse(content)
         )
     }
 
