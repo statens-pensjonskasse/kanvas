@@ -1,80 +1,9 @@
-.svg-timelines {
-  /* background: rgb(200, 226, 255); */
-  width: 100%;
-  height: inherit;
-}
-
-.svg-x-axis {
-  width: 100%;
-  height: 2em;
-}
-
 .tidslinjeLabel {
   font-weight: bold;
+  font-size: large;
 }
 
 .tick > text {
   font-weight: bold;
-  color: gray;
-}
-
-.svg-timeline-wrapper {
-  display: flex;
-  flex-direction: column-reverse;
-  overflow: auto;
-  width: 95vw;
-  height: fit-content;
-  min-width: 200px;
-}
-
-.svg-wrapper {
-  margin-bottom: 10vh;
-}
-
-.csv-input {
-  font-size: 1.2em;
-  width: 50em;
-  min-height: 15em;
-  min-width: 30em;
-  max-width: 100em;
-  margin: 1em;
-}
-
-.gherkin-input {
-  font-size: 1.2em;
-  width: 80em;
-  height: 40em;
-  min-height: 15em;
-  min-width: 30em;
-  max-width: 100em;
-  margin: 1em;
-}
-
-#root {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: normal;
-  height: 100vh;
-  width: 100vw;
-  padding: 3em;
-  text-align: center;
-  box-sizing: border-box;
-  overflow: auto;
-}
-
-.csv-hint {
-  color: gray;
-}
-
-.parser-selector {
-  width: fit-content;
-}
-
-footer {
-  margin-top: 2em;
-}
-
-footer > a {
   color: gray;
 }

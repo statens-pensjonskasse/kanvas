@@ -1,57 +1,66 @@
-import React, { useState } from "react";
-import TidslinjerView from "./TidslinjeView";
-import GherkinPeriodeInput from "./GherkinPeriodeInput";
-import CSVPeriodeInput from "./CSVPeriodeInput";
+import { ChakraProvider, Container, Heading, HStack, Link, VStack } from '@chakra-ui/react';
+import React from "react";
+import InputComponent from '../components/InputComponent';
+import ParserSelector from '../components/ParserSelector';
 import "../css/App.css";
+import ColorProvider from '../state/ColorProvider';
+import FilterProvider from '../state/FilterProvider';
+import InputTextProvider from '../state/InputTextProvider';
+import TidslinjerProvider from '../state/TidslinjerProvider';
+import TidslinjehendelseView from "./TidslinjehendelseView";
+import TidslinjerView from "./TidslinjeView";
 
-import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser"
 
 function App() {
-  const [tidslinjer, setTidslinjer] = useState([])
-  const [colors, setColors] = useState(new Map())
-  const [filters, setFilters] = useState(new Map())
-  const [parser, setParser] = useState(CSV_PARSER)
 
   return (
-    <React.Fragment>
-      <h2>kanvas <span role="img" aria-label="paint brush">🖌️</span></h2>
+    <ChakraProvider>
+      <VStack spacing={'2em'}>
+        <Heading size='lg' marginTop='5'>
+          kanvas <span role="img" aria-label="paint brush">🖌️</span>
+        </Heading>
 
-      <TidslinjerView tidslinjer={tidslinjer} colors={colors} filters={filters} />
+        <ColorProvider>
+          <FilterProvider>
+            <TidslinjerProvider>
+              <InputTextProvider>
+                <TidslinjerView />
 
-      <select className="parser-selector" value={parser} onChange={handleParserChange}>
-        <option value={CSV_PARSER}>CSV</option>
-        <option value={GHERKIN_PARSER}>Cucumber</option>
-      </select>
+                <TidslinjehendelseView />
 
-      {parserComponentFor(parser, setTidslinjer, setColors, setFilters)}
+                <InputComponent />
+                <ParserSelector />
 
+              </InputTextProvider>
+            </TidslinjerProvider>
+          </FilterProvider>
+        </ColorProvider>
 
-      <footer>
-        <a href="mailto:jarle.mathiesen@spk.no?subject=kanvas" target="_blank" rel="noopener noreferrer">tilbakemelding/forslag</a>
-        <span> ✉️ </span>
-        <br></br>
-        <br></br>
-        <a href="http://git.spk.no/projects/INC/repos/kanvas/browse" target="_blank" rel="noopener noreferrer">kildekode</a>
-        <span> 🖥️</span>
-      </footer>
-    </React.Fragment>
+        <footer>
+          <HStack margin={'5'}>
+            <Container>
+              <Link
+                isExternal
+                href="mailto:jarle.mathiesen@spk.no?subject=kanvas"
+              >
+                tilbakemelding/forslag
+              </Link>
+            </Container>
+            <Container>
+              <Link
+                isExternal
+                href="http://git.spk.no/projects/INC/repos/kanvas/browse"
+              >
+                kildekode
+              </Link>
+            </Container>
+          </HStack>
+        </footer>
+      </VStack>
+    </ChakraProvider>
   );
 
-  function handleParserChange(event) {
-    setParser(event.target.value)
-  }
 }
 
-
-function parserComponentFor(parser, setTidslinjer, setColors, setFilters) {
-  switch (parser) {
-    case CSV_PARSER:
-      return < CSVPeriodeInput setTidslinjer={setTidslinjer} setColors={setColors} setFilters={setFilters} />
-    case GHERKIN_PARSER:
-      return < GherkinPeriodeInput setTidslinjer={setTidslinjer} setColors={setColors} setFilters={setFilters} />
-    default:
-      return < CSVPeriodeInput setTidslinjer={setTidslinjer} setColors={setColors} setFilters={setFilters} />
-  }
-}
 
 export default App;

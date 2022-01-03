@@ -1,200 +1,81 @@
-import React from "react";
-
-import Colorparser from "../parsers/CSVColorparser"
-import Filterparser from "../parsers/CSVFilterparser"
+import React, { useContext, useEffect } from "react";
+import { hardkodet } from '../hardkodinger/hardkodetGherkin';
+import Colorparser from "../parsers/CSVColorparser";
+import Filterparser from "../parsers/CSVFilterparser";
 import GherkinTidslinjeparser from "../parsers/GherkinTidslinjeparser";
+import { ColorContext } from "../state/ColorProvider";
+import { FilterContext } from "../state/FilterProvider";
+import { InputTextContext } from "../state/InputTextProvider";
+import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-export default class PeriodeInput extends React.Component {
-    constructor(props) {
-        super(props);
-        this.setTidslinjer = props.setTidslinjer;
-        this.setColors = props.setColors;
-        this.setFilters = props.setFilters;
-        this.handleChange = this.handleChange.bind(this);
-        this.input = React.createRef();
 
-        this.tidslinjeparser = new GherkinTidslinjeparser();
+export default function PeriodeInput() {
+    const { setTidslinjer } = useContext(TidslinjeContext);
+    const { setFilters } = useContext(FilterContext);
+    const { setColors } = useContext(ColorContext)
+    const { parseInputText } = useContext(InputTextContext)
+    const input = React.createRef();
 
-        this.colorparser = new Colorparser({
-            delimiter: ";"
-        });
+    const tidslinjeparser = new GherkinTidslinjeparser();
 
-        this.filterparser = new Filterparser({
-            delimiter: ";"
-        });
+    const colorparser = new Colorparser({
+        delimiter: ";"
+    });
 
-        this.hardkodet = [
-            "# 👇 Filtre kan brukes for å velge egenskapene som skal vises",
-            "Polise;filter;Polisestatus;Avtale",
-            "Avtaleunderlag;filter;Avtalenummer",
-            "Stillingsforholdunderlag;filter;Deltidsjustert",
-            "Avtalekobling;filter;Avtalenummer",
+    const filterparser = new Filterparser({
+        delimiter: ";"
+    });
 
-            "",
-            "# Eksempelscenario",
 
-            "Bakgrunn: Fellesinformasjon for alle eksemplene nedover",
-            "",
-            "Eksemplene nedover benytter alle seg av følgende informasjon om medlemmet som polisene tilhører.",
-            "",
-            "Gitt et medlemsunderlag med følgende tidslinjer:",
-            "| ------------------------------ | ------------------------ |",
-            "| Tidslinje                      | Person                   |",
-            "|                                |                          |",
-            "| Tidslinjeperiode               | #1                       |",
-            "| Fra og med-dato                | 1960.01.01               |",
-            "| Til og med-dato                | 2079.12.31               |",
-            "| Dødsdato                       | 2080.01.01               |",
-            "| PersonId                       | 1960010155555            |",
-            "| ------------------------------ | ------------------------ |",
-            "| Tidslinje                      | Avtaleunderlag           |",
-            "| Avtalenummer                   | 200001                   |",
-            "|                                |                          |",
-            "| Tidslinjeperiode               | #1                       |",
-            "| Fra og med-dato                | 1917.01.01               |",
-            "| Til og med-dato                |                          |",
-            "| Avtalenummer                   | 200001                   |",
-            "| Oppsattavtale                  | 200001                   |",
-            "| Pensjonsavtale                 | 200011                   |",
-            "| Pensjonsavtale fra oppsatt     | 200011                   |",
-            "| Pensjonsordning                | 3010                     |",
-            "| Forhåndsfinansiering av AFP    | Ingen år                 |",
-            "| ------------------------------ | ------------------------ |",
-            "| Tidslinje                      | Avtaleunderlag           |",
-            "| Avtalenummer                   | 200003                   |",
-            "|                                |                          |",
-            "| Tidslinjeperiode               | #1                       |",
-            "| Fra og med-dato                | 1917.01.01               |",
-            "| Til og med-dato                |                          |",
-            "| Avtalenummer                   | 200003                   |",
-            "| Oppsattavtale                  | 200001                   |",
-            "| Pensjonsavtale                 | 200011                   |",
-            "| Pensjonsavtale fra oppsatt     | 200011                   |",
-            "| Pensjonsordning                | 3010                     |",
-            "| Forhåndsfinansiering av AFP    | Ingen år                 |",
-            "| ------------------------------ | ------------------------ |",
-            "| Tidslinje                      | Avtaleunderlag           |",
-            "| Avtalenummer                   | 300000                   |",
-            "|                                |                          |",
-            "| Tidslinjeperiode               | #1                       |",
-            "| Fra og med-dato                | 1917.01.01               |",
-            "| Til og med-dato                |                          |",
-            "| Avtalenummer                   | 300000                   |",
-            "| Oppsattavtale                  | 200001                   |",
-            "| Pensjonsavtale                 | 200011                   |",
-            "| Pensjonsavtale fra oppsatt     | 200011                   |",
-            "| Pensjonsordning                | 3010                     |",
-            "| Forhåndsfinansiering av AFP    | Ingen år                 |",
-            "| ------------------------------ | ------------------------ |",
-            "  Scenariomal: Regel - Isolert polisegrad skal være lik stillingens stillingsstørrelse avrundet til nærmeste hele prosent",
-            "",
-            "    Gitt at medlemsunderlaget også inneholder følgende tidslinjer:",
-            "      | -------------------------- | ------------------------ |",
-            "      | Tidslinje                  | Stillingsforholdunderlag |",
-            "      | Stillingsforholdnummer     | 1                        |",
-            "      |                            |                          |",
-            "      | Tidslinjeperiode           | #1                       |",
-            "      | Fra og med-dato            | 1990.01.01               |",
-            "      | Til og med-dato            | 1999.12.31               |",
-            "      | Stillingsforholdnummer     | 1                        |",
-            "      | Deltidsjustert årslønn     | kr 600 000               |",
-            "      | Stillingsstørrelse         | <Stillingsstørrelse>     |",
-            "      | -------------------------- | ------------------------ |",
-            "      | Tidslinje                  | Avtalekobling            |",
-            "      | Stillingsforholdnummer     | 1                        |",
-            "      |                            |                          |",
-            "      | Tidslinjeperiode           | #1                       |",
-            "      | Fra og med-dato            | 1990.01.01               |",
-            "      | Til og med-dato            | 1999.12.31               |",
-            "      | Stillingsforholdnummer     | 1                        |",
-            "      | Avtalenummer               | 300000                   |",
-            "      | Pensjonsavtale             | 200011                   |",
-            "      | Pensjonsavtale fra oppsatt | 200011                   |",
-            "      | -------------------------- | ------------------------ |",
-            "",
-            "    Når isolerte poliser utledes",
-            "",
-            "    Så skal følgende poliseversjoner ha blitt utledet:",
-            "      | -------------------------- | -------------------- | ---------- | ---------- |",
-            "      | Tidslinje                  | Polise               |            |            |",
-            "      |                            |                      |            |            |",
-            "      | Tidslinjeperiode           | #1                   | #2         | #3         |",
-            "      | Fra og med-dato            | 1990.01.01           | 2000.01.01 | 2080.01.01 |",
-            "      | Til og med-dato            | 1999.12.31           | 2079.12.31 |            |",
-            "      | PoliseId                   | 1                    | 1          | 1          |",
-            "      | Polisestatus               | Aktiv                | Oppsatt    | Død        |",
-            "      | Ordningsgruppe             | 3010                 |            |            |",
-            "      | Avtale for reserve         | 300000               |            |            |",
-            "      | Oppsattavtale              | 200001               |            |            |",
-            "      | Pensjonsavtale             | 200011               |            |            |",
-            "      | Pensjonsavtale fra oppsatt | 200011               |            |            |",
-            "      | Stillingsforholdnummer     | 1                    |            |            |",
-            "      | Isolert polisegrad         | <Isolert polisegrad> | 100%       | 100%       |",
-            "      | -------------------------- | -------------------- | ---------- | ---------- |",
-            "",
-            "    Eksempler:",
-            "      | Stillingsstørrelse | Isolert polisegrad |",
-            "      | 0.000%             | 0%                 |",
-            "      | 200.000%           | 200%               |",
-            "      | 100.000%           | 100%               |",
-            "      | 50.000%            | 50%                |",
-            "      | 30.444%            | 30%                |",
-            "      | 70.555%            | 71%                |",
-            "",
-            "Polise;color;blue"
-        ]
+    useEffect(() => {
+        parseCurrent()
+    }, [])
+
+    function parseCurrent() {
+        parseContent(input.current.value)
     }
 
-    componentDidMount() {
-        this.parseCurrent()
-    }
-
-    parseCurrent() {
-        this.parseContent(this.input.current.value)
-    }
-
-    parseContent(rawString) {
+    function parseContent(rawString) {
         const content = rawString
             .split(/\r?\n/)
             .map(rad => rad.trim());
 
-        this.setFilters(
-            this.filterparser.parse(content)
+        setFilters(
+            filterparser.parse(content)
         )
 
-        this.setColors(
-            this.colorparser.parse(content)
+        setColors(
+            colorparser.parse(content)
         )
 
-        this.setTidslinjer(
-            this.tidslinjeparser.parse(content)
+        setTidslinjer(
+            tidslinjeparser.parse(content)
         )
+
+        parseInputText(rawString)
     }
 
-    handleChange(event) {
+    function handleChange(event) {
         event.preventDefault();
-        this.parseCurrent();
+        parseCurrent();
     }
 
-    render() {
-        return (
-            <React.Fragment>
-                <form onChange={this.handleChange} >
-                    <label>
-                        <textarea
-                            className="gherkin-input"
-                            autoFocus
-                            type="text"
-                            spellCheck="false"
-                            ref={this.input}
-                            placeholder="Gherkin"
-                            defaultValue={this.hardkodet.join("\n")}
-                        />
-                    </label>
-                </form>
-                <div className="csv-hint" data-tip="Cucumber format">?</div>
-            </React.Fragment>
+    return (
+        <React.Fragment>
+            <form onChange={handleChange} >
+                <label>
+                    <textarea
+                        autoFocus
+                        type="text"
+                        spellCheck="false"
+                        ref={input}
+                        placeholder="Gherkin"
+                        defaultValue={hardkodet.join("\n")}
+                    />
+                </label>
+            </form>
+            <div className="csv-hint" data-tip="Cucumber format">?</div>
+        </React.Fragment>
 
-        );
-    }
+    );
 }

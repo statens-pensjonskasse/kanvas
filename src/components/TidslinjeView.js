@@ -1,21 +1,24 @@
-import { useRef, useEffect } from "react";
-import { select, min, max, scaleLinear, axisBottom, scalePoint } from "d3";
+import { Container } from "@chakra-ui/react";
+import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
 import { DateTime } from "luxon";
+import { useContext, useEffect, useRef } from "react";
 import ReactTooltip from 'react-tooltip';
-
+import { ColorContext } from "../state/ColorProvider";
+import { FilterContext } from "../state/FilterProvider";
+import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
 
-function TidslinjerView(props) {
-  const colors = props.colors;
-  const filters = props.filters;
-  const tidslinjer = props.tidslinjer;
+
+export default function TidslinjerView() {
+  const { tidslinjer } = useContext(TidslinjeContext);
+  const { filters } = useContext(FilterContext)
+  const { colors } = useContext(ColorContext)
 
   const svgRef = useRef();
   const xAxisRef = useRef();
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
 
-  // will be called initially and on every data change
   useEffect(() => {
     const svg = select(svgRef.current);
     const xAxis = select(xAxisRef.current);
@@ -31,8 +34,8 @@ function TidslinjerView(props) {
       )
     allDates.sort((a, b) => a - b)
 
-    const startDate = allDates.size > 1 ? DateTime.fromJSDate((min(allDates))) : DateTime.min();
-    const endDate = DateTime.fromJSDate(max(allDates));
+    const startDate = allDates.size > 1 ? DateTime.fromJSDate((min(allDates))) : DateTime.fromMillis(-8640000000000000);
+    const endDate = tidslinjer.some(tidslinje => !!!tidslinje.tilOgMed) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()
       .domain([
@@ -41,6 +44,7 @@ function TidslinjerView(props) {
         endDate
       ])
       .range([0, dimensions.width - 1]);
+
 
     const numTimelines = Math.max(...tidslinjer.map(t => t.posisjon), 5) - 1
 
@@ -186,7 +190,7 @@ function TidslinjerView(props) {
 
     xAxis
       .select(".x-axis")
-      .style("font-size", "0.8em")
+      .style("font-size", "0.9em")
       .call(
         axisBottom(xScale)
           .tickFormat(
@@ -197,24 +201,24 @@ function TidslinjerView(props) {
       );
 
 
-    // draw the gauge
   }, [colors, tidslinjer, filters, dimensions]);
 
   return (
-    <div className="svg-wrapper">
-      <div ref={wrapperRef} className="svg-timeline-wrapper">
-        <svg ref={svgRef} className="svg-timelines" />
-      </div>
-      <div>
-        <svg ref={xAxisRef} className="svg-x-axis">
+    <Container
+      rounded='md'
+      shadow={'dark-lg'}
+      maxWidth={'95vw'}
+      padding={'5'}
+    >
+      <Container ref={wrapperRef} maxWidth={'100%'} marginBottom={'10'}>
+        <svg ref={svgRef} width={'100%'} />
+        <svg ref={xAxisRef} width={'110%'} height={'2em'} >
           <g className="x-axis" />
         </svg>
-        <ReactTooltip multiline />
-      </div>
+      </Container>
+      <ReactTooltip multiline />
 
-    </div>
+    </Container>
 
   );
 }
-
-export default TidslinjerView;

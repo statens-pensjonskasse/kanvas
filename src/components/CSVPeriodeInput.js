@@ -1,100 +1,102 @@
-import React from "react";
-import ReactTooltip from 'react-tooltip';
+import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
+import React, { useContext, useEffect } from "react";
+import { hardkodet } from "../hardkodinger/hardkodetCSV";
+import Colorparser from "../parsers/CSVColorparser";
+import CSVTidslinjeparser from "../parsers/CSVTidslinjeparser";
+import { ColorContext } from "../state/ColorProvider";
+import { InputTextContext } from "../state/InputTextProvider";
+import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-import CSVTidslinjeparser from "../parsers/CSVTidslinjeparser"
-import Colorparser from "../parsers/CSVColorparser"
+export default function PeriodeInput() {
+    const input = React.createRef();
+    const { inputText, parseInputText } = useContext(InputTextContext)
+    const { setTidslinjer } = useContext(TidslinjeContext)
+    const { setColors } = useContext(ColorContext)
 
-export default class PeriodeInput extends React.Component {
-    constructor(props) {
-        super(props);
-        this.setTidslinjer = props.setTidslinjer;
-        this.setColors = props.setColors;
-        this.handleChange = this.handleChange.bind(this);
-        this.input = React.createRef();
+    const delimiter = ";"
+    const fraOgMedIndex = 1
+    const tilOgMedIndex = 2
+    const identifikatorIndex = 0
 
-        this.delimiter = ";"
-        this.fraOgMedIndex = 1
-        this.tilOgMedIndex = 2
-        this.identifikatorIndex = 0
+    const tidslinjeparser = new CSVTidslinjeparser({
+        delimiter: delimiter,
+        fraOgMedIndex: fraOgMedIndex,
+        tilOgMedIndex: tilOgMedIndex,
+        identifikatorIndex: identifikatorIndex
+    });
 
-        this.tidslinjeparser = new CSVTidslinjeparser({
-            delimiter: this.delimiter,
-            fraOgMedIndex: this.fraOgMedIndex,
-            tilOgMedIndex: this.tilOgMedIndex,
-            identifikatorIndex: this.identifikatorIndex
-        });
+    const colorparser = new Colorparser({
+        delimiter: delimiter
+    });
 
-        this.colorparser = new Colorparser({
-            delimiter: this.delimiter
-        });
 
-        this.hardkodet = [
-            "Stillingsforhold 1;2000;;Konduktør;_100%",
-            "Stillingsforhold 1;2006;2010;Konduktør;_100%",
-            "",
-            "Stillingsforhold 2;2010;;Lokomotivfører 🚂;_100%",
-            "",
-            "# Farging av tidslinjer",
-            "Stillingsforhold 2;COLOR;blue"
-        ]
+    useEffect(() => {
+        if (inputText) {
+            input.current.value = inputText
+        }
+        parseCurrent()
+        input.current.focus()
+    }, [])
+
+    function parseCurrent() {
+        parseContent(input.current.value)
     }
 
-    componentDidMount() {
-        this.parseCurrent()
-    }
-
-    parseCurrent() {
-        this.parseContent(this.input.current.value)
-    }
-
-    parseContent(rawString) {
+    function parseContent(rawString) {
         const content = rawString
             .split(/\r?\n/)
             .filter(rad => !rad.startsWith("#"))
             .map(rad => rad.trim());
 
-        this.setColors(
-            this.colorparser.parse(content)
+        setColors(
+            colorparser.parse(content)
         )
 
-        this.setTidslinjer(
-            this.tidslinjeparser.parse(content)
+        setTidslinjer(
+            tidslinjeparser.parse(content)
         )
     }
 
-    handleChange(event) {
+    function handleChange(event) {
         event.preventDefault();
-        this.parseCurrent();
+        parseInputText(event.target.value)
+        parseCurrent();
     }
 
-    render() {
-        const csvHintArray = new Array(Math.max(this.fraOgMedIndex, this.tilOgMedIndex, this.identifikatorIndex)).fill("___")
-        csvHintArray[this.identifikatorIndex] = "[Identifikator]"
-        csvHintArray[this.fraOgMedIndex] = "[Fra og med]"
-        csvHintArray[this.tilOgMedIndex] = "[Til og med]"
+    const csvHintArray = new Array(Math.max(fraOgMedIndex, tilOgMedIndex, identifikatorIndex)).fill("___")
+    csvHintArray[identifikatorIndex] = "[Identifikator]"
+    csvHintArray[fraOgMedIndex] = "[Fra og med]"
+    csvHintArray[tilOgMedIndex] = "[Til og med]"
 
-        const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(this.delimiter)
-        const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
+    const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
+    const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
 
-        return (
-            <React.Fragment>
-                <form onChange={this.handleChange}>
-                    <label>
-                        <textarea
-                            className="csv-input"
-                            autoFocus
-                            type="text"
-                            spellCheck="false"
-                            ref={this.input}
-                            placeholder={`${periodeHint}`}
-                            defaultValue={this.hardkodet.join("\n")}
-                        />
-                    </label>
-                </form>
-                <div className="csv-hint" data-tip={[periodeHint, colorHint].join("<br><br>")}>?</div>
-                <ReactTooltip multiline />
-            </React.Fragment>
+    return (
+        <VStack>
+            <HStack size={'xl'}>
+                <Textarea
+                    ref={input}
+                    variant={'filled'}
+                    resize={'both'}
+                    autoFocus
+                    type="text"
+                    spellCheck="false"
+                    onChange={handleChange}
+                    placeholder={`${periodeHint}`}
+                    defaultValue={inputText || hardkodet.join("\n")}
+                    minWidth={'lg'}
+                    minHeight={'20em'}
+                    wrap='off'
+                    overflow={'auto'}
+                />
+            </HStack>
+            <Tooltip
+                maxWidth={'container.xl'}
+                label={[periodeHint, colorHint].map(t => <div>{t}</div>)}
+            >
+                ?
+            </Tooltip>
+        </VStack >
 
-        );
-    }
+    );
 }

@@ -1,0 +1,40 @@
+[
+    {
+       "id": "PENSJONSVEDTAK",
+       "perioder": [
+           {
+               "fraOgMed": "2000.01.01",
+               "egenskaper": {
+                   "Pensjonsprodukt": "SAL"
+               }
+           }
+       ]
+    },
+   {
+       "id": "POLISE",
+       "perioder": [
+           {
+               "fraOgMed": "2000.01.01",
+               "tilOgMed": "2001.10.31",
+               "egenskaper": {
+                   "Polisegrad": "40%",
+                   "AvtaleFoerSplitt": "200123",
+                   "HarDelvisPensjon": "Ja",
+                   "GjeldendeAktivAvtaleVedDelvisPensjon": "200123",
+                   "AvtaleForReserve": "200011",
+                   "Polisestatus": "Særalderspensjon"
+               }
+           },
+           {
+               "fraOgMed": "2001.11.01",
+               "egenskaper": {
+                   "Polisegrad": "50%",
+                   "HarDelvisPensjon": "Ja",
+                   "AvtaleForReserve": "200011",
+                   "GjeldendeAktivAvtaleVedDelvisPensjon": "200123",
+                   "Polisestatus": "Særalderspensjon"
+               }
+           }
+       ]
+   }
+]
