@@ -13,7 +13,7 @@ export default function ParserSelector() {
 
     return (
         <Container >
-            <Select className="parser-selector" value={parser} onChange={handleParserChange}>
+            <Select disabled className="parser-selector" value={parser} onChange={handleParserChange}>
                 <option value={CSV_PARSER}>CSV</option>
                 <option value={GHERKIN_PARSER}>Cucumber</option>
             </Select>
