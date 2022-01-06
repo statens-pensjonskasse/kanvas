@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-const API_SERVER = process.env.API_SERVER || "http://localhost:8080"
+const API_SERVER = process.env.API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
 
 export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
