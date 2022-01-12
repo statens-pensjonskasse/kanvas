@@ -56,6 +56,7 @@ export default function TidslinjehendelseView() {
                             "tilOgMed": periode.tilOgMed ? DateTime.fromJSDate(periode.tilOgMed).minus({ days: 1 }).toISODate().replaceAll("-", ".") : null,
                             "egenskaper": Object.fromEntries(
                                 periode.egenskaper
+                                    .map(egenskap => egenskap.replace("_", ""))
                                     .map(egenskap => Egenskap.parse(egenskap).somPar())
                                     .filter(([k, value]) => k && value)
                             )

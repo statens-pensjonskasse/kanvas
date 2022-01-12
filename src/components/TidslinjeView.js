@@ -1,4 +1,4 @@
-import { Container } from "@chakra-ui/react";
+import { Button, Container, useToast } from "@chakra-ui/react";
 import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useRef } from "react";
@@ -7,12 +7,14 @@ import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
+import html2canvas from "html2canvas";
 
 
 export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
+  const toast = useToast()
 
   const svgRef = useRef();
   const xAxisRef = useRef();
@@ -126,6 +128,7 @@ export default function TidslinjerView() {
           const fullTekst = Object.values(periode.filtrerteEgenskaper)
             .map(egenskap => egenskap.trim())
             .filter(egenskap => !egenskap.startsWith("_"))
+            .map(egenskap => egenskap.split(":").length > 1? egenskap.split(":")[1].trim(): egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -170,6 +173,7 @@ export default function TidslinjerView() {
             .map(egenskap => egenskap.trim())
             .filter(egenskap => egenskap.startsWith("_"))
             .map(egenskap => egenskap.slice(1))
+            .map(egenskap => egenskap.split(":").length > 1? egenskap.split(":")[1].trim(): egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -203,6 +207,25 @@ export default function TidslinjerView() {
 
   }, [colors, tidslinjer, filters, dimensions]);
 
+  const saveScreenshot = async () => {
+    const canvas = await html2canvas(wrapperRef.current)
+    await canvas.toBlob(
+      blob => navigator.clipboard
+        .write([
+          new window.ClipboardItem(
+            Object.defineProperty({}, blob.type, {
+              value: blob,
+              enumerable: true
+            })
+          )
+        ])
+    )
+
+    toast({
+      description: "Kopierte skjermbilde til utklippstavla",
+    })
+  }
+
   return (
     <Container
       rounded='md'
@@ -216,8 +239,7 @@ export default function TidslinjerView() {
           <g className="x-axis" />
         </svg>
       </Container>
-      <ReactTooltip multiline />
-
+      <Button onClick={saveScreenshot}>Kopier skjermbilde</Button>
     </Container>
 
   );

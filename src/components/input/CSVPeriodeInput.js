@@ -1,11 +1,11 @@
 import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
-import { hardkodet } from "../hardkodinger/hardkodetCSV";
-import Colorparser from "../parsers/CSVColorparser";
-import CSVTidslinjeparser from "../parsers/CSVTidslinjeparser";
-import { ColorContext } from "../state/ColorProvider";
-import { InputTextContext } from "../state/InputTextProvider";
-import { TidslinjeContext } from "../state/TidslinjerProvider";
+import { hardkodet } from "../../hardkodinger/hardkodetCSV";
+import Colorparser from "../../parsers/CSVColorparser";
+import CSVTidslinjeparser from "../../parsers/CSVTidslinjeparser";
+import { ColorContext } from "../../state/ColorProvider";
+import { InputTextContext } from "../../state/InputTextProvider";
+import { TidslinjeContext } from "../../state/TidslinjerProvider";
 
 export default function PeriodeInput() {
     const input = React.createRef();
