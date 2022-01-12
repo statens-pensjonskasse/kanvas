@@ -49,7 +49,7 @@ export default class CSVTidslinjeparser implements Tidslinjeparser {
         const perioderPerLabel: Map<string, Periode[]> = rader
             .filter(rad => this.kanOversettes(rad))
             .map(
-                rad => this.oversettRad(rad, posisjoner.indexOf(rad[this.identifikatorIndex]) + 1)
+                rad => this.oversettRad(rad, posisjoner.indexOf(rad[this.identifikatorIndex]))
             )
             .reduce(
                 (acc: Map<string, Periode[]>, current: Periode) => {

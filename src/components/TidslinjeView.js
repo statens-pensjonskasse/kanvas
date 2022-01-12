@@ -47,7 +47,7 @@ export default function TidslinjerView() {
       .range([0, dimensions.width - 1]);
 
 
-    const numTimelines = tidslinjer.length
+    const numTimelines = Math.max(4, tidslinjer.length) + 1
     const periodeStrl = Math.max(...(tidslinjer
       .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
       .flatMap(
@@ -60,14 +60,14 @@ export default function TidslinjerView() {
     const periodeBredde = Math.min(periodeStrl, 20)
     const antallPeriodeBredde = Math.max(allDates.length, 3)
 
-    const timelineHeight = 150;
+    const timelineHeight = 80;
     const height = numTimelines * timelineHeight;
 
     svg.style("height", `${height}px`)
     select(wrapperRef.current).style("min-width", `${antallPeriodeBredde * periodeBredde}em`)
 
     const yScale = scaleLinear()
-      .domain([Math.max(numTimelines, 4) + 1, 0])
+      .domain([numTimelines, -1])
       .range([0, height]);
 
     svg

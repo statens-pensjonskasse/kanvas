@@ -11,7 +11,7 @@ export default class Tidslinje {
 
     constructor(perioder: Periode[]) {
         this.label = perioder[0]?.label || "Tidslinje"
-        this.posisjon = perioder[0]?.posisjon || -1
+        this.posisjon = Math.max(...perioder.map(p => p.posisjon), -1)
         this.perioder = this.justerSammenhengendePerioder(perioder)
         this.datoer = this.perioder
             .flatMap(periode => periode.tilOgMed ? [periode.fraOgMed, periode.tilOgMed] : [periode.fraOgMed])
