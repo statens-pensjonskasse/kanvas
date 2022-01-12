@@ -1,13 +1,12 @@
 import { Button, Container, useToast } from "@chakra-ui/react";
 import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
+import html2canvas from "html2canvas";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useRef } from "react";
-import ReactTooltip from 'react-tooltip';
 import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
-import html2canvas from "html2canvas";
 
 
 export default function TidslinjerView() {
@@ -48,10 +47,9 @@ export default function TidslinjerView() {
       .range([0, dimensions.width - 1]);
 
 
-    const numTimelines = Math.max(...tidslinjer.map(t => t.posisjon), 5) - 1
-    const maksPerioder = Math.max(...tidslinjer.map(t => t.perioder.length))
+    const numTimelines = tidslinjer.length
     const periodeStrl = Math.max(...(tidslinjer
-      .flatMap(t => t.perioder.map(p => p.egenskaper))
+      .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
       .flatMap(
         egenskaper => ([
           egenskaper.filter(egenskap => egenskap.startsWith("_")).join(", ").length,
@@ -59,8 +57,8 @@ export default function TidslinjerView() {
         ])
       )
     ))
-    const periodeBredde = Math.max(periodeStrl * 0.7, 10)
-    const antallPeriodeBredde = Math.max(maksPerioder, 4)
+    const periodeBredde = Math.min(periodeStrl, 20)
+    const antallPeriodeBredde = Math.max(allDates.length, 3)
 
     const timelineHeight = 150;
     const height = numTimelines * timelineHeight;
@@ -69,8 +67,8 @@ export default function TidslinjerView() {
     select(wrapperRef.current).style("min-width", `${antallPeriodeBredde * periodeBredde}em`)
 
     const yScale = scaleLinear()
-      .domain([numTimelines, 0])
-      .range([timelineHeight * 2, height]);
+      .domain([Math.max(numTimelines, 4) + 1, 0])
+      .range([0, height]);
 
     svg
       .selectAll(".tidslinje")
@@ -241,18 +239,17 @@ export default function TidslinjerView() {
     <Container
       rounded='md'
       shadow={'dark-lg'}
-      maxWidth={'95vw'}
-      padding={'5'}
+      maxWidth={'95%'}
       overflow={'auto'}
+      padding={'5'}
     >
       <Container ref={wrapperRef} marginBottom={'10'}>
         <svg ref={svgRef} width={'100%'} />
-        <svg ref={xAxisRef} width={'100%'} height={'2em'} >
+        <svg ref={xAxisRef} width={'103%'} height={'2em'} >
           <g className="x-axis" />
         </svg>
       </Container>
-      <Button onClick={saveScreenshot}>Kopier skjermbilde</Button>
+      <Button colorScheme={'blue'} onClick={saveScreenshot}>Kopier skjermbilde</Button>
     </Container>
-
   );
 }
