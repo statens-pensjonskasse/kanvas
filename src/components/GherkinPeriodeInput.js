@@ -1,3 +1,4 @@
+import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
 import { hardkodet } from '../hardkodinger/hardkodetGherkin';
 import Colorparser from "../parsers/CSVColorparser";
@@ -13,7 +14,7 @@ export default function PeriodeInput() {
     const { setTidslinjer } = useContext(TidslinjeContext);
     const { setFilters } = useContext(FilterContext);
     const { setColors } = useContext(ColorContext)
-    const { parseInputText } = useContext(InputTextContext)
+    const { inputText, parseInputText } = useContext(InputTextContext)
     const input = React.createRef();
 
     const tidslinjeparser = new GherkinTidslinjeparser();
@@ -61,21 +62,33 @@ export default function PeriodeInput() {
     }
 
     return (
-        <React.Fragment>
-            <form onChange={handleChange} >
-                <label>
-                    <textarea
-                        autoFocus
-                        type="text"
-                        spellCheck="false"
-                        ref={input}
-                        placeholder="Gherkin"
-                        defaultValue={hardkodet.join("\n")}
-                    />
-                </label>
-            </form>
-            <div className="csv-hint" data-tip="Cucumber format">?</div>
-        </React.Fragment>
-
+        <VStack>
+            <HStack size={'xl'}>
+                <Textarea
+                    ref={input}
+                    variant={'filled'}
+                    resize={'both'}
+                    autoFocus
+                    type="text"
+                    spellCheck="false"
+                    onChange={handleChange}
+                    placeholder="Gherkin"
+                    defaultValue={inputText || hardkodet.join("\n")}
+                    width={'80vw'}
+                    height={'2xl'}
+                    minWidth={'2xl'}
+                    minHeight={'lg'}
+                    wrap='off'
+                    overflow={'auto'}
+                    fontFamily={'mono'}
+                />
+            </HStack>
+            <Tooltip
+                maxWidth={'container.xl'}
+                label={"Gherkin"}
+            >
+                ?
+            </Tooltip>
+        </VStack>
     );
 }

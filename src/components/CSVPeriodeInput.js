@@ -88,6 +88,7 @@ export default function PeriodeInput() {
                     minHeight={'20em'}
                     wrap='off'
                     overflow={'auto'}
+                    fontFamily={'mono'}
                 />
             </HStack>
             <Tooltip
