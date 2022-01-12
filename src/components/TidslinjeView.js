@@ -49,11 +49,24 @@ export default function TidslinjerView() {
 
 
     const numTimelines = Math.max(...tidslinjer.map(t => t.posisjon), 5) - 1
+    const maksPerioder = Math.max(...tidslinjer.map(t => t.perioder.length))
+    const periodeStrl = Math.max(...(tidslinjer
+      .flatMap(t => t.perioder.map(p => p.egenskaper))
+      .flatMap(
+        egenskaper => ([
+          egenskaper.filter(egenskap => egenskap.startsWith("_")).join(", ").length,
+          egenskaper.filter(egenskap => !egenskap.startsWith("_")).join(", ").length
+        ])
+      )
+    ))
+    const periodeBredde = Math.max(periodeStrl * 0.7, 10)
+    const antallPeriodeBredde = Math.max(maksPerioder, 4)
 
     const timelineHeight = 150;
     const height = numTimelines * timelineHeight;
 
     svg.style("height", `${height}px`)
+    select(wrapperRef.current).style("min-width", `${antallPeriodeBredde * periodeBredde}em`)
 
     const yScale = scaleLinear()
       .domain([numTimelines, 0])
@@ -128,7 +141,6 @@ export default function TidslinjerView() {
           const fullTekst = Object.values(periode.filtrerteEgenskaper)
             .map(egenskap => egenskap.trim())
             .filter(egenskap => !egenskap.startsWith("_"))
-            .map(egenskap => egenskap.split(":").length > 1? egenskap.split(":")[1].trim(): egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -173,7 +185,6 @@ export default function TidslinjerView() {
             .map(egenskap => egenskap.trim())
             .filter(egenskap => egenskap.startsWith("_"))
             .map(egenskap => egenskap.slice(1))
-            .map(egenskap => egenskap.split(":").length > 1? egenskap.split(":")[1].trim(): egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -232,10 +243,11 @@ export default function TidslinjerView() {
       shadow={'dark-lg'}
       maxWidth={'95vw'}
       padding={'5'}
+      overflow={'auto'}
     >
-      <Container ref={wrapperRef} maxWidth={'100%'} marginBottom={'10'}>
+      <Container ref={wrapperRef} marginBottom={'10'}>
         <svg ref={svgRef} width={'100%'} />
-        <svg ref={xAxisRef} width={'110%'} height={'2em'} >
+        <svg ref={xAxisRef} width={'100%'} height={'2em'} >
           <g className="x-axis" />
         </svg>
       </Container>
