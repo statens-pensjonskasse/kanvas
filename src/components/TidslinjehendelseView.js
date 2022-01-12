@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-const API_SERVER = process.env.API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
+const API_SERVER = process.env.REACT_APP_API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
 
 export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
@@ -13,7 +13,7 @@ export default function TidslinjehendelseView() {
     const [pandaVersjon, setPandaVersjon] = useState([])
     const { tidslinjer } = useContext(TidslinjeContext);
     const toast = useToast();
-
+    
     useEffect(() => {
         postData(
             `${API_SERVER}/api/fra-tidslinjer/`,
