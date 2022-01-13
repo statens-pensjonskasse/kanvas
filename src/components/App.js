@@ -24,12 +24,12 @@ function App() {
           <FilterProvider>
             <TidslinjerProvider>
               <InputTextProvider>
+                <ParserSelector />
                 <TidslinjerView />
 
                 <TidslinjehendelseView />
 
                 <InputComponent />
-                <ParserSelector />
 
               </InputTextProvider>
             </TidslinjerProvider>

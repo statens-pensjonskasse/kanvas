@@ -59,8 +59,6 @@ export default class PandavarehusTidslinjehendelserParser implements Pandavarehu
                         .erstattEgenskap(hendelse.Egenskap, hendelse.Neste)
 
                     if (this.løperTil(periode, aksjonsdato)) {
-                        console.log("Periode", periode)
-                        console.log("Erstatning", erstatning)
                         return [erstatning]
                     }
 
@@ -88,8 +86,9 @@ export default class PandavarehusTidslinjehendelserParser implements Pandavarehu
         return samlinger
     }
 
-    parse(data: any[]): Tidslinje[] {
-        const simulerteTilstander = this.simuler(
+    parseOgSimuler(data: any[]): Tidslinjesamling[] {
+        console.log(data[0])
+        return this.simuler(
             data
                 .map(
                     raw => ({
@@ -108,6 +107,11 @@ export default class PandavarehusTidslinjehendelserParser implements Pandavarehu
                 )
                 .filter(h => h.TidslinjeId !== "RESERVEFREMSKRIVINGER")
         )
+
+    }
+
+    parse(data: any[]): Tidslinje[] {
+        const simulerteTilstander = this.parseOgSimuler(data)
 
         return simulerteTilstander[simulerteTilstander.length - 1]
             .tidslinjer

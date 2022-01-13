@@ -5,7 +5,7 @@ import { TidslinjeContext } from "../../state/TidslinjerProvider";
 import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
-    const {tidslinjer} = useContext(TidslinjeContext)
+    const { tidslinjer } = useContext(TidslinjeContext)
     const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const { setTidslinjer } = useContext(TidslinjeContext)
     const [host, setHost] = useStickyState("http://localhost:3033", "pandavarehus_poliser_host")

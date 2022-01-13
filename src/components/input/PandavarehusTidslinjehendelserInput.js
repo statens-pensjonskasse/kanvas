@@ -1,16 +1,21 @@
-import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import { Button, HStack, Input, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
+import { useSessionState } from '../../util/useSessionState';
 import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
     const { tidslinjer } = useContext(TidslinjeContext)
-    const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const { setTidslinjer } = useContext(TidslinjeContext)
 
+    const [person, setPerson] = useStickyState("", "pandavarehus_person")
+    const [ tidslinjesamlinger, setTidslinjesamlinger ] = useState([])
+    const [ tilstand, setTilstand ] = useSessionState(0, "pandavarehus_tilstand")
+    const [showTooltip, setShowTooltip] = useState(false)
+
     const [host, setHost] = useStickyState("http://localhost:3044", "pandavarehus_tidslinjehendelser_host")
-    const [table, setTable] = useStickyState("neste", "pandavarehus_table")
+    const [table, setTable] = useSessionState("neste", "pandavarehus_table")
 
     const [parset, setParset] = useState()
 
@@ -41,12 +46,13 @@ export default function PandavarehusInput() {
             }
             if (data.ok) {
                 const json = await data.json()
-                const tidslinjer = tidslinjeparser.parse(json)
-                setTidslinjer(tidslinjer)
-                if (tidslinjer.length) {
+                const samlinger = tidslinjeparser.parseOgSimuler(json)
+                setTidslinjesamlinger(samlinger)
+                setTilstand(Math.min(tilstand, samlinger.length - 1))
+                if (samlinger.length) {
                     toast({
                         title: host,
-                        description: `Hentet ${tidslinjer.length} tidslinjer fra ${table}`,
+                        description: `Simulerte ${samlinger.length - 1} tilstander fra ${table}`,
                         status: 'success',
                         position: 'top-right'
                     })
@@ -61,10 +67,14 @@ export default function PandavarehusInput() {
                 }
             }
         }
-        setTidslinjer([])
         fetchData()
-
     }, [person, host, table])
+
+    useEffect(() => {
+        if (tidslinjesamlinger.length) {
+            setTidslinjer(tidslinjesamlinger[tilstand].tidslinjer)
+        }
+    }, [tidslinjesamlinger, tilstand])
 
     useEffect(() => {
         setParset(
@@ -78,6 +88,36 @@ export default function PandavarehusInput() {
     return (
         <VStack>
             <VStack >
+                <HStack>
+                    <Button onClick={e => setTilstand(Math.max(0, tilstand - 1))}> - </Button>
+                    <Slider
+                        min={0}
+                        max={tidslinjesamlinger.length - 1}
+                        step={1}
+                        defaultValue={tilstand}
+                        value={tilstand}
+                        onChange={setTilstand}
+                        minWidth={'container.md'}
+                        onMouseEnter={() => setShowTooltip(true)}
+                        onMouseLeave={() => setShowTooltip(false)}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <Tooltip
+                            hasArrow
+                            bg='teal.500'
+                            color='white'
+                            placement='top'
+                            isOpen={showTooltip}
+                            label={`Tilstand ${tilstand}`}
+                        >
+                            <SliderThumb />
+                        </Tooltip>
+                    </Slider>
+                    <Button onClick={e => setTilstand(Math.min(tidslinjesamlinger.length - 1, tilstand + 1))}> + </Button>
+
+                </HStack>
                 <RadioGroup onChange={setTable} value={table}>
                     <Stack direction={'row'}>
                         <Radio value='forrige'>Forrige</Radio>

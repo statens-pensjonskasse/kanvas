@@ -10,7 +10,7 @@ export default class Tidslinjesamling {
     readonly tidslinjer: Tidslinje[]
 
     private constructor(tidslinjer: Tidslinje[]) {
-        this.tidslinjer = tidslinjer
+        this.tidslinjer = tidslinjer.map((t, i) => t.medPosisjon(i))
     }
 
     static tom() {
@@ -39,7 +39,6 @@ export default class Tidslinjesamling {
         else {
             const minsteStartdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || new Date(2020, 0, 1)
             console.warn(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato.toLocaleDateString("nb-NO")}.`)
-            console.log(aksjonsdato)
 
             return this.leggTil(
                 new Tidslinje([
