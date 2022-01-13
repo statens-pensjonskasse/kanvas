@@ -1,9 +1,10 @@
 import { useContext } from "react";
+import { CSV_PARSER, GHERKIN_PARSER, PANDAVAREHUS_POLISER, PANDAVAREHUS_TIDSLINJEHENDELSER } from "../parsers/Parser";
+import { InputTextContext } from '../state/InputTextProvider';
 import CSVPeriodeInput from './input/CSVPeriodeInput';
 import GherkinPeriodeInput from './input/GherkinPeriodeInput';
-import { CSV_PARSER, GHERKIN_PARSER, PANDAVAREHUS } from "../parsers/Parser";
-import { InputTextContext } from '../state/InputTextProvider';
-import PandavarehusInput from './input/PandavarehusInput';
+import PandavarehusPoliserInput from './input/PandavarehusPoliserInput';
+import PandavarehusTidslinjehendelserInput from './input/PandavarehusTidslinjehendelserInput';
 
 export default function InputComponent() {
 
@@ -15,8 +16,10 @@ export default function InputComponent() {
                 return < CSVPeriodeInput />
             case GHERKIN_PARSER:
                 return < GherkinPeriodeInput />
-            case PANDAVAREHUS:
-                return <PandavarehusInput/>
+            case PANDAVAREHUS_POLISER:
+                return <PandavarehusPoliserInput/>
+            case PANDAVAREHUS_TIDSLINJEHENDELSER:
+                return <PandavarehusTidslinjehendelserInput/>
             default:
                 return < CSVPeriodeInput />
         }

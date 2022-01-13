@@ -1,5 +1,6 @@
 import { DateTime, Interval } from "luxon";
 import Periode from "./Periode";
+import { PeriodeErstatter } from "./Tidslinjesamling";
 
 export default class Tidslinje {
     readonly label: string;
@@ -90,6 +91,13 @@ export default class Tidslinje {
             ]
 
         )
+    }
+
+    erstattSiste(aksjonsdato: Date, erstatter: PeriodeErstatter): Tidslinje {
+        return new Tidslinje([
+            ...this.perioder.slice(0, this.perioder.length - 1),
+            ...erstatter(aksjonsdato, this.perioder[this.perioder.length - 1])
+        ])
     }
 
     medPosisjon(posisjon: number) {

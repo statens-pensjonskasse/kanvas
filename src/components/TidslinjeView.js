@@ -67,7 +67,7 @@ export default function TidslinjerView() {
         ])
       )
     ))
-    const periodeBredde = Math.min(periodeStrl, 20)
+    const periodeBredde = (periodeStrl, 20)
     const antallPeriodeBredde = Math.max(allDates.length, 3)
 
     const timelineHeight = 100;
@@ -211,7 +211,7 @@ export default function TidslinjerView() {
       .attr("fill", tidslinje => colors.get(tidslinje.label) || "black")
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
-      .text(tidslinje => tidslinje.label)
+      .text(tidslinje => tidslinje.label.substring(0, periodeBredde))
 
     xAxis
       .select(".x-axis")

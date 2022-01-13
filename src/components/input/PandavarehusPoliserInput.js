@@ -8,7 +8,7 @@ export default function PandavarehusInput() {
     const {tidslinjer} = useContext(TidslinjeContext)
     const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const { setTidslinjer } = useContext(TidslinjeContext)
-    const [host, setHost] = useStickyState("http://localhost:3033", "pandavarehus_host")
+    const [host, setHost] = useStickyState("http://localhost:3033", "pandavarehus_poliser_host")
     const [table, setTable] = useStickyState("neste", "pandavarehus_table")
     const [parset, setParset] = useState()
     const toast = useToast()
@@ -29,7 +29,7 @@ export default function PandavarehusInput() {
             } catch (error) {
                 toast({
                     title: `Feil ved henting fra ${host}`,
-                    description: error.message,
+                    description: `${error.message}, kjører pandavarehus-kanvas-connector.sh?`,
                     position: "top-right",
                     status: "error"
                 })
