@@ -67,6 +67,7 @@ export default function PeriodeInput() {
     csvHintArray[identifikatorIndex] = "[Identifikator]"
     csvHintArray[fraOgMedIndex] = "[Fra og med]"
     csvHintArray[tilOgMedIndex] = "[Til og med]"
+    csvHintArray.push(`[egenskaper separert med "${delimiter}"]`)
 
     const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
     const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"

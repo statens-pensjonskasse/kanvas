@@ -97,4 +97,21 @@ export default class Tidslinje {
             this.perioder.map(periode => periode.medPosisjon(posisjon))
         )
     }
+
+    somCSV(): String[] {
+        return this.perioder
+            .sort((a: Periode, b: Periode) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
+            .map(
+                periode => (
+                    [
+                        periode.label,
+                        periode.fraOgMed.toLocaleDateString("nb-NO"),
+                        periode.tilOgMed?.toLocaleDateString("nb-NO") || "",
+                        ...periode.egenskaper
+                    ]
+                        .join(";")
+                )
+            )
+
+    }
 }

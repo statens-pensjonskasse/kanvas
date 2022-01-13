@@ -1,12 +1,13 @@
-import { Button, Container, useToast } from "@chakra-ui/react";
+import { Button, Container, FormControl, FormLabel, HStack, Switch, useToast } from "@chakra-ui/react";
 import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
 import html2canvas from "html2canvas";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
+import { useStickyState } from "../util/useStickyState";
 
 
 export default function TidslinjerView() {
@@ -14,11 +15,20 @@ export default function TidslinjerView() {
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
   const toast = useToast()
+  const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
 
   const svgRef = useRef();
   const xAxisRef = useRef();
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
+
+  const kortNedEgenskap = (egenskap) => {
+    const [key, val] = egenskap.split(":")
+    if (val) {
+      return val.trim()
+    }
+    return egenskap
+  }
 
   useEffect(() => {
     const svg = select(svgRef.current);
@@ -60,7 +70,7 @@ export default function TidslinjerView() {
     const periodeBredde = Math.min(periodeStrl, 20)
     const antallPeriodeBredde = Math.max(allDates.length, 3)
 
-    const timelineHeight = 80;
+    const timelineHeight = 100;
     const height = numTimelines * timelineHeight;
 
     svg.style("height", `${height}px`)
@@ -139,6 +149,7 @@ export default function TidslinjerView() {
           const fullTekst = Object.values(periode.filtrerteEgenskaper)
             .map(egenskap => egenskap.trim())
             .filter(egenskap => !egenskap.startsWith("_"))
+            .map(egenskap => kompakteEgenskaper ? kortNedEgenskap(egenskap) : egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -183,6 +194,7 @@ export default function TidslinjerView() {
             .map(egenskap => egenskap.trim())
             .filter(egenskap => egenskap.startsWith("_"))
             .map(egenskap => egenskap.slice(1))
+            .map(egenskap => kompakteEgenskaper ? kortNedEgenskap(egenskap) : egenskap)
             .join(", ")
 
           return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
@@ -214,7 +226,7 @@ export default function TidslinjerView() {
       );
 
 
-  }, [colors, tidslinjer, filters, dimensions]);
+  }, [colors, tidslinjer, filters, dimensions, kompakteEgenskaper]);
 
   const saveScreenshot = async () => {
     const canvas = await html2canvas(wrapperRef.current)
@@ -249,7 +261,19 @@ export default function TidslinjerView() {
           <g className="x-axis" />
         </svg>
       </Container>
-      <Button colorScheme={'blue'} onClick={saveScreenshot}>Kopier skjermbilde</Button>
+      <HStack>
+        <Button colorScheme={'blue'} onClick={saveScreenshot}>Kopier skjermbilde</Button>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='kompakte-egenskaper' mb='0'>
+            Kompakte egenskaper?
+          </FormLabel>
+          <Switch
+            id='kompakte-egenskaper'
+            isChecked={kompakteEgenskaper}
+            onChange={e => setKompakteEgenskaper(e.target.checked)}
+          />
+        </FormControl>
+      </HStack>
     </Container>
   );
 }
