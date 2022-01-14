@@ -1,4 +1,4 @@
-import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusPoliserParser from '../../parsers/pandavarehus/PandavarehusPoliserParser';
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
@@ -88,7 +88,7 @@ export default function PandavarehusInput() {
                         type="text"
                         spellCheck="false"
                         placeholder={"Kjør kanvas-connector lokalt for å kunne hente poliser fra pandavarehus"}
-                        defaultValue={parset}
+                        value={parset}
                         minWidth={'2xl'}
                         minHeight={'20em'}
                         wrap='off'
