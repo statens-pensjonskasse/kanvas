@@ -52,10 +52,15 @@ export default class Periode {
     }
 
     erstattEgenskap(egenskap: string, verdi: string): Periode {
-        return this.medEgenskaper([
-            ...this.egenskaper.filter(e => e.split(":")[0].trim() !== egenskap),
-            `${egenskap}: ${verdi.split('\\n')[0]}`
-        ])
+        return new Periode(
+            this.label,
+            this.fraOgMed,
+            this.tilOgMed,
+        )
+            .medEgenskaper([
+                ...this.egenskaper.filter(e => e.split(":")[0].trim() !== egenskap),
+                `${egenskap}: ${verdi.split('\\n')[0]}`
+            ])
     }
 
     somLøpende(): Periode {
@@ -63,8 +68,8 @@ export default class Periode {
             this.label,
             this.fraOgMed
         )
-        .medEgenskaper( this.egenskaper )
-        .medPosisjon( this.posisjon );
+            .medEgenskaper(this.egenskaper)
+            .medPosisjon(this.posisjon);
     }
 
     kombinerMed(annen: Periode): Periode[] {

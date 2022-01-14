@@ -45,7 +45,7 @@ export default class Tidslinje {
             ] :
             kombinertePerioder
 
-        return justertePerioder
+        return justertePerioder.sort((a, b) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
     }
 
     private kombinerSammenhengende(next: Periode, current: Periode): Periode {

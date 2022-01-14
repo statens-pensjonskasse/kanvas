@@ -1,6 +1,5 @@
 import { ChakraProvider, Container, Heading, HStack, Link, VStack } from '@chakra-ui/react';
 import React from "react";
-import Simuleringsslider from '../components/input/Simuleringsslider';
 import InputComponent from '../components/InputComponent';
 import ParserSelector from '../components/ParserSelector';
 import "../css/App.css";
@@ -9,6 +8,7 @@ import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
 import PandavarehusProvider from '../state/PandavarehusProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
+import PandavarehusController from './input/PandavarehusController';
 import TidslinjehendelseView from "./TidslinjehendelseView";
 import TidslinjerView from "./TidslinjeView";
 
@@ -28,7 +28,7 @@ function App() {
               <PandavarehusProvider>
                 <InputTextProvider>
                   <ParserSelector />
-                  <Simuleringsslider />
+                  <PandavarehusController />
                   <TidslinjerView />
 
                   <TidslinjehendelseView />

@@ -27,6 +27,7 @@ export default class PandavarehusTidslinjehendelserParser implements Pandavarehu
                         Typeindikator: raw['Typeindikator']
                     })
                 )
+                .filter(r => r.Typeindikator !== "RESERVEFREMSKRIVINGER")
         )
 
     }

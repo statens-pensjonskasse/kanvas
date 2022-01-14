@@ -1,4 +1,4 @@
-import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusPoliserParser from '../../parsers/pandavarehus/PandavarehusPoliserParser';
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
@@ -14,9 +14,7 @@ export default function PandavarehusInput() {
     const {
         poliserHost,
         person,
-        setPerson,
         table,
-        setTable,
         parset,
         setParset
     } = useContext(PandavarehusContext)
@@ -82,27 +80,6 @@ export default function PandavarehusInput() {
     return (
         <VStack>
             <VStack >
-                <RadioGroup onChange={setTable} value={table}>
-                    <Stack direction={'row'}>
-                        <Radio value='forrige'>Forrige</Radio>
-                        <Radio value='neste'>Neste</Radio>
-                    </Stack>
-                </RadioGroup>
-                <HStack>
-                    <Text>PersonId</Text>
-                    <Input
-                        defaultValue={person || ""}
-                        placeholder="PersonId"
-                        onChange={event => {
-                            event.preventDefault()
-                            setPerson(event.target.value)
-                        }}
-                        textAlign={'center'}
-                        variant={'filled'}
-                        autoFocus
-                        blur
-                    />
-                </HStack>
                 <HStack>
                     <Textarea
                         readOnly

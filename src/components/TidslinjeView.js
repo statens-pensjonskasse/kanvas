@@ -184,7 +184,7 @@ export default function TidslinjerView() {
       .data(tidslinjer)
       .join("text")
       .attr("class", "tidslinjeLabel")
-      .attr("fill", tidslinje => tidslinjehendelse.TidslinjeId === tidslinje.label? "red":  colors.get(tidslinje.label) || "black")
+      .attr("fill", tidslinje => tidslinjehendelse?.TidslinjeId === tidslinje.label? "red":  colors.get(tidslinje.label) || "black")
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
       .text(tidslinje => tidslinje.label.slice(0, 40))

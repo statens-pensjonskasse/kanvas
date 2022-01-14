@@ -17,11 +17,12 @@ export default function InputComponent() {
             case GHERKIN_PARSER:
                 return < GherkinPeriodeInput />
             case PANDAVAREHUS_POLISER:
-                return <PandavarehusPoliserInput/>
+                return <PandavarehusPoliserInput />
             case PANDAVAREHUS_TIDSLINJEHENDELSER:
-                return <PandavarehusTidslinjehendelserInput/>
+                return <PandavarehusTidslinjehendelserInput />
             default:
-                return < CSVPeriodeInput />
+                console.error("Kjenner ikke igjen parser", parser)
+                return <CSVPeriodeInput />
         }
     }
 

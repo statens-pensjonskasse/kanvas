@@ -1,11 +1,13 @@
 import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
+import { ColorContext } from "../../state/ColorProvider";
 import { PandavarehusContext } from '../../state/PandavarehusProvider';
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
 
 export default function PandavarehusInput() {
     const { tidslinjer, setTidslinjer } = useContext(TidslinjeContext)
+    const { setColors } = useContext(ColorContext)
 
     const [tidslinjesamlinger, setTidslinjesamlinger] = useState([])
 
@@ -81,6 +83,10 @@ export default function PandavarehusInput() {
             const [tidslinjehendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
             setTidslinjer(tidslinjesamling.tidslinjer)
             setTidslinjehendelse(tidslinjehendelse)
+            setColors(new Map([[
+                tidslinjehendelse.TidslinjeId,
+                "red"
+            ]]))
         }
     }, [tidslinjesamlinger, tilstand])
 
@@ -95,45 +101,22 @@ export default function PandavarehusInput() {
 
     return (
         <VStack>
-            <VStack >
-                <RadioGroup onChange={setTable} value={table}>
-                    <Stack direction={'row'}>
-                        <Radio value='forrige'>Forrige</Radio>
-                        <Radio value='neste'>Neste</Radio>
-                    </Stack>
-                </RadioGroup>
-                <HStack>
-                    <Text>PersonId</Text>
-                    <Input
-                        defaultValue={person || ""}
-                        placeholder="PersonId"
-                        onChange={event => {
-                            event.preventDefault()
-                            setPerson(event.target.value)
-                        }}
-                        textAlign={'center'}
-                        variant={'filled'}
-                        autoFocus
-                        blur
-                    />
-                </HStack>
-                <HStack>
-                    <Textarea
-                        ref={input}
-                        readOnly
-                        resize={'both'}
-                        type="text"
-                        spellCheck="false"
-                        placeholder={"Kjør pandavarehus-kanvas-connector.sh lokalt for å kunne hente poliser fra pandavarehus"}
-                        value={parset}
-                        minWidth={'2xl'}
-                        minHeight={'20em'}
-                        wrap='off'
-                        overflow={'auto'}
-                        fontFamily={'mono'}
-                    />
-                </HStack>
-            </VStack>
+            <HStack>
+                <Textarea
+                    ref={input}
+                    readOnly
+                    resize={'both'}
+                    type="text"
+                    spellCheck="false"
+                    placeholder={"Kjør pandavarehus-kanvas-connector.sh lokalt for å kunne hente poliser fra pandavarehus"}
+                    value={parset}
+                    minWidth={'2xl'}
+                    minHeight={'20em'}
+                    wrap='off'
+                    overflow={'auto'}
+                    fontFamily={'mono'}
+                />
+            </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
                 label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${tidslinjehendelseHost}`}

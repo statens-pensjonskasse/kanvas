@@ -55,6 +55,11 @@ export default class SimulerTidslinjehendelser {
                         return [erstatning]
                     }
 
+                    if (hendelse.Typeindikator === 'FAKTISK_ALDER') {
+                        console.log("Erstatning", erstatning)
+                        console.log("Periode", periode)
+                    }
+
                     return [
                         periode.medSluttDato(DateTime.fromJSDate(aksjonsdato).toJSDate()),
                         erstatning
