@@ -1,23 +1,27 @@
-import { Button, HStack, Input, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
+import { PandavarehusContext } from '../../state/PandavarehusProvider';
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
-import { useSessionState } from '../../util/useSessionState';
-import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
-    const { tidslinjer } = useContext(TidslinjeContext)
-    const { setTidslinjer } = useContext(TidslinjeContext)
+    const { tidslinjer, setTidslinjer } = useContext(TidslinjeContext)
 
-    const [person, setPerson] = useStickyState("", "pandavarehus_person")
-    const [ tidslinjesamlinger, setTidslinjesamlinger ] = useState([])
-    const [ tilstand, setTilstand ] = useSessionState(0, "pandavarehus_tilstand")
-    const [showTooltip, setShowTooltip] = useState(false)
+    const [tidslinjesamlinger, setTidslinjesamlinger] = useState([])
 
-    const [host, setHost] = useStickyState("http://localhost:3044", "pandavarehus_tidslinjehendelser_host")
-    const [table, setTable] = useSessionState("neste", "pandavarehus_table")
-
-    const [parset, setParset] = useState()
+    const {
+        tilstand,
+        setTilstand,
+        setMaxTilstand,
+        tidslinjehendelseHost,
+        person,
+        setPerson,
+        table,
+        setTable,
+        parset,
+        setParset,
+        setTidslinjehendelse
+    } = useContext(PandavarehusContext)
 
     const toast = useToast()
     const input = useRef()
@@ -29,14 +33,14 @@ export default function PandavarehusInput() {
             if (!person) {
                 return
             }
-            const URL = `${host}/${table}?PersonId=eq.${person}`
+            const URL = `${tidslinjehendelseHost}/${table}?PersonId=eq.${person}`
             console.log(`Bruker pandavarehus ${URL}`)
             let data;
             try {
                 data = await fetch(URL)
             } catch (error) {
                 toast({
-                    title: `Feil ved henting fra ${host}`,
+                    title: `Feil ved henting fra ${tidslinjehendelseHost}`,
                     description: `${error.message}, kjører pandavarehus-kanvas-connector.sh?`,
                     position: "top-right",
                     status: "error"
@@ -47,11 +51,13 @@ export default function PandavarehusInput() {
             if (data.ok) {
                 const json = await data.json()
                 const samlinger = tidslinjeparser.parseOgSimuler(json)
+                const nyMaxTilstand = Math.max(0, samlinger.length - 1)
+                setMaxTilstand(nyMaxTilstand)
                 setTidslinjesamlinger(samlinger)
-                setTilstand(Math.min(tilstand, samlinger.length - 1))
+                setTilstand(Math.min(tilstand, nyMaxTilstand))
                 if (samlinger.length) {
                     toast({
-                        title: host,
+                        title: tidslinjehendelseHost,
                         description: `Simulerte ${samlinger.length - 1} tilstander fra ${table}`,
                         status: 'success',
                         position: 'top-right'
@@ -59,7 +65,7 @@ export default function PandavarehusInput() {
                 }
                 else {
                     toast({
-                        title: host,
+                        title: tidslinjehendelseHost,
                         description: `Fant ingen tidslinjer for PersonId ${person}`,
                         status: 'warning',
                         position: 'top-right'
@@ -68,11 +74,13 @@ export default function PandavarehusInput() {
             }
         }
         fetchData()
-    }, [person, host, table])
+    }, [person, tidslinjehendelseHost, table])
 
     useEffect(() => {
         if (tidslinjesamlinger.length) {
-            setTidslinjer(tidslinjesamlinger[tilstand].tidslinjer)
+            const [tidslinjehendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
+            setTidslinjer(tidslinjesamling.tidslinjer)
+            setTidslinjehendelse(tidslinjehendelse)
         }
     }, [tidslinjesamlinger, tilstand])
 
@@ -88,36 +96,6 @@ export default function PandavarehusInput() {
     return (
         <VStack>
             <VStack >
-                <HStack>
-                    <Button onClick={e => setTilstand(Math.max(0, tilstand - 1))}> - </Button>
-                    <Slider
-                        min={0}
-                        max={tidslinjesamlinger.length - 1}
-                        step={1}
-                        defaultValue={tilstand}
-                        value={tilstand}
-                        onChange={setTilstand}
-                        minWidth={'container.md'}
-                        onMouseEnter={() => setShowTooltip(true)}
-                        onMouseLeave={() => setShowTooltip(false)}
-                    >
-                        <SliderTrack>
-                            <SliderFilledTrack />
-                        </SliderTrack>
-                        <Tooltip
-                            hasArrow
-                            bg='teal.500'
-                            color='white'
-                            placement='top'
-                            isOpen={showTooltip}
-                            label={`Tilstand ${tilstand}`}
-                        >
-                            <SliderThumb />
-                        </Tooltip>
-                    </Slider>
-                    <Button onClick={e => setTilstand(Math.min(tidslinjesamlinger.length - 1, tilstand + 1))}> + </Button>
-
-                </HStack>
                 <RadioGroup onChange={setTable} value={table}>
                     <Stack direction={'row'}>
                         <Radio value='forrige'>Forrige</Radio>
@@ -139,28 +117,15 @@ export default function PandavarehusInput() {
                         blur
                     />
                 </HStack>
-                {/* <HStack>
-                    <Text>Host</Text>
-                    <Input
-                        defaultValue={host}
-                        placeholder={"Host med port, feks http://localhost:3033"}
-                        textAlign={'center'}
-                        onChange={(event) => {
-                            event.preventDefault()
-                            setHost(event.target.value)
-                        }}
-                        variant={'filled'}
-                    />
-                </HStack> */}
                 <HStack>
                     <Textarea
                         ref={input}
-                        variant={'filled'}
+                        readOnly
                         resize={'both'}
                         type="text"
                         spellCheck="false"
-                        placeholder={"Kjør kanvas-connector lokalt for å kunne hente poliser fra pandavarehus"}
-                        defaultValue={parset}
+                        placeholder={"Kjør pandavarehus-kanvas-connector.sh lokalt for å kunne hente poliser fra pandavarehus"}
+                        value={parset}
                         minWidth={'2xl'}
                         minHeight={'20em'}
                         wrap='off'
@@ -171,7 +136,7 @@ export default function PandavarehusInput() {
             </VStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${host}`}
+                label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${tidslinjehendelseHost}`}
             >
                 ?
             </Tooltip>

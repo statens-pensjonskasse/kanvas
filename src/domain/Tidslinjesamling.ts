@@ -29,11 +29,12 @@ export default class Tidslinjesamling {
     }
 
     erstattSiste(aksjonsdato: Date, tidslinjeId: string, erstatter: PeriodeErstatter): Tidslinjesamling {
-        const tidslinje = this.tidslinjer.find(t => t.label === tidslinjeId)
-        if (tidslinje) {
+        const tidslinjeIndeks = this.tidslinjer.findIndex(t => t.label === tidslinjeId)
+        if (tidslinjeIndeks > -1) {
             return new Tidslinjesamling([
-                ...this.tidslinjer.filter(t => t.label !== tidslinjeId),
-                tidslinje.erstattSiste(aksjonsdato, erstatter)
+                ...this.tidslinjer.slice(0, tidslinjeIndeks),
+                this.tidslinjer[tidslinjeIndeks].erstattSiste(aksjonsdato, erstatter),
+                ...this.tidslinjer.slice(tidslinjeIndeks + 1)
             ])
         }
         else {

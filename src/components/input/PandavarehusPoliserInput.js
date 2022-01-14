@@ -1,18 +1,25 @@
 import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusPoliserParser from '../../parsers/pandavarehus/PandavarehusPoliserParser';
+import { PandavarehusContext } from "../../state/PandavarehusProvider";
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
-import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
     const { tidslinjer } = useContext(TidslinjeContext)
-    const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const { setTidslinjer } = useContext(TidslinjeContext)
-    const [host, setHost] = useStickyState("http://localhost:3033", "pandavarehus_poliser_host")
-    const [table, setTable] = useStickyState("neste", "pandavarehus_table")
-    const [parset, setParset] = useState()
+
     const toast = useToast()
     const input = useRef()
+
+    const {
+        poliserHost,
+        person,
+        setPerson,
+        table,
+        setTable,
+        parset,
+        setParset
+    } = useContext(PandavarehusContext)
 
     const tidslinjeparser = new PandavarehusPoliserParser();
 
@@ -21,14 +28,14 @@ export default function PandavarehusInput() {
             if (!person) {
                 return
             }
-            const URL = `${host}/${table}?PersonId=eq.${person}`
+            const URL = `${poliserHost}/${table}?PersonId=eq.${person}`
             console.log(`Bruker pandavarehus ${URL}`)
             let data;
             try {
                 data = await fetch(URL)
             } catch (error) {
                 toast({
-                    title: `Feil ved henting fra ${host}`,
+                    title: `Feil ved henting fra ${poliserHost}`,
                     description: `${error.message}, kjører pandavarehus-kanvas-connector.sh?`,
                     position: "top-right",
                     status: "error"
@@ -42,7 +49,7 @@ export default function PandavarehusInput() {
                 setTidslinjer(tidslinjer)
                 if (tidslinjer.length) {
                     toast({
-                        title: host,
+                        title: poliserHost,
                         description: `Hentet ${tidslinjer.length} poliser fra ${table}`,
                         status: 'success',
                         position: 'top-right'
@@ -50,7 +57,7 @@ export default function PandavarehusInput() {
                 }
                 else {
                     toast({
-                        title: host,
+                        title: poliserHost,
                         description: `Fant ingen poliser for PersonId ${person}`,
                         status: 'warning',
                         position: 'top-right'
@@ -61,7 +68,7 @@ export default function PandavarehusInput() {
         setTidslinjer([])
         fetchData()
 
-    }, [person, host, table])
+    }, [person, poliserHost, table])
 
     useEffect(() => {
         setParset(
@@ -96,23 +103,10 @@ export default function PandavarehusInput() {
                         blur
                     />
                 </HStack>
-                {/* <HStack>
-                    <Text>Host</Text>
-                    <Input
-                        defaultValue={host}
-                        placeholder={"Host med port, feks http://localhost:3033"}
-                        textAlign={'center'}
-                        onChange={(event) => {
-                            event.preventDefault()
-                            setHost(event.target.value)
-                        }}
-                        variant={'filled'}
-                    />
-                </HStack> */}
                 <HStack>
                     <Textarea
+                        readOnly
                         ref={input}
-                        variant={'filled'}
                         resize={'both'}
                         type="text"
                         spellCheck="false"
@@ -128,7 +122,7 @@ export default function PandavarehusInput() {
             </VStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${host}`}
+                label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${poliserHost}`}
             >
                 ?
             </Tooltip>

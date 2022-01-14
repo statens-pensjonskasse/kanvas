@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useRef, useState } from "react";
 import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
+import { PandavarehusContext } from "../state/PandavarehusProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
 import { useStickyState } from "../util/useStickyState";
@@ -14,6 +15,7 @@ export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
+  const { tidslinjehendelse } = useContext(PandavarehusContext)
   const toast = useToast()
   const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
 
@@ -22,12 +24,19 @@ export default function TidslinjerView() {
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
 
-  const kortNedEgenskap = (egenskap) => {
+  const kortNedEgenskap = egenskap => {
     const [key, val] = egenskap.split(":")
     if (val) {
       return val.trim()
     }
     return egenskap
+  }
+
+  const filtrerEgenskaper = (egenskaper, filter) => {
+    return egenskaper
+      .filter(e => filter?.test(e) ?? true)
+      .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
+      .filter(e => e !== "")
   }
 
   useEffect(() => {
@@ -67,7 +76,7 @@ export default function TidslinjerView() {
         ])
       )
     ))
-    const periodeBredde = (periodeStrl, 20)
+    const periodeBredde = Math.min(periodeStrl, 25)
     const antallPeriodeBredde = Math.max(allDates.length, 3)
 
     const timelineHeight = 100;
@@ -79,6 +88,42 @@ export default function TidslinjerView() {
     const yScale = scaleLinear()
       .domain([numTimelines, -1])
       .range([0, height]);
+
+    const lagVisbarTekst = (tidslinje, periode, egenskapVelger) => {
+      // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
+      const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed))
+      const antallPerioder = tidslinje.perioder.length
+      const filter = filters.get(tidslinje.label)
+      const filtrerteEgenskaper = filtrerEgenskaper(periode.egenskaper, filter)
+      const fullTekst = Object.values(filtrerteEgenskaper)
+        .map(egenskap => egenskap.trim())
+        .filter(egenskapVelger)
+        .map(egenskap => egenskap.replace(/^_/, ''))
+        .map(egenskap => kompakteEgenskaper ? kortNedEgenskap(egenskap) : egenskap)
+        .join(", ")
+
+      return (antallPerioder <= 1 || fullTekst.length < maksBokstaver) ? fullTekst : fullTekst
+        .slice(0, maksBokstaver)
+        .replace(/.{3}$/g, "...")
+    }
+
+    const tilpassedePerioder = tidslinjer
+      .flatMap(
+        tidslinje => {
+          return tidslinje.perioder
+            .map(
+              periode => Object.assign(
+                periode,
+                {
+                  posisjon: tidslinje.posisjon,
+                  fullTekstOver: lagVisbarTekst(tidslinje, periode, egenskap => !egenskap.startsWith("_")),
+                  fullTekstUnder: lagVisbarTekst(tidslinje, periode, egenskap => egenskap.startsWith("_"))
+                }
+              )
+            )
+        }
+      )
+
 
     svg
       .selectAll(".tidslinje")
@@ -116,102 +161,33 @@ export default function TidslinjerView() {
 
     svg
       .selectAll(".periodeEgenskaper")
-      .data(
-        tidslinjer
-          .flatMap(
-            tidslinje => {
-              const filter = filters.get(tidslinje.label)
-              return tidslinje.perioder.map(
-                periode => Object.assign(
-                  periode,
-                  {
-                    // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-                    maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
-                    antallPerioder: tidslinje.perioder.length,
-                    filtrerteEgenskaper: periode.egenskaper
-                      .filter(egenskap => !egenskap.startsWith("_"))
-                      .filter(e => filter?.test(e) ?? true)
-                      .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
-                      .filter(e => e !== "")
-                  }
-                )
-              )
-            }
-          )
-      )
+      .data(tilpassedePerioder)
       .join("text")
       .attr("class", "periodeEgenskaper")
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) - 10)
-      .text(
-        periode => {
-          const fullTekst = Object.values(periode.filtrerteEgenskaper)
-            .map(egenskap => egenskap.trim())
-            .filter(egenskap => !egenskap.startsWith("_"))
-            .map(egenskap => kompakteEgenskaper ? kortNedEgenskap(egenskap) : egenskap)
-            .join(", ")
-
-          return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
-            .slice(0, periode.maksBokstaver)
-            .replace(/.{3}$/g, "...")
-        }
-      );
+      .text(periode => periode.fullTekstOver);
 
     svg
       .selectAll(".periodeUndertekst")
-      .data(
-        tidslinjer
-          .flatMap(
-            tidslinje => {
-              const filter = filters.get(tidslinje.label)
-              return tidslinje.perioder.map(
-                periode => Object.assign(
-                  periode,
-                  {
-                    // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-                    maksBokstaver: 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed)),
-                    antallPerioder: tidslinje.perioder.length,
-                    filtrerteEgenskaper: periode.egenskaper
-                      .filter(e => e.startsWith("_"))
-                      .filter(e => filter?.test(e.slice(1)) ?? true)
-                      .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "_") : e) // henter kun ut verdien dersom det finnes et filter
-                      .filter(e => e !== "_")
-                  }
-                )
-              )
-            }
-          )
-      )
+      .data(tilpassedePerioder)
       .join("text")
       .attr('class', 'periodeUndertekst')
       .attr("fill", periode => colors.get(periode.label) || "black")
       .attr("x", periode => xScale(periode.fraOgMed) + 20)
       .attr("y", periode => yScale(periode.posisjon) + 20)
-      .text(
-        periode => {
-          const fullTekst = Object.values(periode.filtrerteEgenskaper)
-            .map(egenskap => egenskap.trim())
-            .filter(egenskap => egenskap.startsWith("_"))
-            .map(egenskap => egenskap.slice(1))
-            .map(egenskap => kompakteEgenskaper ? kortNedEgenskap(egenskap) : egenskap)
-            .join(", ")
-
-          return (periode.antallPerioder <= 1 || fullTekst.length < periode.maksBokstaver) ? fullTekst : fullTekst
-            .slice(0, periode.maksBokstaver)
-            .replace(/.{3}$/g, "...")
-        }
-      );
+      .text(periode => periode.fullTekstUnder);
 
     svg
       .selectAll(".tidslinjeLabel")
       .data(tidslinjer)
       .join("text")
       .attr("class", "tidslinjeLabel")
-      .attr("fill", tidslinje => colors.get(tidslinje.label) || "black")
+      .attr("fill", tidslinje => tidslinjehendelse.TidslinjeId === tidslinje.label? "red":  colors.get(tidslinje.label) || "black")
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
-      .text(tidslinje => tidslinje.label.substring(0, periodeBredde))
+      .text(tidslinje => tidslinje.label.slice(0, 40))
 
     xAxis
       .select(".x-axis")

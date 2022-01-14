@@ -46,7 +46,7 @@ export default function TidslinjehendelseView() {
                     }
                 )
         }
-    }, [tidslinjer, toast])
+    }, [tidslinjer, toast, isEnabled])
 
 
     const formaterteTidslinjer = (nyeTidslinjer) => {

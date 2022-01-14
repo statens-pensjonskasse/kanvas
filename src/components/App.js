@@ -1,11 +1,13 @@
 import { ChakraProvider, Container, Heading, HStack, Link, VStack } from '@chakra-ui/react';
 import React from "react";
+import Simuleringsslider from '../components/input/Simuleringsslider';
 import InputComponent from '../components/InputComponent';
 import ParserSelector from '../components/ParserSelector';
 import "../css/App.css";
 import ColorProvider from '../state/ColorProvider';
 import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
+import PandavarehusProvider from '../state/PandavarehusProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import TidslinjehendelseView from "./TidslinjehendelseView";
 import TidslinjerView from "./TidslinjeView";
@@ -23,15 +25,20 @@ function App() {
         <ColorProvider>
           <FilterProvider>
             <TidslinjerProvider>
-              <InputTextProvider>
-                <ParserSelector />
-                <TidslinjerView />
+              <PandavarehusProvider>
+                <InputTextProvider>
+                  <ParserSelector />
+                  <Simuleringsslider />
+                  <TidslinjerView />
 
-                <TidslinjehendelseView />
+                  <TidslinjehendelseView />
 
-                <InputComponent />
+                  <InputComponent />
 
-              </InputTextProvider>
+
+                </InputTextProvider>
+
+              </PandavarehusProvider>
             </TidslinjerProvider>
           </FilterProvider>
         </ColorProvider>
