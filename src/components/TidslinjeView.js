@@ -25,9 +25,9 @@ export default function TidslinjerView() {
   const dimensions = useResizeObserver(wrapperRef);
 
   const kortNedEgenskap = egenskap => {
-    const [key, val] = egenskap.split(":")
-    if (val) {
-      return val.trim()
+    const separated = egenskap.split(":")
+    if (separated.length > 1) {
+      return separated.slice(1).join(":")
     }
     return egenskap
   }

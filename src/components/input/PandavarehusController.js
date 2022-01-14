@@ -1,14 +1,22 @@
-import { Badge, Button, Container, HStack, Input, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Text, Tooltip, VStack } from "@chakra-ui/react";
+import { Badge, Box, Button, Container, Heading, HStack, Input, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, UnorderedList, VStack } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import { InputTextContext } from "../../state/InputTextProvider";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
+import {
+    Accordion,
+    AccordionItem,
+    AccordionButton,
+    AccordionPanel,
+    AccordionIcon,
+} from '@chakra-ui/react'
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
-export default function Simuleringsslider() {
+export default function PandavarehusController() {
     const {
         tilstand,
         maxTilstand,
         setTilstand,
-        tidslinjehendelse,
+        kategorisertHendelse,
         table,
         setTable,
         person,
@@ -18,31 +26,100 @@ export default function Simuleringsslider() {
     const { parser } = useContext(InputTextContext)
 
     const {
-        Aksjonsdato,
-        Egenskap,
-        Forrige,
-        Neste,
-        Hendelsesnummer,
-        Hendelsestype,
-        PersonId,
-        PoliseId,
-        TidslinjeId,
-        Tidslinjehendelsestype,
-        Typeindikator
-    } = tidslinjehendelse || {};
+        aksjonsdato,
+        kategorisering,
+        hendelser
+    } = kategorisertHendelse || {};
 
     if (!parser.startsWith("PANDAVAREHUS_")) {
         return null
     }
 
+    const HendelserComponent = () => {
+        return (
+            <VStack>
+                <HStack>
+                    <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
+                    <Heading size={'md'}>{kategorisering}</Heading>
+                </HStack>
+                <Accordion allowToggle allowMultiple>
+                    {
+                        hendelser
+                            .filter(h => h.Tidslinjehendelsestype === "ENDRE")
+                            .map(
+                                tidslinjehendelse => {
+                                    const {
+                                        Aksjonsdato,
+                                        Egenskap,
+                                        Forrige,
+                                        Neste,
+                                        Hendelsesnummer,
+                                        Hendelsestype,
+                                        PersonId,
+                                        PoliseId,
+                                        TidslinjeId,
+                                        Tidslinjehendelsestype,
+                                        Typeindikator
+                                    } = (tidslinjehendelse) || {};
+                                    return (
+                                        <AccordionItem key={`${Hendelsesnummer} ${Egenskap}`}>
+                                            <h2>
+                                                <AccordionButton>
+                                                    <HStack flex='1' textAlign='left'>
+                                                        <Tag colorScheme={'green'}>{Egenskap}</Tag>
+                                                        <Text>{Forrige?.substring(0, 50) || "(tom)"}</Text>
+                                                        <ArrowForwardIcon />
+                                                        <Text>{Neste?.substring(0, 50) || "(tom)"}</Text>
+                                                    </HStack>
+                                                    <AccordionIcon />
+                                                </AccordionButton>
+                                            </h2>
+                                            <AccordionPanel maxW={'3xl'} overflow={'auto'} padding={'5'} margin={'5'} shadow={'md'} rounded={'lg'}>
+                                                <HStack>
+                                                    <Badge
+                                                        fontSize={'lg'}
+                                                        colorScheme={(() => {
+                                                            switch (Tidslinjehendelsestype) {
+                                                                case "NY":
+                                                                    return "green"
+                                                                case "AVSLUTT":
+                                                                    return "red"
+                                                                default:
+                                                                    return "blue";
+                                                            }
+                                                        })()}
+                                                    >
+                                                        {Tidslinjehendelsestype}</Badge>
+                                                    <Text fontSize="lg" fontWeight={'bold'} textColor={'red'}>
+                                                        {Typeindikator}
+                                                    </Text>
+                                                </HStack>
+                                                <VStack alignItems={'left'} >
+                                                    <Text fontWeight={'bold'}>
+                                                        {Egenskap}
+                                                    </Text>
+                                                    <Text fontFamily={'mono'}>
+                                                        Fra: {Forrige?.replaceAll("\\n", "") || "<tom>"}
+                                                    </Text>
+                                                    <Text fontFamily={'mono'}>
+                                                        Til: {Neste?.replaceAll("\\n", "") || "<tom>"}
+                                                    </Text>
+                                                </VStack>
+                                            </AccordionPanel>
+                                        </AccordionItem>
+                                    )
+                                }
+                            )
+                    }
+                </Accordion>
+            </VStack>
+
+        )
+
+    }
+
     return (
         <VStack>
-            <RadioGroup onChange={setTable} value={table}>
-                <Stack direction={'row'}>
-                    <Radio value='forrige'>Forrige</Radio>
-                    <Radio value='neste'>Neste</Radio>
-                </Stack>
-            </RadioGroup>
             <HStack>
                 <Text>PersonId:</Text>
                 <Container shadow='md' rounded='lg'>
@@ -68,6 +145,12 @@ export default function Simuleringsslider() {
 
                 </Container>
             </HStack>
+            <RadioGroup onChange={setTable} value={table}>
+                <Stack direction={'row'}>
+                    <Radio value='forrige'>Forrige</Radio>
+                    <Radio value='neste'>Neste</Radio>
+                </Stack>
+            </RadioGroup>
             <HStack>
                 <Button
                     onClick={e => setTilstand(Math.max(0, tilstand - 1))}
@@ -104,40 +187,7 @@ export default function Simuleringsslider() {
                     onMouseLeave={() => setShowTooltip(false)}
                 > + </Button>
             </HStack>
-            {
-                tidslinjehendelse && (
-                    <VStack
-                        rounded='xl'
-                        shadow={'lg'}
-                        justifyContent={'center'}
-                        padding={'4'}
-                        maxW={'container.xl'}
-                    >
-                        <HStack>
-                            <Badge fontSize={'lg'}> {Aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
-                            {Hendelsestype !== 'UKJENT' && <Badge colorScheme={'blue'} fontSize={'lg'}>{Hendelsestype}</Badge>}
-                        </HStack>
-                        <HStack>
-                            <Badge>{Tidslinjehendelsestype}</Badge>
-                            <Text fontSize="lg" fontWeight={'bold'} textColor={'red'}>
-                                {Typeindikator}
-                            </Text>
-                        </HStack>
-                        <VStack >
-                            <Text fontWeight={'bold'}>
-                                {Egenskap}
-                            </Text>
-                            <Text fontFamily={'mono'}>
-                                Fra: {Forrige?.replaceAll("\\n", "") || "<tom>"}
-                            </Text>
-                            <Text fontFamily={'mono'}>
-                                Til: {Neste?.replaceAll("\\n", "") || "<tom>"}
-                            </Text>
-                        </VStack>
-
-                    </VStack>
-                )
-            }
+            {kategorisertHendelse && <HendelserComponent />}
 
         </VStack>
     )

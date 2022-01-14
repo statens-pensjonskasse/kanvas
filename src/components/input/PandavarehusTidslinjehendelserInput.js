@@ -22,7 +22,7 @@ export default function PandavarehusInput() {
         setTable,
         parset,
         setParset,
-        setTidslinjehendelse
+        setKategorisertHendelse
     } = useContext(PandavarehusContext)
 
     const toast = useToast()
@@ -79,14 +79,16 @@ export default function PandavarehusInput() {
     }, [person, tidslinjehendelseHost, table])
 
     useEffect(() => {
-        if (tidslinjesamlinger.length) {
-            const [tidslinjehendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
+        if (tidslinjesamlinger.length && tilstand < tidslinjesamlinger.length) {
+            const [kategorisertHendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
             setTidslinjer(tidslinjesamling.tidslinjer)
-            setTidslinjehendelse(tidslinjehendelse)
-            setColors(new Map([[
-                tidslinjehendelse.TidslinjeId,
-                "red"
-            ]]))
+            setKategorisertHendelse(kategorisertHendelse)
+            setColors(new Map(
+                kategorisertHendelse.hendelser
+                    .map(
+                        hendelse => [hendelse.TidslinjeId, 'red']
+                    )
+            ))
         }
     }, [tidslinjesamlinger, tilstand])
 

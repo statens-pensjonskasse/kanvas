@@ -3,7 +3,7 @@ export default interface Tidslinjehendelse {
     Egenskap: string,
     Forrige: string,
     Neste: string,
-    Hendelsesnummer: string,
+    Hendelsesnummer: number,
     Hendelsestype: string,
     PersonId: string,
     PoliseId: string,

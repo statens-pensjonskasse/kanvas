@@ -1,7 +1,7 @@
 import { DateTime } from "luxon"
+import KategorisertHendelse from "../../domain/KategorisertHendelse"
 import SimulerTidslinjehendelser from '../../domain/SimulerTidslinjehendelser'
 import Tidslinje from "../../domain/Tidslinje"
-import Tidslinjehendelse from "../../domain/Tidslinjehendelse"
 import Tidslinjesamling from '../../domain/Tidslinjesamling'
 import Pandavarehusparser from './PandavarehusParser'
 
@@ -9,7 +9,7 @@ import Pandavarehusparser from './PandavarehusParser'
 export default class PandavarehusTidslinjehendelserParser implements Pandavarehusparser {
     readonly norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
 
-    parseOgSimuler(data: any[]): [Tidslinjehendelse, Tidslinjesamling][] {
+    parseOgSimuler(data: any[]): [KategorisertHendelse, Tidslinjesamling][] {
         return SimulerTidslinjehendelser.simuler(
             data
                 .map(
@@ -28,6 +28,7 @@ export default class PandavarehusTidslinjehendelserParser implements Pandavarehu
                     })
                 )
                 .filter(r => r.Typeindikator !== "RESERVEFREMSKRIVINGER")
+                .sort((a, b) => a.Hendelsesnummer - b.Hendelsesnummer)
         )
 
     }
