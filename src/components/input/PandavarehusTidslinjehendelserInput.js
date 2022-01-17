@@ -1,28 +1,15 @@
-import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
-import { ColorContext } from "../../state/ColorProvider";
 import { PandavarehusContext } from '../../state/PandavarehusProvider';
-import { TidslinjeContext } from "../../state/TidslinjerProvider";
 
 export default function PandavarehusInput() {
-    const { tidslinjer, setTidslinjer } = useContext(TidslinjeContext)
-    const { setColors } = useContext(ColorContext)
-
-    const [tidslinjesamlinger, setTidslinjesamlinger] = useState([])
-
     const {
-        tilstand,
-        setTilstand,
-        setMaxTilstand,
         tidslinjehendelseHost,
         person,
-        setPerson,
         table,
-        setTable,
         parset,
-        setParset,
-        setKategorisertHendelse
+        oppdaterSimulerteSamlinger,
     } = useContext(PandavarehusContext)
 
     const toast = useToast()
@@ -47,16 +34,13 @@ export default function PandavarehusInput() {
                     position: "top-right",
                     status: "error"
                 })
-                setTidslinjer([])
+                oppdaterSimulerteSamlinger([])
                 return
             }
             if (data.ok) {
                 const json = await data.json()
                 const samlinger = tidslinjeparser.parseOgSimuler(json)
-                const nyMaxTilstand = Math.max(0, samlinger.length - 1)
-                setMaxTilstand(nyMaxTilstand)
-                setTidslinjesamlinger(samlinger)
-                setTilstand(Math.min(tilstand, nyMaxTilstand))
+                oppdaterSimulerteSamlinger(samlinger)
                 if (samlinger.length) {
                     toast({
                         title: tidslinjehendelseHost,
@@ -77,29 +61,6 @@ export default function PandavarehusInput() {
         }
         fetchData()
     }, [person, tidslinjehendelseHost, table])
-
-    useEffect(() => {
-        if (tidslinjesamlinger.length && tilstand < tidslinjesamlinger.length) {
-            const [kategorisertHendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
-            setTidslinjer(tidslinjesamling.tidslinjer)
-            setKategorisertHendelse(kategorisertHendelse)
-            setColors(new Map(
-                kategorisertHendelse.hendelser
-                    .map(
-                        hendelse => [hendelse.TidslinjeId, 'red']
-                    )
-            ))
-        }
-    }, [tidslinjesamlinger, tilstand])
-
-    useEffect(() => {
-        setParset(
-            tidslinjer.map(
-                t => t.somCSV().join("\n")
-            )
-                .join("\n\n") + "\n"
-        )
-    }, [tidslinjer])
 
     return (
         <VStack>

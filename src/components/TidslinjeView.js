@@ -15,9 +15,14 @@ export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
-  const { tidslinjehendelse } = useContext(PandavarehusContext)
+  const { tidslinjehendelse, valgteTidslinjeIder } = useContext(PandavarehusContext)
   const toast = useToast()
   const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
+  const visningsTidslinjer = valgteTidslinjeIder.length ? tidslinjer
+    .filter(t => valgteTidslinjeIder.includes(t.label))
+    .sort((a, b) => a.posisjon - b.posisjon)
+    .map((t, i) => t.medPosisjon(i))
+    : tidslinjer
 
   const svgRef = useRef();
   const xAxisRef = useRef();
@@ -45,7 +50,7 @@ export default function TidslinjerView() {
     if (!dimensions) return;
 
     // finner alle datoer som skal på x-aksen
-    const allDates = tidslinjer.flatMap(
+    const allDates = visningsTidslinjer.flatMap(
       tidslinje => tidslinje.datoer
     )
       .flatMap(x => x)
@@ -55,7 +60,7 @@ export default function TidslinjerView() {
     allDates.sort((a, b) => a - b)
 
     const startDate = allDates.size > 1 ? DateTime.fromJSDate((min(allDates))) : DateTime.fromMillis(-8640000000000000);
-    const endDate = tidslinjer.some(tidslinje => !!!tidslinje.tilOgMed) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
+    const endDate = visningsTidslinjer.some(tidslinje => !!!tidslinje.tilOgMed) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()
       .domain([
@@ -66,8 +71,8 @@ export default function TidslinjerView() {
       .range([0, dimensions.width - 1]);
 
 
-    const numTimelines = Math.max(4, tidslinjer.length) + 1
-    const periodeStrl = Math.max(...(tidslinjer
+    const numTimelines = Math.max(4, visningsTidslinjer.length) + 1
+    const periodeStrl = Math.max(...(visningsTidslinjer
       .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
       .flatMap(
         egenskaper => ([
@@ -107,7 +112,7 @@ export default function TidslinjerView() {
         .replace(/.{3}$/g, "...")
     }
 
-    const tilpassedePerioder = tidslinjer
+    const tilpassedePerioder = visningsTidslinjer
       .flatMap(
         tidslinje => {
           return tidslinje.perioder
@@ -127,7 +132,7 @@ export default function TidslinjerView() {
 
     svg
       .selectAll(".tidslinje")
-      .data(tidslinjer.flatMap(t => t.perioder))
+      .data(visningsTidslinjer.flatMap(t => t.perioder))
       .join("line")
       .attr("data-tip", tidslinje => tidslinje.label)
       .attr("class", tidslinje => tidslinje.tilOgMed ? "tidslinje" : "tidslinje running")
@@ -140,7 +145,7 @@ export default function TidslinjerView() {
 
     svg
       .selectAll(".periodeDelimiter")
-      .data(tidslinjer.flatMap(
+      .data(visningsTidslinjer.flatMap(
         tidslinje => tidslinje.datoer.map(
           dato => ({
             label: tidslinje.label,
@@ -181,10 +186,10 @@ export default function TidslinjerView() {
 
     svg
       .selectAll(".tidslinjeLabel")
-      .data(tidslinjer)
+      .data(visningsTidslinjer)
       .join("text")
       .attr("class", "tidslinjeLabel")
-      .attr("fill", tidslinje => tidslinjehendelse?.TidslinjeId === tidslinje.label? "red":  colors.get(tidslinje.label) || "black")
+      .attr("fill", tidslinje => tidslinjehendelse?.TidslinjeId === tidslinje.label ? "red" : colors.get(tidslinje.label) || "black")
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
       .text(tidslinje => tidslinje.label.slice(0, 40))
@@ -202,7 +207,7 @@ export default function TidslinjerView() {
       );
 
 
-  }, [colors, tidslinjer, filters, dimensions, kompakteEgenskaper]);
+  }, [colors, tidslinjer, filters, dimensions, kompakteEgenskaper, valgteTidslinjeIder]);
 
   const saveScreenshot = async () => {
     const canvas = await html2canvas(wrapperRef.current)

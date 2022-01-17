@@ -13,7 +13,6 @@ export default class SimulerTidslinjehendelser {
         let gjeldende = Tidslinjesamling.tom()
 
         let hendelsesnummer = hendelser[0]?.Hendelsesnummer || 0
-        console.log(hendelser.map(h => `${h.Hendelsesnummer} ${h.Hendelsestype}`))
 
         for (let i = 0; i < hendelser.length; i++) {
             const hendelse = hendelser[i]
@@ -69,11 +68,6 @@ export default class SimulerTidslinjehendelser {
 
                     if (SimulerTidslinjehendelser.løperTil(periode, aksjonsdato)) {
                         return [erstatning]
-                    }
-
-                    if (hendelse.Typeindikator === 'FAKTISK_ALDER') {
-                        console.log("Erstatning", erstatning)
-                        console.log("Periode", periode)
                     }
 
                     return [

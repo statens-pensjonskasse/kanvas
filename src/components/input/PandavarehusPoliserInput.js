@@ -5,9 +5,6 @@ import { PandavarehusContext } from "../../state/PandavarehusProvider";
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
 
 export default function PandavarehusInput() {
-    const { tidslinjer } = useContext(TidslinjeContext)
-    const { setTidslinjer } = useContext(TidslinjeContext)
-
     const toast = useToast()
     const input = useRef()
 
@@ -16,7 +13,7 @@ export default function PandavarehusInput() {
         person,
         table,
         parset,
-        setParset
+        oppdaterMedNyeTidslinjer
     } = useContext(PandavarehusContext)
 
     const tidslinjeparser = new PandavarehusPoliserParser();
@@ -38,13 +35,13 @@ export default function PandavarehusInput() {
                     position: "top-right",
                     status: "error"
                 })
-                setTidslinjer([])
+                oppdaterMedNyeTidslinjer([])
                 return
             }
             if (data.ok) {
                 const json = await data.json()
                 const tidslinjer = tidslinjeparser.parse(json)
-                setTidslinjer(tidslinjer)
+                oppdaterMedNyeTidslinjer(tidslinjer)
                 if (tidslinjer.length) {
                     toast({
                         title: poliserHost,
@@ -63,19 +60,10 @@ export default function PandavarehusInput() {
                 }
             }
         }
-        setTidslinjer([])
+        oppdaterMedNyeTidslinjer([])
         fetchData()
 
     }, [person, poliserHost, table])
-
-    useEffect(() => {
-        setParset(
-            tidslinjer.map(
-                t => t.somCSV().join("\n")
-            )
-                .join("\n\n") + "\n"
-        )
-    }, [tidslinjer])
 
     return (
         <VStack>
