@@ -44,7 +44,7 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
 
         return tidslinjer
             .map(
-                (tidslinje, index) => tidslinje.medPosisjon(tidslinjer.length - index)
+                (tidslinje, index) => tidslinje.medPosisjon(tidslinjer.length - 1 - index)
             )
     }
 

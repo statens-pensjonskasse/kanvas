@@ -39,7 +39,7 @@ export default class Tidslinjesamling {
         }
         else {
             const minsteStartdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || new Date(2020, 0, 1)
-            console.warn(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato.toLocaleDateString("nb-NO")}.`)
+            console.debug(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato.toLocaleDateString("nb-NO")}.`)
 
             return this.leggTil(
                 new Tidslinje([

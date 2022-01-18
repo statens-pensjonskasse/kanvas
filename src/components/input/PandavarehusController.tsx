@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
-    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack, Wrap
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
+    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import { InputTextContext } from "../../state/InputTextProvider";
@@ -18,8 +18,9 @@ export default function PandavarehusController() {
         setPerson,
         tidslinjeIder,
         valgteTidslinjeIder,
-        setValgteTidslinjeIder,
-        oppdaterTilstand
+        oppdaterTilstand,
+        velgTidslinjeIder,
+        kategoriseringer
     } = useContext(PandavarehusContext)
     const [showTooltip, setShowTooltip] = useState(false)
     const { parser } = useContext(InputTextContext)
@@ -49,8 +50,10 @@ export default function PandavarehusController() {
             Typeindikator
         } = (tidslinjehendelse) || {};
         return (
-            <AccordionItem key={`${Hendelsesnummer} ${Egenskap}`}>
-                <h2>
+            <AccordionItem
+                key={`${Hendelsesnummer} ${Egenskap}`}
+            >
+                <Heading background={valgteTidslinjeIder.includes(TidslinjeId) ? 'blue.100' : 'none'}>
                     <AccordionButton>
                         <HStack flex='1' textAlign='left'>
                             <Tag colorScheme={'green'}>{Egenskap}</Tag>
@@ -60,8 +63,14 @@ export default function PandavarehusController() {
                         </HStack>
                         <AccordionIcon />
                     </AccordionButton>
-                </h2>
-                <AccordionPanel maxW={'3xl'} overflow={'auto'} padding={'5'} margin={'5'} shadow={'md'} rounded={'lg'}>
+                </Heading>
+                <AccordionPanel
+                    overflow={'auto'}
+                    padding={'5'}
+                    margin={'5'}
+                    shadow={'md'}
+                    rounded={'lg'}
+                >
                     <HStack>
                         <Badge
                             fontSize={'lg'}
@@ -101,30 +110,54 @@ export default function PandavarehusController() {
 
     const HendelserComponent = () => {
         return (
-            <Wrap shadow={'md'} rounded={'xl'} padding={'3'}>
-                <VStack>
-                    <HStack>
-                        <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
-                        <Heading size={'md'}>{kategorisering}</Heading>
-                    </HStack>
-                    <Accordion minW={'70em'} minH={'20em'} allowToggle allowMultiple>
-                        {
-                            hendelser
-                                .map(
-                                    (tidslinjehendelse, i) => <KategorisertHendelse key={i} tidslinjehendelse={tidslinjehendelse} />
-                                )
-                        }
-                    </Accordion>
-                </VStack>
-
-            </Wrap>
+            <Grid
+                templateRows='repeat(1, 1fr)'
+                templateColumns='repeat(3, 1fr)'
+                gap={4}
+                width={'90vw'}
+            >
+                <GridItem colSpan={2}>
+                    <VStack shadow={'md'} rounded={'xl'} padding={'3'}>
+                        <HStack>
+                            <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
+                            <Heading size={'md'}>{kategorisering}</Heading>
+                        </HStack>
+                        <Accordion minWidth={'100%'} maxW={'100%'} overflow={'clip'} minH={'20em'} allowToggle allowMultiple>
+                            {
+                                hendelser
+                                    .map(
+                                        (tidslinjehendelse, i) => <KategorisertHendelse key={i} tidslinjehendelse={tidslinjehendelse} />
+                                    )
+                            }
+                        </Accordion>
+                    </VStack>
+                </GridItem>
+                <GridItem colSpan={1}>
+                    <Container shadow='md' rounded='xl'>
+                        <VStack alignItems={'left'}>
+                            {
+                                kategoriseringer()
+                                    .map((kategoriserbarHendelse, i) => (
+                                        <Text
+                                            key={i}
+                                            onClick={() => oppdaterTilstand(i)}
+                                            backgroundColor={tilstand === i ? 'blue.200' : 'none'}
+                                        >
+                                            {`${kategoriserbarHendelse.aksjonsdato.toLocaleDateString('nb-no')}: ${kategoriserbarHendelse.kategorisering}`}
+                                        </Text>)
+                                    )
+                            }
+                        </VStack>
+                    </Container>
+                </GridItem>
+            </Grid>
         )
 
     }
 
     return (
         <VStack>
-            <HStack>
+            <HStack width={'container.sm'}>
                 <Text>PersonId:</Text>
                 <Container shadow='md' rounded='lg'>
                     <Input
@@ -149,7 +182,7 @@ export default function PandavarehusController() {
                 </Container>
                 <Popover>
                     <PopoverTrigger>
-                        <Button w={'md'}>
+                        <Button w={'md'} colorScheme={valgteTidslinjeIder.length ? 'orange' : null}>
                             Valgte tidslinjer ({valgteTidslinjeIder.length})
                         </Button>
                     </PopoverTrigger>
@@ -158,7 +191,7 @@ export default function PandavarehusController() {
                         <PopoverCloseButton />
                         <PopoverHeader>Tidslinjer</PopoverHeader>
                         <PopoverBody>
-                            <CheckboxGroup colorScheme='green' value={valgteTidslinjeIder} onChange={setValgteTidslinjeIder}>
+                            <CheckboxGroup colorScheme='green' value={valgteTidslinjeIder} onChange={velgTidslinjeIder}>
                                 <Stack overflow={'clip'}>
                                     {
                                         tidslinjeIder

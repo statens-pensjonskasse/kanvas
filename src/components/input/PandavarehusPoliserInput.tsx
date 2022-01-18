@@ -1,30 +1,32 @@
-import { HStack, Input, Radio, RadioGroup, Stack, Text, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
+import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusPoliserParser from '../../parsers/pandavarehus/PandavarehusPoliserParser';
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
-import { TidslinjeContext } from "../../state/TidslinjerProvider";
+import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
     const toast = useToast()
     const input = useRef()
 
+    const [poliserHost, setPoliserHost] = useStickyState("http://localhost:3033", "pandavarehus_poliser_host")
+
     const {
-        poliserHost,
         person,
         table,
         parset,
-        oppdaterMedNyeTidslinjer
+        oppdaterMedNyeTidslinjer,
+        cache,
+        setCache
     } = useContext(PandavarehusContext)
 
     const tidslinjeparser = new PandavarehusPoliserParser();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (tidslinjetabell) => {
             if (!person) {
                 return
             }
-            const URL = `${poliserHost}/${table}?PersonId=eq.${person}`
-            console.log(`Bruker pandavarehus ${URL}`)
+            const URL = `${poliserHost}/${tidslinjetabell}?PersonId=eq.${person}`
             let data;
             try {
                 data = await fetch(URL)
@@ -35,35 +37,43 @@ export default function PandavarehusInput() {
                     position: "top-right",
                     status: "error"
                 })
-                oppdaterMedNyeTidslinjer([])
-                return
+                return []
             }
             if (data.ok) {
                 const json = await data.json()
                 const tidslinjer = tidslinjeparser.parse(json)
-                oppdaterMedNyeTidslinjer(tidslinjer)
-                if (tidslinjer.length) {
+                if (!tidslinjer.length) {
                     toast({
                         title: poliserHost,
-                        description: `Hentet ${tidslinjer.length} poliser fra ${table}`,
-                        status: 'success',
-                        position: 'top-right'
-                    })
-                }
-                else {
-                    toast({
-                        title: poliserHost,
-                        description: `Fant ingen poliser for PersonId ${person}`,
+                        description: `Fant ingen poliser for Person ${person.substring(0, 8)}`,
                         status: 'warning',
                         position: 'top-right'
                     })
                 }
+                return tidslinjer
             }
         }
-        oppdaterMedNyeTidslinjer([])
-        fetchData()
+        Promise.all([
+            fetchData("forrige"),
+            fetchData("neste")
+        ])
+            .then(([forrige, neste]) => {
+                setCache({
+                    ...cache,
+                    poliser: {
+                        forrige,
+                        neste
+                    }
+                })
+            })
 
-    }, [person, poliserHost, table])
+    }, [person, poliserHost])
+
+    useEffect(() => {
+        if (cache?.poliser) {
+            oppdaterMedNyeTidslinjer(cache.poliser[table] || [])
+        }
+    }, [cache?.poliser, table])
 
     return (
         <VStack>

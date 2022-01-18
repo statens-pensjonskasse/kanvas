@@ -3,19 +3,6 @@ import Periode from "../../domain/Periode"
 import Tidslinje from "../../domain/Tidslinje"
 import Pandavarehusparser from './PandavarehusParser'
 
-interface Poliseperiode {
-    Typeindikator: String
-    PoliseId: String
-    FraOgMed: Date
-    TilOgMed: Date
-    Polisestatus: String,
-    AvtaleForReserve: String,
-    Ordningsgruppe: String,
-    Stillingsforholdnummer: String,
-    Polisetype: String,
-    Polisegrad: String
-}
-
 export default class PandavarehusPoliserParser implements Pandavarehusparser {
     readonly norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
 
@@ -59,7 +46,7 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
                     ]
                         .filter(egenskap => !!egenskap)
                     )
-                    .medPosisjon(posisjoner.indexOf(polisePeriode.PoliseId) + 1)
+                    .medPosisjon(posisjoner.indexOf(polisePeriode.PoliseId))
             )
             .reduce(
                 (acc: Map<string, Periode[]>, current: Periode) => {

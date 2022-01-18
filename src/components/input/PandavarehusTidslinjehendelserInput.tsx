@@ -2,15 +2,19 @@ import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { PandavarehusContext } from '../../state/PandavarehusProvider';
+import { useStickyState } from "../../util/useStickyState";
 
 export default function PandavarehusInput() {
     const {
-        tidslinjehendelseHost,
         person,
         table,
         parset,
         oppdaterSimulerteSamlinger,
+        cache,
+        setCache
     } = useContext(PandavarehusContext)
+
+    const [tidslinjehendelseHost, setTidslinjehendelseHost] = useStickyState("http://localhost:3044", "pandavarehus_tidslinjehendelser_host")
 
     const toast = useToast()
     const input = useRef()
@@ -18,12 +22,11 @@ export default function PandavarehusInput() {
     const tidslinjeparser = new PandavarehusTidslinjehendelserParser();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (tidslinjetabell) => {
             if (!person) {
-                return
+                return []
             }
-            const URL = `${tidslinjehendelseHost}/${table}?PersonId=eq.${person}`
-            console.log(`Bruker pandavarehus ${URL}`)
+            const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?PersonId=eq.${person}`
             let data;
             try {
                 data = await fetch(URL)
@@ -34,33 +37,44 @@ export default function PandavarehusInput() {
                     position: "top-right",
                     status: "error"
                 })
-                oppdaterSimulerteSamlinger([])
-                return
+                return []
             }
             if (data.ok) {
                 const json = await data.json()
                 const samlinger = tidslinjeparser.parseOgSimuler(json)
-                oppdaterSimulerteSamlinger(samlinger)
-                if (samlinger.length) {
+
+                if (!samlinger.length) {
                     toast({
                         title: tidslinjehendelseHost,
-                        description: `Simulerte ${samlinger.length - 1} tilstander fra ${table}`,
-                        status: 'success',
-                        position: 'top-right'
-                    })
-                }
-                else {
-                    toast({
-                        title: tidslinjehendelseHost,
-                        description: `Fant ingen tidslinjer for PersonId ${person}`,
+                        description: `Fant ingen tidslinjehendelser for Person ${person.substring(0, 8)}`,
                         status: 'warning',
                         position: 'top-right'
                     })
                 }
+
+                return samlinger
             }
         }
-        fetchData()
-    }, [person, tidslinjehendelseHost, table])
+        Promise.all([
+            fetchData("forrige"),
+            fetchData("neste")
+        ])
+            .then(([forrige, neste]) => {
+                setCache({
+                    ...cache,
+                    tidslinjehendelser: {
+                        forrige,
+                        neste
+                    }
+                })
+            })
+    }, [person, tidslinjehendelseHost])
+
+    useEffect(() => {
+        if (cache?.tidslinjehendelser) {
+            oppdaterSimulerteSamlinger(cache.tidslinjehendelser[table] || [])
+        }
+    }, [cache?.tidslinjehendelser, table])
 
     return (
         <VStack>

@@ -2,7 +2,10 @@ import { Button, Container, FormControl, FormLabel, HStack, Switch, useToast } f
 import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
 import html2canvas from "html2canvas";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
+import Egenskap from "../domain/Egenskap";
+import Periode from "../domain/Periode";
+import Tidslinje from "../domain/Tidslinje";
 import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
 import { PandavarehusContext } from "../state/PandavarehusProvider";
@@ -15,7 +18,7 @@ export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
-  const { tidslinjehendelse, valgteTidslinjeIder } = useContext(PandavarehusContext)
+  const { kategorisertHendelse, valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
   const toast = useToast()
   const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
   const visningsTidslinjer = valgteTidslinjeIder.length ? tidslinjer
@@ -37,7 +40,7 @@ export default function TidslinjerView() {
     return egenskap
   }
 
-  const filtrerEgenskaper = (egenskaper, filter) => {
+  const filtrerEgenskaper = (egenskaper: string[], filter): string[] => {
     return egenskaper
       .filter(e => filter?.test(e) ?? true)
       .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
@@ -50,9 +53,12 @@ export default function TidslinjerView() {
     if (!dimensions) return;
 
     // finner alle datoer som skal på x-aksen
-    const allDates = visningsTidslinjer.flatMap(
-      tidslinje => tidslinje.datoer
+    const allDates = visningsTidslinjer.concat(
+      sisteSimulerteTilstand().filter(s => !valgteTidslinjeIder.length || valgteTidslinjeIder.includes(s.label))
     )
+      .flatMap(
+        tidslinje => tidslinje.datoer
+      )
       .flatMap(x => x)
       .filter((date, i, self) =>
         self.findIndex(d => d.getTime() === date.getTime()) === i
@@ -70,8 +76,7 @@ export default function TidslinjerView() {
       ])
       .range([0, dimensions.width - 1]);
 
-
-    const numTimelines = Math.max(4, visningsTidslinjer.length) + 1
+    const numTimelines = Math.max(sisteSimulerteTilstand().filter(s => valgteTidslinjeIder.includes(s.label)).length, valgteTidslinjeIder.length, visningsTidslinjer.length)
     const periodeStrl = Math.max(...(visningsTidslinjer
       .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
       .flatMap(
@@ -94,12 +99,12 @@ export default function TidslinjerView() {
       .domain([numTimelines, -1])
       .range([0, height]);
 
-    const lagVisbarTekst = (tidslinje, periode, egenskapVelger) => {
+    const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger) => {
       // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
       const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed))
       const antallPerioder = tidslinje.perioder.length
       const filter = filters.get(tidslinje.label)
-      const filtrerteEgenskaper = filtrerEgenskaper(periode.egenskaper, filter)
+      const filtrerteEgenskaper: string[] = filtrerEgenskaper(periode.egenskaper, filter)
       const fullTekst = Object.values(filtrerteEgenskaper)
         .map(egenskap => egenskap.trim())
         .filter(egenskapVelger)
@@ -189,7 +194,7 @@ export default function TidslinjerView() {
       .data(visningsTidslinjer)
       .join("text")
       .attr("class", "tidslinjeLabel")
-      .attr("fill", tidslinje => tidslinjehendelse?.TidslinjeId === tidslinje.label ? "red" : colors.get(tidslinje.label) || "black")
+      .attr("fill", tidslinje => (colors.get(tidslinje.label) || "black"))
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
       .text(tidslinje => tidslinje.label.slice(0, 40))

@@ -1,41 +1,35 @@
 import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
-import { hardkodet } from "../../hardkodinger/hardkodetCSV";
+import { hardkodet } from '../../hardkodinger/hardkodetGherkin';
 import Colorparser from "../../parsers/CSVColorparser";
-import CSVTidslinjeparser from "../../parsers/CSVTidslinjeparser";
+import Filterparser from "../../parsers/CSVFilterparser";
+import GherkinTidslinjeparser from "../../parsers/GherkinTidslinjeparser";
 import { ColorContext } from "../../state/ColorProvider";
+import { FilterContext } from "../../state/FilterProvider";
 import { InputTextContext } from "../../state/InputTextProvider";
 import { TidslinjeContext } from "../../state/TidslinjerProvider";
 
+
 export default function PeriodeInput() {
-    const input = React.createRef();
-    const { inputText, parseInputText } = useContext(InputTextContext)
-    const { setTidslinjer } = useContext(TidslinjeContext)
+    const { setTidslinjer } = useContext(TidslinjeContext);
+    const { setFilters } = useContext(FilterContext);
     const { setColors } = useContext(ColorContext)
+    const { inputText, parseInputText } = useContext(InputTextContext)
+    const input = React.createRef<HTMLTextAreaElement>();
 
-    const delimiter = ";"
-    const fraOgMedIndex = 1
-    const tilOgMedIndex = 2
-    const identifikatorIndex = 0
-
-    const tidslinjeparser = new CSVTidslinjeparser({
-        delimiter: delimiter,
-        fraOgMedIndex: fraOgMedIndex,
-        tilOgMedIndex: tilOgMedIndex,
-        identifikatorIndex: identifikatorIndex
-    });
+    const tidslinjeparser = new GherkinTidslinjeparser();
 
     const colorparser = new Colorparser({
-        delimiter: delimiter
+        delimiter: ";"
+    });
+
+    const filterparser = new Filterparser({
+        delimiter: ";"
     });
 
 
     useEffect(() => {
-        if (inputText) {
-            input.current.value = inputText
-        }
         parseCurrent()
-        input.current.focus()
     }, [])
 
     function parseCurrent() {
@@ -45,8 +39,11 @@ export default function PeriodeInput() {
     function parseContent(rawString) {
         const content = rawString
             .split(/\r?\n/)
-            .filter(rad => !rad.startsWith("#"))
             .map(rad => rad.trim());
+
+        setFilters(
+            filterparser.parse(content)
+        )
 
         setColors(
             colorparser.parse(content)
@@ -55,22 +52,14 @@ export default function PeriodeInput() {
         setTidslinjer(
             tidslinjeparser.parse(content)
         )
+
+        parseInputText(rawString)
     }
 
     function handleChange(event) {
         event.preventDefault();
-        parseInputText(event.target.value)
         parseCurrent();
     }
-
-    const csvHintArray = new Array(Math.max(fraOgMedIndex, tilOgMedIndex, identifikatorIndex)).fill("___")
-    csvHintArray[identifikatorIndex] = "[Identifikator]"
-    csvHintArray[fraOgMedIndex] = "[Fra og med]"
-    csvHintArray[tilOgMedIndex] = "[Til og med]"
-    csvHintArray.push(`[egenskaper separert med "${delimiter}"]`)
-
-    const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
-    const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
 
     return (
         <VStack>
@@ -83,10 +72,12 @@ export default function PeriodeInput() {
                     type="text"
                     spellCheck="false"
                     onChange={handleChange}
-                    placeholder={`${periodeHint}`}
+                    placeholder="Gherkin"
                     defaultValue={inputText || hardkodet.join("\n")}
-                    minWidth={'lg'}
-                    minHeight={'20em'}
+                    width={'80vw'}
+                    height={'2xl'}
+                    minWidth={'2xl'}
+                    minHeight={'lg'}
                     wrap='off'
                     overflow={'auto'}
                     fontFamily={'mono'}
@@ -94,11 +85,10 @@ export default function PeriodeInput() {
             </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={[periodeHint, colorHint].map(t => <div>{t}</div>)}
+                label={"Gherkin"}
             >
                 ?
             </Tooltip>
-        </VStack >
-
+        </VStack>
     );
 }
