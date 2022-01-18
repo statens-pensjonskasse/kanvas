@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import KategorisertHendelse from "../domain/KategorisertHendelse";
 import Tidslinje from "../domain/Tidslinje";
+import Tidslinjehendelsediffer from "../domain/Tidslinjehendelsediff";
 import Tidslinjesamling from "../domain/Tidslinjesamling";
 import { useSessionState } from "../util/useSessionState";
 import { useStickyState } from "../util/useStickyState";
@@ -16,6 +17,8 @@ interface PandavarehusContextInterface {
     setPerson(nyPerson: string): void,
     setTable(newTable: string): void,
     setCache(nyCache: Cache): void,
+    setDiff(diff: Tidslinjehendelsediffer): void,
+    diff: Tidslinjehendelsediffer,
     cache: Cache,
     tilstand: number,
     maxTilstand: number,
@@ -49,7 +52,9 @@ export default function PandavarehusProvider({ children }) {
     const [cache, setCache] = useState<Cache>()
 
     const [tidslinjesamlinger, setTidslinjesamlinger] = useState<[KategorisertHendelse, Tidslinjesamling][]>([])
+    const [diff, setDiff] = useState<Tidslinjehendelsediffer>(Tidslinjehendelsediffer.tom())
     const { setTidslinjer } = useContext(TidslinjeContext)
+
     const { setColors } = useContext(ColorContext)
 
     const [tilstand, setTilstand] = useSessionState(0, "pandavarehus_tilstand")
@@ -66,6 +71,7 @@ export default function PandavarehusProvider({ children }) {
         setParset("")
         oppdaterSimulerteSamlinger([])
         setValgteTidslinjeIder([])
+        setKategorisertHendelse(null)
     }
 
     const velgTidslinjeIder = (tidslinjeIder: string[]) => {
@@ -125,6 +131,8 @@ export default function PandavarehusProvider({ children }) {
     }, [tidslinjesamlinger, tilstand])
 
     const exported: PandavarehusContextInterface = {
+        diff,
+        setDiff,
         cache,
         setCache,
         nullstill,

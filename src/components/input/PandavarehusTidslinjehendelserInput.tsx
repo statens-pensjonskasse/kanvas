@@ -1,8 +1,23 @@
 import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
+import KategorisertHendelse from "../../domain/KategorisertHendelse";
+import SimulerTidslinjehendelser from "../../domain/SimulerTidslinjehendelser";
+import Tidslinjehendelse from "../../domain/Tidslinjehendelse";
+import Tidslinjehendelsediffer from "../../domain/Tidslinjehendelsediff";
+import Tidslinjesamling from "../../domain/Tidslinjesamling";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { PandavarehusContext } from '../../state/PandavarehusProvider';
 import { useStickyState } from "../../util/useStickyState";
+
+interface FetchetData {
+    parset: Tidslinjehendelse[],
+    simulert: [KategorisertHendelse, Tidslinjesamling][]
+}
+
+const tomFetch = (): FetchetData => ({
+    parset: [],
+    simulert: []
+})
 
 export default function PandavarehusInput() {
     const {
@@ -11,7 +26,8 @@ export default function PandavarehusInput() {
         parset,
         oppdaterSimulerteSamlinger,
         cache,
-        setCache
+        setCache,
+        setDiff
     } = useContext(PandavarehusContext)
 
     const [tidslinjehendelseHost, setTidslinjehendelseHost] = useStickyState("http://localhost:3044", "pandavarehus_tidslinjehendelser_host")
@@ -22,9 +38,9 @@ export default function PandavarehusInput() {
     const tidslinjeparser = new PandavarehusTidslinjehendelserParser();
 
     useEffect(() => {
-        const fetchData = async (tidslinjetabell) => {
+        const fetchData = async (tidslinjetabell): Promise<FetchetData> => {
             if (!person) {
-                return []
+                return tomFetch()
             }
             const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?PersonId=eq.${person}`
             let data;
@@ -37,13 +53,16 @@ export default function PandavarehusInput() {
                     position: "top-right",
                     status: "error"
                 })
-                return []
+                return tomFetch()
             }
             if (data.ok) {
                 const json = await data.json()
-                const samlinger = tidslinjeparser.parseOgSimuler(json)
+                const parset = tidslinjeparser.parse(json)
+                console.log(parset)
+                const simulert = SimulerTidslinjehendelser.simuler(parset)
+                console.log(simulert)
 
-                if (!samlinger.length) {
+                if (!simulert.length) {
                     toast({
                         title: tidslinjehendelseHost,
                         description: `Fant ingen tidslinjehendelser for Person ${person.substring(0, 8)}`,
@@ -52,7 +71,10 @@ export default function PandavarehusInput() {
                     })
                 }
 
-                return samlinger
+                return {
+                    parset,
+                    simulert
+                }
             }
         }
         Promise.all([
@@ -63,10 +85,11 @@ export default function PandavarehusInput() {
                 setCache({
                     ...cache,
                     tidslinjehendelser: {
-                        forrige,
-                        neste
+                        forrige: forrige.simulert,
+                        neste: neste.simulert
                     }
                 })
+                setDiff(Tidslinjehendelsediffer.utled(forrige.parset, neste.parset))
             })
     }, [person, tidslinjehendelseHost])
 

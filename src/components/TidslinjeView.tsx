@@ -1,9 +1,8 @@
 import { Button, Container, FormControl, FormLabel, HStack, Switch, useToast } from "@chakra-ui/react";
-import { axisBottom, max, min, scaleLinear, scalePoint, select } from "d3";
+import { axisBottom, max, scaleLinear, scalePoint, select } from "d3";
 import html2canvas from "html2canvas";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useRef } from "react";
-import Egenskap from "../domain/Egenskap";
 import Periode from "../domain/Periode";
 import Tidslinje from "../domain/Tidslinje";
 import { ColorContext } from "../state/ColorProvider";
@@ -18,10 +17,10 @@ export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
-  const { kategorisertHendelse, valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
+  const { valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
   const toast = useToast()
   const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
-  const visningsTidslinjer = valgteTidslinjeIder.length ? tidslinjer
+  const visningsTidslinjer: Tidslinje[] = valgteTidslinjeIder.length ? tidslinjer
     .filter(t => valgteTidslinjeIder.includes(t.label))
     .sort((a, b) => a.posisjon - b.posisjon)
     .map((t, i) => t.medPosisjon(i))
@@ -54,7 +53,9 @@ export default function TidslinjerView() {
 
     // finner alle datoer som skal på x-aksen
     const allDates = visningsTidslinjer.concat(
-      sisteSimulerteTilstand().filter(s => !valgteTidslinjeIder.length || valgteTidslinjeIder.includes(s.label))
+      sisteSimulerteTilstand()
+        .filter(s => !valgteTidslinjeIder.length || valgteTidslinjeIder.includes(s.label)
+        )
     )
       .flatMap(
         tidslinje => tidslinje.datoer
@@ -62,11 +63,11 @@ export default function TidslinjerView() {
       .flatMap(x => x)
       .filter((date, i, self) =>
         self.findIndex(d => d.getTime() === date.getTime()) === i
-      )
-    allDates.sort((a, b) => a - b)
+    )
+      .sort((a, b) => a.getTime() - b.getTime())
 
-    const startDate = allDates.size > 1 ? DateTime.fromJSDate((min(allDates))) : DateTime.fromMillis(-8640000000000000);
-    const endDate = visningsTidslinjer.some(tidslinje => !!!tidslinje.tilOgMed) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
+    const startDate = DateTime.fromMillis(-8640000000000000);
+    const endDate = visningsTidslinjer.some(tidslinje => tidslinje.erLøpende()) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
 
     const xScale = scalePoint()
       .domain([
@@ -99,13 +100,13 @@ export default function TidslinjerView() {
       .domain([numTimelines, -1])
       .range([0, height]);
 
-    const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger) => {
+    const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger: (egenskap: string) => boolean) => {
       // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
       const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.getTime() === tidslinje.tilOgMed?.getTime() ? endDate : periode.tilOgMed) || endDate) - xScale(periode.fraOgMed))
       const antallPerioder = tidslinje.perioder.length
       const filter = filters.get(tidslinje.label)
       const filtrerteEgenskaper: string[] = filtrerEgenskaper(periode.egenskaper, filter)
-      const fullTekst = Object.values(filtrerteEgenskaper)
+      const fullTekst = filtrerteEgenskaper
         .map(egenskap => egenskap.trim())
         .filter(egenskapVelger)
         .map(egenskap => egenskap.replace(/^_/, ''))

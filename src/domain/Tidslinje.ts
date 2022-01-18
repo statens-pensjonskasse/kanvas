@@ -93,6 +93,14 @@ export default class Tidslinje {
         )
     }
 
+    erLøpende() {
+        return !this.siste().tilOgMed
+    }
+
+    siste() {
+        return this.perioder[this.perioder.length - 1]
+    }
+
     erstattSiste(aksjonsdato: Date, erstatter: PeriodeErstatter): Tidslinje {
         return new Tidslinje([
             ...this.perioder.slice(0, this.perioder.length - 1),

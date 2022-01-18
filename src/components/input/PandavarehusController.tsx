@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
     PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
@@ -20,7 +20,8 @@ export default function PandavarehusController() {
         valgteTidslinjeIder,
         oppdaterTilstand,
         velgTidslinjeIder,
-        kategoriseringer
+        kategoriseringer,
+        diff
     } = useContext(PandavarehusContext)
     const [showTooltip, setShowTooltip] = useState(false)
     const { parser } = useContext(InputTextContext)
@@ -33,6 +34,10 @@ export default function PandavarehusController() {
 
     if (!parser.startsWith("PANDAVAREHUS_")) {
         return null
+    }
+
+    const diffForHendelse = hendelse => {
+        return diff.diffForHendelse(hendelse)
     }
 
     const KategorisertHendelse = ({ tidslinjehendelse }) => {
@@ -50,12 +55,17 @@ export default function PandavarehusController() {
             Typeindikator
         } = (tidslinjehendelse) || {};
         return (
-            <AccordionItem
-                key={`${Hendelsesnummer} ${Egenskap}`}
-            >
-                <Heading background={valgteTidslinjeIder.includes(TidslinjeId) ? 'blue.100' : 'none'}>
+            <AccordionItem key={`${Hendelsesnummer} ${Egenskap}`} >
+                <Heading background={valgteTidslinjeIder.includes(TidslinjeId) ? 'gray.200' : 'none'}>
                     <AccordionButton>
                         <HStack flex='1' textAlign='left'>
+                            {
+                                diffForHendelse(tidslinjehendelse) && (
+                                    <Tooltip label={diffForHendelse(tidslinjehendelse).beskrivelse}>
+                                        <Tag colorScheme={'blue'}>{diffForHendelse(tidslinjehendelse).diffType}</Tag>
+                                    </Tooltip>
+                                )
+                            }
                             <Tag colorScheme={'green'}>{Egenskap}</Tag>
                             <Text>{Forrige?.substring(0, 50) || "(tom)"}</Text>
                             <ArrowForwardIcon />
@@ -117,7 +127,7 @@ export default function PandavarehusController() {
                 width={'90vw'}
             >
                 <GridItem colSpan={2}>
-                    <VStack shadow={'md'} rounded={'xl'} padding={'3'}>
+                    <VStack shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
                         <HStack>
                             <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
                             <Heading size={'md'}>{kategorisering}</Heading>
@@ -133,18 +143,40 @@ export default function PandavarehusController() {
                     </VStack>
                 </GridItem>
                 <GridItem colSpan={1}>
-                    <Container shadow='md' rounded='xl'>
+                    <Container shadow='md' rounded='xl' padding={3}>
                         <VStack alignItems={'left'}>
                             {
                                 kategoriseringer()
-                                    .map((kategoriserbarHendelse, i) => (
-                                        <Text
-                                            key={i}
-                                            onClick={() => oppdaterTilstand(i)}
-                                            backgroundColor={tilstand === i ? 'blue.200' : 'none'}
-                                        >
-                                            {`${kategoriserbarHendelse.aksjonsdato.toLocaleDateString('nb-no')}: ${kategoriserbarHendelse.kategorisering}`}
-                                        </Text>)
+                                    .map(
+                                        (kategoriserbarHendelse, i) => (
+                                            <HStack
+                                                spacing={2}
+                                                onClick={() => oppdaterTilstand(i)}
+                                                shadow={tilstand === i ? 'outline' : 'none'}
+                                                key={i}
+                                            >
+                                                <Tag>
+                                                    {kategoriserbarHendelse.aksjonsdato.toLocaleDateString('nb-no')}
+                                                </Tag>
+                                                <Text >
+                                                    {`${kategoriserbarHendelse.kategorisering}`}
+                                                </Text>
+                                                {
+                                                    kategoriserbarHendelse.hendelser.some(diffForHendelse) && (
+                                                        <Tooltip
+                                                            label={
+                                                                kategoriserbarHendelse.hendelser
+                                                                    .filter(diffForHendelse)
+                                                                    .map(h => <Text>{h.Egenskap}</Text>)
+                                                            }
+                                                        >
+                                                            <Tag colorScheme={'blue'}>Endret</Tag>
+                                                        </Tooltip>
+                                                    )
+                                                }
+
+                                            </HStack>
+                                        )
                                     )
                             }
                         </VStack>
@@ -212,43 +244,47 @@ export default function PandavarehusController() {
                     <Radio value='neste'>Neste</Radio>
                 </Stack>
             </RadioGroup>
-            <HStack>
-                <Button
-                    onClick={e => oppdaterTilstand(tilstand - 1)}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                > - </Button>
-                <Slider
-                    min={0}
-                    max={maxTilstand}
-                    step={1}
-                    defaultValue={tilstand}
-                    value={tilstand}
-                    onChange={oppdaterTilstand}
-                    minWidth={'container.md'}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                >
-                    <SliderTrack>
-                        <SliderFilledTrack />
-                    </SliderTrack>
-                    <Tooltip
-                        hasArrow
-                        color='white'
-                        placement='top'
-                        isOpen={showTooltip}
-                        label={`Tilstand ${tilstand}`}
-                    >
-                        <SliderThumb />
-                    </Tooltip>
-                </Slider>
-                <Button
-                    onClick={e => oppdaterTilstand(tilstand + 1)}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                > + </Button>
-            </HStack>
-            {kategorisertHendelse && <HendelserComponent />}
+            {kategorisertHendelse && (
+                <>
+                    <HStack>
+                        <Button
+                            onClick={e => oppdaterTilstand(tilstand - 1)}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                        > - </Button>
+                        <Slider
+                            min={0}
+                            max={maxTilstand}
+                            step={1}
+                            defaultValue={tilstand}
+                            value={tilstand}
+                            onChange={oppdaterTilstand}
+                            minWidth={'container.md'}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                        >
+                            <SliderTrack>
+                                <SliderFilledTrack />
+                            </SliderTrack>
+                            <Tooltip
+                                hasArrow
+                                color='white'
+                                placement='top'
+                                isOpen={showTooltip}
+                                label={`Tilstand ${tilstand}`}
+                            >
+                                <SliderThumb />
+                            </Tooltip>
+                        </Slider>
+                        <Button
+                            onClick={e => oppdaterTilstand(tilstand + 1)}
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                        > + </Button>
+                    </HStack>
+                    <HendelserComponent />
+                </>
+            )}
 
         </VStack>
     )

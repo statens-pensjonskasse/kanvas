@@ -13,10 +13,11 @@ export default class SimulerTidslinjehendelser {
         let gjeldende = Tidslinjesamling.tom()
 
         let hendelsesnummer = hendelser[0]?.Hendelsesnummer || 0
+        const sisteHendelsesnummer = hendelser.length - 1
 
         for (let i = 0; i < hendelser.length; i++) {
             const hendelse = hendelser[i]
-            if (hendelse.Hendelsesnummer !== hendelsesnummer) {
+            if ((hendelse.Hendelsesnummer !== hendelsesnummer || (i === sisteHendelsesnummer))) {
                 const sisteGyldige = gjeldendeHendelser[gjeldendeHendelser.length - 1]
                 const kategorisert = {
                     aksjonsdato: sisteGyldige.Aksjonsdato,
