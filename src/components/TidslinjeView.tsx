@@ -1,8 +1,8 @@
-import { Button, Container, FormControl, FormLabel, HStack, Switch, useToast } from "@chakra-ui/react";
+import { Button, Container, FormControl, FormLabel, HStack, Image, Switch, Text, useToast, VStack } from "@chakra-ui/react";
 import { axisBottom, max, scaleLinear, scalePoint, select } from "d3";
 import html2canvas from "html2canvas";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Periode from "../domain/Periode";
 import Tidslinje from "../domain/Tidslinje";
 import { ColorContext } from "../state/ColorProvider";
@@ -18,6 +18,7 @@ export default function TidslinjerView() {
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
   const { valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
+  const [screenshot, setScreenshot] = useState("")
   const toast = useToast()
   const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
   const visningsTidslinjer: Tidslinje[] = valgteTidslinjeIder.length ? tidslinjer
@@ -63,7 +64,7 @@ export default function TidslinjerView() {
       .flatMap(x => x)
       .filter((date, i, self) =>
         self.findIndex(d => d.getTime() === date.getTime()) === i
-    )
+      )
       .sort((a, b) => a.getTime() - b.getTime())
 
     const startDate = DateTime.fromMillis(-8640000000000000);
@@ -217,22 +218,31 @@ export default function TidslinjerView() {
 
   const saveScreenshot = async () => {
     const canvas = await html2canvas(wrapperRef.current)
-    await canvas.toBlob(
-      blob => navigator.clipboard
-        .write([
-          new window.ClipboardItem(
-            Object.defineProperty({}, blob.type, {
-              value: blob,
-              enumerable: true
-            })
-          )
-        ])
-    )
+    canvas.toBlob(
+      blob => {
+        navigator.clipboard
+          .write([
+            new window.ClipboardItem(
+              Object.defineProperty({}, blob.type, {
+                value: blob,
+                enumerable: true
+              })
+            )
+          ])
 
-    toast({
-      description: "Kopierte skjermbilde til utklippstavla",
-    })
+        toast({
+          description: "Kopierte skjermbilde til utklippstavla",
+        })
+      }
+    )
   }
+
+  const generateScreenshot = async () => {
+    const canvas = await html2canvas(wrapperRef.current)
+    const base64image = canvas.toDataURL("image/png")
+    setScreenshot(base64image)
+  }
+
 
   return (
     <Container
@@ -249,7 +259,20 @@ export default function TidslinjerView() {
         </svg>
       </Container>
       <HStack>
-        <Button colorScheme={'blue'} onClick={saveScreenshot}>Kopier skjermbilde</Button>
+        {
+          false && navigator.clipboard ? (
+            <Button colorScheme={'blue'} onClick={saveScreenshot}>Kopier skjermbilde</Button>
+          ) : (
+            <VStack>
+              <HStack>
+                <Button colorScheme={'blue'} onClick={generateScreenshot}>Generer skjermbilde</Button>
+                {screenshot && <Button onClick={() => setScreenshot(null)}>X</Button>}
+              </HStack>
+              {screenshot && <Text>(Høyreklikk og kopier)</Text>}
+              {screenshot && <Image height={'10em'} src={screenshot} />}
+            </VStack>
+          )
+        }
         <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='kompakte-egenskaper' mb='0'>
             Kompakte egenskaper?
