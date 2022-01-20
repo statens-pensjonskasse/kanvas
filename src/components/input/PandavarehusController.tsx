@@ -258,6 +258,7 @@ export default function PandavarehusController() {
             </RadioGroup>
             {kategorisertHendelse && (
                 <>
+                    <HendelserComponent />
                     <HStack>
                         <HStack>
                             <RadioGroup value={poliseId} onChange={e => velgPoliseId(Number.parseInt(e))}>
@@ -307,7 +308,6 @@ export default function PandavarehusController() {
                             onMouseLeave={() => setShowTooltip(false)}
                         > + </Button>
                     </HStack>
-                    <HendelserComponent />
                 </>
             )}
 
