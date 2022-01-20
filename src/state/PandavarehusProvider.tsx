@@ -135,7 +135,7 @@ export default function PandavarehusProvider({ children }) {
         setMaxTilstand(nyMaxTilstand)
         setTidslinjesamlinger(samlinger)
         if (samlinger.length) {
-            oppdaterMedNyeTidslinjer(samlinger[nyMaxTilstand][1].tidslinjer)
+            oppdaterMedNyeTidslinjer(samlinger[Math.min(tilstand, nyMaxTilstand)][1].tidslinjer)
         }
         else {
             oppdaterMedNyeTidslinjer([])
