@@ -5,9 +5,24 @@ import Tidslinje from './Tidslinje'
 import Tidslinjehendelse from './Tidslinjehendelse'
 import Tidslinjesamling from './Tidslinjesamling'
 
-export default class SimulerTidslinjehendelser {
+export interface PoliseSimulering {
+    simulering: [KategorisertHendelse, Tidslinjesamling][]
+}
 
-    static simuler(hendelser: Tidslinjehendelse[]): [KategorisertHendelse, Tidslinjesamling][] {
+export default class SimulerTidslinjehendelser {
+    static simuler(hendelser: Map<number, Tidslinjehendelse[]>): Map<number, PoliseSimulering> {
+        return new Map(
+            Array.from(hendelser.keys())
+                .map(
+                    key => [
+                        key,
+                        SimulerTidslinjehendelser.simulerPolise(hendelser.get(key))
+                    ]
+                )
+        )
+    }
+
+    private static simulerPolise(hendelser: Tidslinjehendelse[]): PoliseSimulering {
         let samlinger: [KategorisertHendelse, Tidslinjesamling][] = []
         let gjeldendeHendelser: Tidslinjehendelse[] = []
         let gjeldende = Tidslinjesamling.tom()
@@ -22,7 +37,7 @@ export default class SimulerTidslinjehendelser {
                 const kategorisert = {
                     aksjonsdato: sisteGyldige.Aksjonsdato,
                     kategorisering: sisteGyldige.Hendelsestype,
-                    hendelser: gjeldendeHendelser.sort((a, b) => (a.Egenskap > b.Egenskap)? 1 : -1)
+                    hendelser: gjeldendeHendelser.sort((a, b) => (a.Egenskap > b.Egenskap) ? 1 : -1)
                 }
                 samlinger.push([kategorisert, gjeldende])
                 gjeldendeHendelser = []
@@ -31,8 +46,9 @@ export default class SimulerTidslinjehendelser {
             gjeldendeHendelser.push(hendelse)
             gjeldende = SimulerTidslinjehendelser.simulerHendelse(hendelse, gjeldende)
         }
-
-        return samlinger;
+        return {
+            simulering: samlinger
+        };
     }
 
     private static simulerHendelse(hendelse: Tidslinjehendelse, gjeldende: Tidslinjesamling): Tidslinjesamling {

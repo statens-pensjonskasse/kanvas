@@ -64,7 +64,15 @@ export default class Tidslinjehendelsediffer {
 
     }
 
-    static utled(forrige: Tidslinjehendelse[], neste: Tidslinjehendelse[]): Tidslinjehendelsediffer {
+
+    static utled(forrige: Map<number, Tidslinjehendelse[]>, neste: Map<number, Tidslinjehendelse[]>): Tidslinjehendelsediffer {
+        return this.utledPolise(
+            Array.from(forrige.values()).flatMap(x => x),
+            Array.from(neste.values()).flatMap(x => x)
+        )
+    }
+
+    static utledPolise(forrige: Tidslinjehendelse[], neste: Tidslinjehendelse[]): Tidslinjehendelsediffer {
         // per aksjonsdato og rekkefølge
         // ny/endret/fjernet
         const [forrigePerNøkkel, nestePerNøkkel] = [forrige, neste].map(

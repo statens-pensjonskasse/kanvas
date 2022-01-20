@@ -5,7 +5,16 @@ import Tidslinjehendelse from "../../domain/Tidslinjehendelse"
 export default class PandavarehusTidslinjehendelserParser {
     readonly norskDato = new RegExp(/^(?:[0-9]+\.){2}[0-9]{4}$/)
 
-    parse(data: any[]): Tidslinjehendelse[] {
+    parse(data: any[]): Map<number, Tidslinjehendelse[]> {
+        return this.parseAlle(data)
+            .reduce(
+                (acc: Map<number, Tidslinjehendelse[]>, current: Tidslinjehendelse) => {
+                    return acc.set(current.PoliseId, [...acc.get(current.PoliseId) || [], current])
+                }, new Map()
+            );
+    }
+
+    private parseAlle(data: any[]): Tidslinjehendelse[] {
         return data
             .map(
                 raw => ({

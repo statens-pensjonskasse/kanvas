@@ -59,7 +59,7 @@ export default class Periode {
         )
             .medEgenskaper([
                 ...this.egenskaper.filter(e => e.split(":")[0].trim() !== egenskap),
-                `${egenskap}: ${verdi.split('\\n')[0]}`
+                `${egenskap}: ${verdi?.split('\\n')[0] || ""}`
             ])
     }
 

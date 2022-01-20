@@ -1,22 +1,20 @@
 import { HStack, Textarea, Tooltip, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useRef } from "react";
-import KategorisertHendelse from "../../domain/KategorisertHendelse";
-import SimulerTidslinjehendelser from "../../domain/SimulerTidslinjehendelser";
+import SimulerTidslinjehendelser, { PoliseSimulering } from "../../domain/SimulerTidslinjehendelser";
 import Tidslinjehendelse from "../../domain/Tidslinjehendelse";
 import Tidslinjehendelsediffer from "../../domain/Tidslinjehendelsediff";
-import Tidslinjesamling from "../../domain/Tidslinjesamling";
 import PandavarehusTidslinjehendelserParser from '../../parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { PandavarehusContext } from '../../state/PandavarehusProvider';
 import { useStickyState } from "../../util/useStickyState";
 
 interface FetchetData {
-    parset: Tidslinjehendelse[],
-    simulert: [KategorisertHendelse, Tidslinjesamling][]
+    parset: Map<number, Tidslinjehendelse[]>,
+    simulert: Map<number, PoliseSimulering>
 }
 
 const tomFetch = (): FetchetData => ({
-    parset: [],
-    simulert: []
+    parset: new Map(),
+    simulert: new Map()
 })
 
 export default function PandavarehusInput() {
@@ -27,7 +25,10 @@ export default function PandavarehusInput() {
         oppdaterSimulerteSamlinger,
         cache,
         setCache,
-        setDiff
+        setDiff,
+        poliseId,
+        velgPoliseId,
+        setPoliseIder
     } = useContext(PandavarehusContext)
 
     const [tidslinjehendelseHost, setTidslinjehendelseHost] = useStickyState("http://localhost:3044", "pandavarehus_tidslinjehendelser_host")
@@ -57,12 +58,10 @@ export default function PandavarehusInput() {
             }
             if (data.ok) {
                 const json = await data.json()
-                const parset = tidslinjeparser.parse(json)
-                console.log(parset)
-                const simulert = SimulerTidslinjehendelser.simuler(parset)
-                console.log(simulert)
+                const parset: Map<number, Tidslinjehendelse[]> = tidslinjeparser.parse(json)
+                const simulert: Map<number, PoliseSimulering> = SimulerTidslinjehendelser.simuler(parset)
 
-                if (!simulert.length) {
+                if (!simulert.keys()) {
                     toast({
                         title: tidslinjehendelseHost,
                         description: `Fant ingen tidslinjehendelser for Person ${person.substring(0, 8)}`,
@@ -90,14 +89,15 @@ export default function PandavarehusInput() {
                     }
                 })
                 setDiff(Tidslinjehendelsediffer.utled(forrige.parset, neste.parset))
+                setPoliseIder(Array.from(neste.parset.keys()))
             })
     }, [person, tidslinjehendelseHost])
 
     useEffect(() => {
         if (cache?.tidslinjehendelser) {
-            oppdaterSimulerteSamlinger(cache.tidslinjehendelser[table] || [])
+            oppdaterSimulerteSamlinger(cache.tidslinjehendelser[table].get(poliseId)?.simulering || [])
         }
-    }, [cache?.tidslinjehendelser, table])
+    }, [cache?.tidslinjehendelser, table, poliseId])
 
     return (
         <VStack>

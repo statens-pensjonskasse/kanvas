@@ -6,7 +6,7 @@ export default interface Tidslinjehendelse {
     Hendelsesnummer: number,
     Hendelsestype: string,
     PersonId: string,
-    PoliseId: string,
+    PoliseId: number,
     TidslinjeId: string,
     Tidslinjehendelsestype: string,
     Typeindikator: string

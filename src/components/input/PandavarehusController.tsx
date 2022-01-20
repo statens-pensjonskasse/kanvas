@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
     Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
-    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
+    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import { InputTextContext } from "../../state/InputTextProvider";
@@ -20,8 +20,12 @@ export default function PandavarehusController() {
         valgteTidslinjeIder,
         oppdaterTilstand,
         velgTidslinjeIder,
+        toggleTidslinjeId,
         kategoriseringer,
-        diff
+        diff,
+        poliseId,
+        velgPoliseId,
+        poliseIder
     } = useContext(PandavarehusContext)
     const [showTooltip, setShowTooltip] = useState(false)
     const { parser } = useContext(InputTextContext)
@@ -95,8 +99,14 @@ export default function PandavarehusController() {
                                 }
                             })()}
                         >
-                            {Tidslinjehendelsestype}</Badge>
-                        <Text fontSize="lg" fontWeight={'bold'} textColor={'red'}>
+                            {Tidslinjehendelsestype}
+                        </Badge>
+                        <Text
+                            fontSize="lg"
+                            fontWeight={'bold'}
+                            textColor={'red'}
+                            onClick={() => toggleTidslinjeId(TidslinjeId)}
+                        >
                             {Typeindikator}
                         </Text>
                     </HStack>
@@ -113,7 +123,6 @@ export default function PandavarehusController() {
                     </VStack>
                 </AccordionPanel>
             </AccordionItem>
-
         )
     }
 
@@ -247,6 +256,19 @@ export default function PandavarehusController() {
             {kategorisertHendelse && (
                 <>
                     <HStack>
+                        <HStack>
+                            <RadioGroup value={poliseId} onChange={e => velgPoliseId(Number.parseInt(e))}>
+                                <HStack>
+                                {
+                                        poliseIder.map(
+                                            id => <Radio key={id} value={id}>
+                                                <Text>{`Polise:${id}`}</Text>
+                                            </Radio>
+                                        )
+                                    }
+                                </HStack>
+                            </RadioGroup>
+                        </HStack>
                         <Button
                             onClick={e => oppdaterTilstand(tilstand - 1)}
                             onMouseEnter={() => setShowTooltip(true)}

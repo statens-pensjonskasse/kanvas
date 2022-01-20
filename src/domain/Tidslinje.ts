@@ -22,7 +22,6 @@ export default class Tidslinje {
         this.tilOgMed = this.utledSluttdato()
 
         this.valider()
-        // console.log(`Opprettet tidslinje for ${this.label} med størrelse ${this.perioder.length}`)
     }
     justerSammenhengendePerioder(perioder: Periode[]): Periode[] {
         const kombinertePerioder = perioder

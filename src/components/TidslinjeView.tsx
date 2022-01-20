@@ -199,7 +199,7 @@ export default function TidslinjerView() {
       .attr("fill", tidslinje => (colors.get(tidslinje.label) || "black"))
       .attr("x", xScale(startDate) + 20)
       .attr("y", tidslinje => yScale(tidslinje.posisjon) + (timelineHeight / 15))
-      .text(tidslinje => tidslinje.label.slice(0, 40))
+      .text(tidslinje => tidslinje.label.slice(0, periodeBredde))
 
     xAxis
       .select(".x-axis")
