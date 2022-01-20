@@ -235,7 +235,10 @@ export default function PandavarehusController() {
                             <CheckboxGroup colorScheme='green' value={valgteTidslinjeIder} onChange={velgTidslinjeIder}>
                                 <Stack overflow={'clip'}>
                                     {
-                                        tidslinjeIder
+                                        [
+                                            ...valgteTidslinjeIder,
+                                            ...tidslinjeIder.filter(t => !valgteTidslinjeIder.includes(t))
+                                        ]
                                             .sort()
                                             .map(
                                                 (tidslinjeId, i) => <Checkbox key={i} value={tidslinjeId}>{tidslinjeId}</Checkbox>
@@ -259,7 +262,7 @@ export default function PandavarehusController() {
                         <HStack>
                             <RadioGroup value={poliseId} onChange={e => velgPoliseId(Number.parseInt(e))}>
                                 <HStack>
-                                {
+                                    {
                                         poliseIder.map(
                                             id => <Radio key={id} value={id}>
                                                 <Text>{`Polise:${id}`}</Text>
