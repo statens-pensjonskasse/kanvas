@@ -44,7 +44,7 @@ export default function PandavarehusInput() {
                 return tomFetch()
             }
             const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?PersonId=eq.${person}`
-            let data;
+            let data: Response;
             try {
                 data = await fetch(URL)
             } catch (error) {
@@ -74,6 +74,14 @@ export default function PandavarehusInput() {
                     parset,
                     simulert
                 }
+            }
+            else {
+                toast({
+                    title: `Feil ved henting fra ${tidslinjehendelseHost}`,
+                    description: `${data.status}: ${data.statusText}. Husk å kjøre pandavarehus-kanvas-connector.sh på nytt om du har lastet inn nye data.`,
+                    position: "top-right",
+                    status: "error"
+                })
             }
         }
         Promise.all([
@@ -108,7 +116,7 @@ export default function PandavarehusInput() {
                     resize={'both'}
                     type="text"
                     spellCheck="false"
-                    placeholder={"Kjør pandavarehus-kanvas-connector.sh lokalt for å kunne hente poliser fra pandavarehus"}
+                    placeholder={"Kjør pandavarehus-kanvas-connector.sh lokalt for å kunne hente tidslinjehendelser fra pandavarehus"}
                     value={parset}
                     minWidth={'2xl'}
                     minHeight={'20em'}
@@ -119,7 +127,7 @@ export default function PandavarehusInput() {
             </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={`Henter poliser ${table} fra pandavarehus, gitt at postgrest kjører på ${tidslinjehendelseHost}`}
+                label={`Henter tidslinjehendelser ${table} fra pandavarehus, gitt at postgrest kjører på ${tidslinjehendelseHost}`}
             >
                 ?
             </Tooltip>

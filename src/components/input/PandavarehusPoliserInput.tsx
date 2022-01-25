@@ -52,6 +52,14 @@ export default function PandavarehusInput() {
                 }
                 return tidslinjer
             }
+            else {
+                toast({
+                    title: `Feil ved henting fra ${poliserHost}`,
+                    description: `${data.status}: ${data.statusText}. Husk å kjøre pandavarehus-kanvas-connector.sh på nytt om du har lastet inn nye data.`,
+                    position: "top-right",
+                    status: "error"
+                })
+            }
         }
         Promise.all([
             fetchData("forrige"),
