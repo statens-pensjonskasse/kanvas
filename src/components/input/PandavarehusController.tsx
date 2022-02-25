@@ -134,10 +134,12 @@ export default function PandavarehusController() {
                 templateColumns='repeat(3, 1fr)'
                 gap={4}
                 width={'90vw'}
+                maxH='50vh'
             >
-                <GridItem colSpan={2}>
+                <GridItem colSpan={2} overflow='auto'>
                     <VStack shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
                         <HStack>
+                            <Heading size={'sm'}>#{hendelser[0].Hendelsesnummer}</Heading>
                             <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
                             <Heading size={'md'}>{kategorisering}</Heading>
                         </HStack>
@@ -151,7 +153,7 @@ export default function PandavarehusController() {
                         </Accordion>
                     </VStack>
                 </GridItem>
-                <GridItem colSpan={1}>
+                <GridItem colSpan={1} overflow='auto'>
                     <Container shadow='md' rounded='xl' padding={3}>
                         <VStack alignItems={'left'}>
                             {
