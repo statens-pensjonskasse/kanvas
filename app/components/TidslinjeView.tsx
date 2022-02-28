@@ -10,7 +10,6 @@ import { FilterContext } from "../state/FilterProvider";
 import { PandavarehusContext } from "../state/PandavarehusProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 import useResizeObserver from "../util/useResizeObserver";
-import { useStickyState } from "../util/useStickyState";
 
 
 export default function TidslinjerView() {
@@ -20,7 +19,7 @@ export default function TidslinjerView() {
   const { valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
   const [screenshot, setScreenshot] = useState("")
   const toast = useToast()
-  const [kompakteEgenskaper, setKompakteEgenskaper] = useStickyState(true, "kompakte-egenskaper")
+  const [kompakteEgenskaper, setKompakteEgenskaper] = useState(false)
   const visningsTidslinjer: Tidslinje[] = valgteTidslinjeIder.length ? tidslinjer
     .filter(t => valgteTidslinjeIder.includes(t.label))
     .sort((a, b) => a.posisjon - b.posisjon)
