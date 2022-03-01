@@ -1,3 +1,5 @@
 export function loader() {
-    return 'pong'
+    return new Response('pong', {
+        status: 200
+    })
 }
