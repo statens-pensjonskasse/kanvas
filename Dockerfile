@@ -34,7 +34,7 @@ RUN npm install
 COPY --chown=node:node ./ .
 RUN npm run build
 
-EXPOSE 3000
-HEALTHCHECK --start-period=30s --interval=30s --timeout=30s CMD /usr/bin/curl -f localhost:3000/admin/ping || exit 1
+EXPOSE 8080
+HEALTHCHECK --start-period=30s --interval=30s --timeout=30s CMD /usr/bin/curl -f localhost:8080/admin/ping || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["npm", "run", "start"]
