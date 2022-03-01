@@ -65,15 +65,15 @@ export default function PandavarehusProvider({ children }) {
 
     const { setColors } = useContext(ColorContext)
 
-    const [tilstand, setTilstand] = useSessionState(0, "pandavarehus_tilstand")
-    const [maxTilstand, setMaxTilstand] = useSessionState(0, "pandavarehus_max_tilstand")
+    const [tilstand, setTilstand] = useState(0)
+    const [maxTilstand, setMaxTilstand] = useState(0)
     const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const [table, setTable] = useSessionState("neste", "pandavarehus_table")
 
     const [parset, setParset] = useState<string>("")
     const [kategorisertHendelse, setKategorisertHendelse] = useState<KategorisertHendelse>()
     const [tidslinjeIder, setTidslinjeIder] = useState<string[]>([])
-    const [valgteTidslinjeIder, setValgteTidslinjeIder] = useStickyState([])
+    const [valgteTidslinjeIder, setValgteTidslinjeIder] = useState([])
 
     const nullstill = () => {
         setParset("")

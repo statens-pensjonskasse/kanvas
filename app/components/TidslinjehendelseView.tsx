@@ -4,7 +4,6 @@ import { DateTime } from "luxon";
 import React, { useContext, useEffect, useState } from "react";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
-import { useStickyState } from "../util/useStickyState";
 
 const API_SERVER = process.env.REACT_APP_API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
 
@@ -12,7 +11,7 @@ export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
     const [warning, setWarning] = useState("")
     const [pandaVersjon, setPandaVersjon] = useState([])
-    const [isEnabled, setIsEnabled] = useStickyState(false, "kategorisering_enabled")
+    const [isEnabled, setIsEnabled] = useState(false)
 
     const { tidslinjer } = useContext(TidslinjeContext);
     const toast = useToast();
