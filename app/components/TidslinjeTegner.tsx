@@ -1,6 +1,4 @@
-import { axisBottom, scaleLinear, scalePoint, select } from 'd3';
 import { DateTime } from 'luxon';
-import { MutableRefObject } from 'react';
 import Periode from '~/domain/Periode';
 import Tidslinje from '~/domain/Tidslinje';
 
@@ -19,30 +17,40 @@ const filtrerEgenskaper = (egenskaper: string[], filter): string[] => {
         .filter(e => e !== "")
 }
 
+const utledDimensjoner = (tidslinjer: Tidslinje[]): Dimensions => {
+    return {
+        height: 200,
+        width: 200
+    }
+}
+
+export interface Dimensions {
+    height: number,
+    width: number
+}
+
 /**
  * 
  * @param svgRef Referanse til DOM-element der tidslinjene tegnes
  * @param xAxisRef separat DOM-element for x-aksen
  * @param wrapperRef en div-wrapper for tidslinjen og x-aksen
- * @param dimensions dimensjonene som skal brukes for tegning
  * @param kompakteEgenskaper Boolean som sier om typen på egenskapen skal vises eller ikke
  * @param tidslinjer Tidslinjene som skal tegnes
  * @param filters Filtre på hvilke egenskaper som skal vises
  * @param colors Farger for tidslinjer
  */
 export async function tegnTidslinjer(
-    svgRef: MutableRefObject<SVGSVGElement>,
-    xAxisRef: MutableRefObject<SVGSVGElement>,
-    wrapperRef: MutableRefObject<HTMLDivElement>,
-    dimensions: DOMRectReadOnly,
+    svgRef: SVGSVGElement,
+    xAxisRef: SVGSVGElement,
+    containerRef: HTMLDivElement,
     kompakteEgenskaper: boolean,
     tidslinjer: Tidslinje[],
     filters: Map<string, string>,
     colors: Map<string, string>
 ) {
-    const svg = select(svgRef.current);
-    const xAxis = select(xAxisRef.current);
-    if (!dimensions) return;
+    const { max, axisBottom, scaleLinear, scalePoint, select } = await import('d3');
+    const svg = select(svgRef);
+    const xAxis = select(xAxisRef);
 
     // finner alle datoer som skal på x-aksen
     const allDates: Date[] = tidslinjer
@@ -58,14 +66,6 @@ export async function tegnTidslinjer(
     const startDate = DateTime.fromMillis(-8640000000000000);
     const endDate = tidslinjer.some(tidslinje => tidslinje.erLøpende()) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
 
-    const xScale = scalePoint()
-        .domain([
-            startDate,
-            ...allDates,
-            endDate
-        ])
-        .range([0, dimensions.width - 1]);
-
     const numTimelines = tidslinjer.length
     const periodeStrl = Math.max(...(tidslinjer
         .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
@@ -76,14 +76,23 @@ export async function tegnTidslinjer(
             ])
         )
     ))
-    const periodeBredde = Math.min(periodeStrl, 25)
+    const periodeBredde = Math.min(periodeStrl, 25) * 16 // 16px
     const antallPeriodeBredde = Math.max(allDates.length, 3)
+    const width = periodeBredde * antallPeriodeBredde
 
     const timelineHeight = 100;
     const height = numTimelines * timelineHeight;
 
-    svg.style("height", `${height}px`)
-    select(wrapperRef.current).style("min-width", `${antallPeriodeBredde * periodeBredde}em`)
+    const xScale = scalePoint()
+        .domain([
+            startDate,
+            ...allDates,
+            endDate
+        ])
+        .range([0, width - 1]);
+
+    select(containerRef).style("min-width", `${width}px`)
+    select(containerRef).style("min-height", `${height}px`)
 
     const yScale = scaleLinear()
         .domain([numTimelines, -1])
@@ -200,4 +209,6 @@ export async function tegnTidslinjer(
                         DateTime.fromJSDate(dato).toFormat('d.M.yyyy')
                 )
         );
+
+    return { svg, xAxis }
 }

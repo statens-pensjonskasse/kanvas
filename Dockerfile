@@ -40,8 +40,7 @@ WORKDIR /home/node
 EXPOSE 5000
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json .
-COPY --from=builder /app/server.js .
 
 HEALTHCHECK --start-period=30s --interval=30s --timeout=30s CMD /usr/bin/curl -f localhost:8080/admin/ping || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
