@@ -1,16 +1,11 @@
-FROM old-dockerhub.spk.no:5000/node/14-alpine as builder
-
-RUN mkdir -p /app
-WORKDIR /app
-
-# Bygg
-COPY --chown=node:node package.json .
-RUN npm install
-
-COPY --chown=node:node . .
-RUN npm run build
-
 FROM old-dockerhub.spk.no:5000/node/14-alpine
+
+# Setter ENV-variable som settes på hvert logginnslag.
+ENV NAME="kanvas" \
+    PROSESS="pop" \
+    APPLIKASJONSGRUPPE="felles" \
+    SYSTEM="kanvas" \
+    TEAM="sterope"
 
 LABEL "no.spk.team"="sterope" \
     "no.spk.team.email"="ITO-TeamSterope@spk.no" \
@@ -25,22 +20,21 @@ LABEL "no.spk.team"="sterope" \
 ENV TZ=Europe/Oslo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apk add --no-cache curl && apk add --no-cache tini
-RUN npm install express morgan
 
+RUN mkdir -p /app
+WORKDIR /app
+RUN chown node:node /app
+
+# Bygg
 USER node
 
-# Setter ENV-variable som settes på hvert logginnslag.
-ENV NAME="kanvas" \
-    PROSESS="pop" \
-    APPLIKASJONSGRUPPE="felles" \
-    SYSTEM="kanvas" \
-    TEAM="sterope"
+COPY --chown=node:node package.json .
+RUN npm install
 
-WORKDIR /home/node
-EXPOSE 5000
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json .
+COPY --chown=node:node ./ .
+RUN npm run build
 
-HEALTHCHECK --start-period=30s --interval=30s --timeout=30s CMD /usr/bin/curl -f localhost:8080/admin/ping || exit 1
+EXPOSE 3000
+HEALTHCHECK --start-period=30s --interval=30s --timeout=30s CMD /usr/bin/curl -f localhost:3000/admin/ping || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]

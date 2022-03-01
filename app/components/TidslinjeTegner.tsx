@@ -17,17 +17,6 @@ const filtrerEgenskaper = (egenskaper: string[], filter): string[] => {
         .filter(e => e !== "")
 }
 
-const utledDimensjoner = (tidslinjer: Tidslinje[]): Dimensions => {
-    return {
-        height: 200,
-        width: 200
-    }
-}
-
-export interface Dimensions {
-    height: number,
-    width: number
-}
 
 /**
  * 
@@ -42,7 +31,7 @@ export interface Dimensions {
 export async function tegnTidslinjer(
     svgRef: SVGSVGElement,
     xAxisRef: SVGSVGElement,
-    containerRef: HTMLDivElement,
+    containerRef: SVGSVGElement,
     kompakteEgenskaper: boolean,
     tidslinjer: Tidslinje[],
     filters: Map<string, string>,
@@ -51,6 +40,7 @@ export async function tegnTidslinjer(
     const { max, axisBottom, scaleLinear, scalePoint, select } = await import('d3');
     const svg = select(svgRef);
     const xAxis = select(xAxisRef);
+    const container = select(containerRef)
 
     // finner alle datoer som skal på x-aksen
     const allDates: Date[] = tidslinjer
@@ -66,16 +56,19 @@ export async function tegnTidslinjer(
     const startDate = DateTime.fromMillis(-8640000000000000);
     const endDate = tidslinjer.some(tidslinje => tidslinje.erLøpende()) ? DateTime.fromMillis(8640000000000000) : DateTime.fromJSDate(max(allDates));
 
-    const numTimelines = tidslinjer.length
-    const periodeStrl = Math.max(...(tidslinjer
-        .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
-        .flatMap(
-            egenskaper => ([
-                egenskaper.filter(egenskap => egenskap.startsWith("_")).join(", ").length,
-                egenskaper.filter(egenskap => !egenskap.startsWith("_")).join(", ").length
-            ])
+    const numTimelines = tidslinjer.length || 0
+    const periodeStrl = Math.max(
+        0,
+        ...(tidslinjer
+            .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
+            .flatMap(
+                egenskaper => ([
+                    egenskaper.filter(egenskap => egenskap.startsWith("_")).join(", ").length,
+                    egenskaper.filter(egenskap => !egenskap.startsWith("_")).join(", ").length
+                ])
+            )
         )
-    ))
+    )
     const periodeBredde = Math.min(periodeStrl, 25) * 16 // 16px
     const antallPeriodeBredde = Math.max(allDates.length, 3)
     const width = periodeBredde * antallPeriodeBredde
@@ -91,12 +84,12 @@ export async function tegnTidslinjer(
         ])
         .range([0, width - 1]);
 
-    select(containerRef).style("min-width", `${width}px`)
-    select(containerRef).style("min-height", `${height}px`)
+    container.style("min-width", `${width + 32}px`)
+    container.style("min-height", `${height + timelineHeight}px`)
 
     const yScale = scaleLinear()
         .domain([numTimelines, -1])
-        .range([0, height]);
+        .range([timelineHeight / 2, height + timelineHeight / 2]);
 
     const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger: (egenskap: string) => boolean) => {
         // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
@@ -199,7 +192,8 @@ export async function tegnTidslinjer(
         .text(tidslinje => tidslinje.label.slice(0, periodeBredde))
 
     xAxis
-        .select(".x-axis")
+        .attr('width', width)
+        .attr('transform', `translate(0, ${height + timelineHeight / 2})`)
         .style("font-size", "0.9em")
         .call(
             axisBottom(xScale)
@@ -209,6 +203,4 @@ export async function tegnTidslinjer(
                         DateTime.fromJSDate(dato).toFormat('d.M.yyyy')
                 )
         );
-
-    return { svg, xAxis }
 }

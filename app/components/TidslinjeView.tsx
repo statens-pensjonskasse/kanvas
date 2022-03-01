@@ -6,7 +6,6 @@ import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
 import { PandavarehusContext } from "../state/PandavarehusProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
-import useResizeObserver from "../util/useResizeObserver";
 
 
 export default function TidslinjerView() {
@@ -27,7 +26,6 @@ export default function TidslinjerView() {
   const xAxisRef = useRef<SVGSVGElement>();
   const wrapperRef = useRef<SVGSVGElement>();
   const containerRef = useRef<HTMLDivElement>();
-  const dimensions: DOMRectReadOnly = useResizeObserver(containerRef);
 
   useEffect(() => {
     const tegnTidslinjer = async () => {
@@ -35,7 +33,7 @@ export default function TidslinjerView() {
       tegnTidslinjer(
         tidslinjeRef.current,
         xAxisRef.current,
-        containerRef.current,
+        wrapperRef.current,
         kompakteEgenskaper,
         visningsTidslinjer,
         filters,
@@ -49,7 +47,6 @@ export default function TidslinjerView() {
     colors,
     tidslinjer,
     filters,
-    dimensions,
     kompakteEgenskaper,
     valgteTidslinjeIder
   ]);
@@ -69,14 +66,12 @@ export default function TidslinjerView() {
       overflow={'auto'}
       padding={'5'}
     >
-      <Container ref={containerRef}>
-        <svg ref={wrapperRef} height={dimensions?.height} width={dimensions?.width}>
+      <div ref={containerRef}>
+        <svg ref={wrapperRef}>
           <g ref={tidslinjeRef} />
-          <g ref={xAxisRef} >
-            <g className="x-axis" />
-          </g>
+          <g ref={xAxisRef} />
         </svg>
-      </Container>
+      </div>
       <HStack>
         <VStack>
           <HStack>
