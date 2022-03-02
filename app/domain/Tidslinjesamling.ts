@@ -1,9 +1,9 @@
-import { DateTime, Interval } from "luxon";
+import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
 import Tidslinje from "./Tidslinje";
 
 export interface PeriodeErstatter {
-    (aksjonsdato: Date, periode: Periode): Periode[]
+    (aksjonsdato: Aksjonsdato, periode: Periode): Periode[]
 }
 
 export default class Tidslinjesamling {
@@ -24,11 +24,11 @@ export default class Tidslinjesamling {
         ])
     }
 
-    løperTil(periode: Date, aksjonsdato: Date) {
-        return Interval.fromDateTimes(DateTime.fromJSDate(periode), DateTime.fromJSDate(aksjonsdato)).length("days") <= 1
+    løperTil(periode: Aksjonsdato, aksjonsdato: Aksjonsdato) {
+        return periode.avstand(aksjonsdato) <= 1
     }
 
-    erstattSiste(aksjonsdato: Date, tidslinjeId: string, erstatter: PeriodeErstatter): Tidslinjesamling {
+    erstattSiste(aksjonsdato: Aksjonsdato, tidslinjeId: string, erstatter: PeriodeErstatter): Tidslinjesamling {
         const tidslinjeIndeks = this.tidslinjer.findIndex(t => t.label === tidslinjeId)
         if (tidslinjeIndeks > -1) {
             return new Tidslinjesamling([
@@ -38,8 +38,8 @@ export default class Tidslinjesamling {
             ])
         }
         else {
-            const minsteStartdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || new Date(2020, 0, 1)
-            console.debug(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato.toLocaleDateString("nb-NO")}.`)
+            const minsteStartdato: Aksjonsdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || Aksjonsdato.TIDENES_MORGEN
+            console.debug(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato}.`)
 
             return this.leggTil(
                 new Tidslinje([
@@ -54,7 +54,7 @@ export default class Tidslinjesamling {
                         aksjonsdato,
                         new Periode(
                             tidslinjeId,
-                            DateTime.fromJSDate(aksjonsdato).minus({ days: 1 }).toJSDate()
+                            aksjonsdato.plussDager(1)
                         )
                     )
                 ])

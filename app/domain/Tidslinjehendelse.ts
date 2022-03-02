@@ -1,5 +1,7 @@
+import { Aksjonsdato } from "./Aksjonsdato";
+
 export default interface Tidslinjehendelse {
-    Aksjonsdato: Date,
+    Aksjonsdato: Aksjonsdato,
     Egenskap: string,
     Forrige: string,
     Neste: string,

@@ -1,10 +1,10 @@
+import { Aksjonsdato } from "~/domain/Aksjonsdato"
 import Periode from "../domain/Periode"
+import Tidslinje from "../domain/Tidslinje"
 import Tidslinjeparser from "./Tidslinjeparser"
 
-import { DateTime } from "luxon"
-import Tidslinje from "../domain/Tidslinje"
 
-const minsteGyldigeStartDato = DateTime.fromISO("1814-05-17")
+const minsteGyldigeStartDato = new Aksjonsdato("1814-05-17")
 
 type TidslinjeparserProps = {
     delimiter: string
@@ -64,11 +64,17 @@ export default class CSVTidslinjeparser implements Tidslinjeparser {
     }
 
     kanOversettes(rad: string[]): boolean {
-        const fraOgMed = this.oversettDato(rad[this.fraOgMedIndex]?.trim())
+        const fraOgMedString = rad[this.fraOgMedIndex]?.trim()
+        if (!fraOgMedString || !Aksjonsdato.erGyldig(fraOgMedString)) {
+            console.warn(`${fraOgMedString} er ikke gyldig dato`)
+            return false
+        }
+        const fraOgMed = this.oversettDato(fraOgMedString)
 
         const harInnhold = rad.length > 2
-        const harFraOgMed = fraOgMed.isValid && rad[this.fraOgMedIndex]?.length >= 4
-        const harFornuftigDato = fraOgMed > minsteGyldigeStartDato
+        const harFraOgMed = fraOgMed && rad[this.fraOgMedIndex]?.length >= 4
+        const harFornuftigDato = fraOgMed.getTime() > minsteGyldigeStartDato.getTime()
+
         return harInnhold && harFraOgMed && harFornuftigDato
     }
 
@@ -80,22 +86,18 @@ export default class CSVTidslinjeparser implements Tidslinjeparser {
 
         return new Periode(
             label,
-            this.oversettDato(fraOgMed).toJSDate(),
-            tilOgMed && tilOgMed.length >= 4 ? this.oversettTilOgMed(tilOgMed) : undefined,
+            this.oversettDato(fraOgMed),
+            tilOgMed && tilOgMed.length >= 4 ? this.oversettDato(tilOgMed) : undefined,
         )
             .medPosisjon(posisjon)
             .medEgenskaper(rad.slice(this.tilOgMedIndex + 1))
     }
 
-    private oversettTilOgMed(tilOgMed: string): Date {
-        return new Date(this.oversettDato(tilOgMed).toJSDate().toDateString())
-    }
-
     erGyldigDato(dato: string) {
-        return dato && (this.norskDato.test(dato) || DateTime.fromISO(dato).isValid)
+        return Aksjonsdato.erGyldig(dato)
     }
 
-    oversettDato(dato: string): DateTime {
-        return this.norskDato.test(dato) ? DateTime.fromFormat(dato, "d.M.yyyy") : DateTime.fromISO(dato);
+    oversettDato(dato: string): Aksjonsdato | undefined {
+        return dato ? new Aksjonsdato(dato) : undefined;
     }
 }

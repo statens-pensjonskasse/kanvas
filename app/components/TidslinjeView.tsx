@@ -28,20 +28,20 @@ export default function TidslinjerView() {
   const containerRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
-    const tegnTidslinjer = async () => {
+    const visualiser = async () => {
       const { tegnTidslinjer } = await import('./TidslinjeTegner')
       tegnTidslinjer(
         tidslinjeRef.current,
         xAxisRef.current,
         wrapperRef.current,
         kompakteEgenskaper,
-        visningsTidslinjer,
+        visningsTidslinjer || [],
         filters,
         colors
       )
     }
 
-    tegnTidslinjer()
+    visualiser()
 
   }, [
     colors,

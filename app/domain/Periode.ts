@@ -1,24 +1,17 @@
-import { DateTime, Interval } from "luxon";
+import { Aksjonsdato } from "./Aksjonsdato";
 
 export default class Periode {
-    readonly fraOgMed: Date;
-    readonly tilOgMed?: Date;
+    readonly fraOgMed: Aksjonsdato;
+    readonly tilOgMed?: Aksjonsdato;
     readonly label: string;
 
     posisjon: number = -1;
     egenskaper: string[] = [];
 
-    constructor(label: string, fraOgMed: Date, tilOgMed?: Date) {
+    constructor(label: string, fraOgMed: Aksjonsdato, tilOgMed?: Aksjonsdato) {
         this.label = label || "Tidslinje"
         this.fraOgMed = fraOgMed
         this.tilOgMed = tilOgMed
-        this.valider()
-    }
-
-    valider() {
-        if (this.tilOgMed && DateTime.fromJSDate(this.fraOgMed) > DateTime.fromJSDate(this.tilOgMed)) {
-            console.error("Fra og med kan ikke være etter til og med dato", this)
-        }
     }
 
     medEgenskaper(egenskaper: string[]) {
@@ -31,24 +24,24 @@ export default class Periode {
         return this
     }
 
-    medSluttDato(nySluttdato: Date): Periode {
+    medSluttDato(nySluttdato: Aksjonsdato): Periode {
         return new Periode(
             this.label,
             this.fraOgMed,
             nySluttdato
         )
-        .medEgenskaper( this.egenskaper )
-        .medPosisjon( this.posisjon );
+            .medEgenskaper(this.egenskaper)
+            .medPosisjon(this.posisjon);
     }
 
-    medStartDato(nyStartdato: Date): Periode {
+    medStartDato(nyStartdato: Aksjonsdato): Periode {
         return new Periode(
             this.label,
             nyStartdato,
             this.tilOgMed
         )
-        .medEgenskaper( this.egenskaper )
-        .medPosisjon( this.posisjon );
+            .medEgenskaper(this.egenskaper)
+            .medPosisjon(this.posisjon);
     }
 
     erstattEgenskap(egenskap: string, verdi: string): Periode {
@@ -90,6 +83,6 @@ export default class Periode {
     }
 
     løperTil(neste: Periode) {
-        return this.tilOgMed && Interval.fromDateTimes(DateTime.fromJSDate(this.tilOgMed), DateTime.fromJSDate(neste.fraOgMed)).length("days") <= 1
+        return this.tilOgMed?.avstand(neste.fraOgMed) <= 1 || false
     }
 }

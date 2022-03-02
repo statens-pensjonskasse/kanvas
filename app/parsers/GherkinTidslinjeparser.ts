@@ -1,10 +1,10 @@
+import { Aksjonsdato } from "~/domain/Aksjonsdato"
 import Periode from "../domain/Periode"
+import Tidslinje from "../domain/Tidslinje"
 import Tidslinjeparser from "./Tidslinjeparser"
 
-import { DateTime } from "luxon"
-import Tidslinje from "../domain/Tidslinje"
 
-const minsteGyldigeStartDato = DateTime.fromISO("1814-05-17")
+const minsteGyldigeStartDato = new Aksjonsdato("1814-05-17")
 const starterMedLinje = new RegExp(/^[^-]/);
 
 export default class GherkinTidslinjeparser implements Tidslinjeparser {
@@ -21,7 +21,7 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
             )
             .filter(index => index > -1);
 
-        let sections: number[][] = gherkinSections.flatMap((_, i, a) => [a.slice(i, i + 2)]);
+        const sections: number[][] = gherkinSections.flatMap((_, i, a) => [a.slice(i, i + 2)]);
 
         const tidslinjer = sections
             .map(
@@ -82,11 +82,15 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
 
 
     kanOversettes(rad: string[]): boolean {
-        const fraOgMed = this.oversettDato(rad[this.fraOgMedIndex]?.trim())
+        const fraOgMedString = rad[this.fraOgMedIndex]?.trim()
+        if (!fraOgMedString || !Aksjonsdato.erGyldig(fraOgMedString)) {
+            return false
+        }
+        const fraOgMed = this.oversettDato(fraOgMedString)
 
         const harInnhold = rad.length > 2
-        const harFraOgMed = fraOgMed.isValid && rad[this.fraOgMedIndex]?.length >= 4
-        const harFornuftigDato = fraOgMed > minsteGyldigeStartDato
+        const harFraOgMed = fraOgMed && rad[this.fraOgMedIndex]?.length >= 4
+        const harFornuftigDato = fraOgMed.getTime() > minsteGyldigeStartDato.getTime()
         return harInnhold && harFraOgMed && harFornuftigDato
     }
 
@@ -98,8 +102,8 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
 
         return new Periode(
             label,
-            this.oversettDato(fraOgMed).toJSDate(),
-            tilOgMed && tilOgMed.length >= 4 ? this.oversettTilOgMed(tilOgMed) : undefined,
+            this.oversettDato(fraOgMed),
+            tilOgMed && tilOgMed.length >= 4 ? this.oversettDato(tilOgMed).plussDager(1) : undefined,
         )
             .medPosisjon(posisjon)
             .medEgenskaper(
@@ -113,15 +117,11 @@ export default class GherkinTidslinjeparser implements Tidslinjeparser {
     }
 
     erGyldigDato(dato: string) {
-        return dato && (this.gherkinDato.test(dato) || DateTime.fromISO(dato).isValid)
+        return this.gherkinDato.test(dato) && Aksjonsdato.erGyldig(dato)
     }
 
-    oversettDato(dato: string): DateTime {
-        return this.gherkinDato.test(dato) ? DateTime.fromFormat(dato, "yyyy.M.d") : DateTime.fromISO(dato);
-    }
-
-    private oversettTilOgMed(tilOgMed: string): Date {
-        return this.oversettDato(tilOgMed).plus({ days: 1 }).toJSDate()
+    oversettDato(dato: string): Aksjonsdato {
+        return new Aksjonsdato(dato)
     }
 
     transpose = (m: string[][]) => m[0].map((x, i) => m.map(x => x[i]))

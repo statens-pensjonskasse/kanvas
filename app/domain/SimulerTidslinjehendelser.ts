@@ -1,5 +1,5 @@
-import { DateTime, Interval } from 'luxon'
 import KategorisertHendelse from '../domain/KategorisertHendelse'
+import { Aksjonsdato } from './Aksjonsdato'
 import Periode from './Periode'
 import Tidslinje from './Tidslinje'
 import Tidslinjehendelse from './Tidslinjehendelse'
@@ -69,7 +69,7 @@ export default class SimulerTidslinjehendelser {
                 hendelse.Aksjonsdato,
                 hendelse.TidslinjeId,
                 (aksjonsdato, periode) => [
-                    periode.medSluttDato(DateTime.fromJSDate(aksjonsdato).minus({ days: 1 }).toJSDate())
+                    periode.medSluttDato(aksjonsdato.plussDager(1))
                 ]
             )
         }
@@ -88,7 +88,7 @@ export default class SimulerTidslinjehendelser {
                     }
 
                     return [
-                        periode.medSluttDato(DateTime.fromJSDate(aksjonsdato).toJSDate()),
+                        periode.medSluttDato(aksjonsdato),
                         erstatning
                     ]
                 }
@@ -99,7 +99,7 @@ export default class SimulerTidslinjehendelser {
         return gjeldende
     }
 
-    private static løperTil(periode: Periode, aksjonsdato: Date) {
-        return Interval.fromDateTimes(DateTime.fromJSDate(periode.fraOgMed), DateTime.fromJSDate(aksjonsdato)).length("days") <= 1
+    private static løperTil(periode: Periode, aksjonsdato: Aksjonsdato) {
+        return periode.fraOgMed.avstand(aksjonsdato) <= 1
     }
 }

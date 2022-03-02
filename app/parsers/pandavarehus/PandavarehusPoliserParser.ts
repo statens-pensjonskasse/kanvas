@@ -1,4 +1,4 @@
-import { DateTime } from "luxon"
+import { Aksjonsdato } from "~/domain/Aksjonsdato"
 import Periode from "../../domain/Periode"
 import Tidslinje from "../../domain/Tidslinje"
 import Pandavarehusparser from './PandavarehusParser'
@@ -20,7 +20,7 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
                 periode => ({
                     Typeindikator: periode["Typeindikator"],
                     PoliseId: periode["PoliseId"],
-                    FraOgMed: this.oversettDato(periode["Fra og med-dato"]).toJSDate(),
+                    FraOgMed: this.oversettDato(periode["Fra og med-dato"]),
                     TilOgMed: this.oversettTilOgMed(periode["Til og med-dato"]),
                     Polisestatus: periode["Polisestatus"] || "",
                     AvtaleForReserve: periode["Avtale for reserve"] || "",
@@ -77,17 +77,17 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
     }
 
 
-    private oversettTilOgMed(tilOgMed: string): Date | undefined {
+    private oversettTilOgMed(tilOgMed: string): Aksjonsdato | undefined {
         if (tilOgMed !== "9999-12-31") {
-            return this.oversettDato(tilOgMed).toJSDate()
+            return this.oversettDato(tilOgMed)
         }
     }
 
     erGyldigDato(dato: string) {
-        return dato && (this.norskDato.test(dato) || DateTime.fromISO(dato).isValid)
+        return dato && Aksjonsdato.erGyldig(dato)
     }
 
-    oversettDato(dato: string): DateTime {
-        return this.norskDato.test(dato) ? DateTime.fromFormat(dato, "d.M.yyyy") : DateTime.fromISO(dato);
+    oversettDato(dato: string): Aksjonsdato {
+        return new Aksjonsdato(dato)
     }
 }

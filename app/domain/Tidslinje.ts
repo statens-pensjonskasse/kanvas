@@ -1,13 +1,13 @@
-import { DateTime, Interval } from "luxon";
+import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
 import { PeriodeErstatter } from "./Tidslinjesamling";
 
 export default class Tidslinje {
     readonly label: string;
     readonly perioder: Periode[];
-    readonly datoer: Date[];
-    readonly fraOgMed: Date;
-    readonly tilOgMed?: Date;
+    readonly datoer: Aksjonsdato[];
+    readonly fraOgMed: Aksjonsdato;
+    readonly tilOgMed?: Aksjonsdato;
     readonly posisjon: number;
 
     constructor(perioder: Periode[]) {
@@ -15,27 +15,27 @@ export default class Tidslinje {
         this.posisjon = Math.max(...perioder.map(p => p.posisjon), -1)
         this.perioder = this.justerSammenhengendePerioder(perioder)
         this.datoer = this.perioder
-            .flatMap(periode => periode.tilOgMed ? [periode.fraOgMed, periode.tilOgMed] : [periode.fraOgMed])
+            .flatMap(periode => [periode.fraOgMed, periode.tilOgMed])
             .flatMap(x => x)
+            .filter(dato => !!dato)
 
         this.fraOgMed = this.utledStartdato()
         this.tilOgMed = this.utledSluttdato()
-
-        this.valider()
     }
+
     justerSammenhengendePerioder(perioder: Periode[]): Periode[] {
         const kombinertePerioder = perioder
             .sort((a, b) => b.fraOgMed.getTime() - a.fraOgMed.getTime())
             .reduce(
-                (acc: Periode[], current: Periode) => acc.length === 0 ? [current] : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
+                (acc: Periode[], current: Periode) => acc.length === 0
+                    ? [current]
+                    : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
                 , []
             )
 
 
         const sistePeriode = kombinertePerioder[0]
-        const sluttdato = sistePeriode.tilOgMed ?
-            DateTime.fromJSDate(sistePeriode.tilOgMed).plus({ days: 0 }).toJSDate() :
-            sistePeriode.tilOgMed
+        const sluttdato = sistePeriode.tilOgMed
 
         const justertePerioder = sluttdato ?
             [
@@ -51,35 +51,18 @@ export default class Tidslinje {
         if (!current.tilOgMed) {
             return current.medSluttDato(next.fraOgMed);
         }
-        else if (Interval.fromDateTimes(DateTime.fromJSDate(current.tilOgMed), DateTime.fromJSDate(next.fraOgMed)).length("days") === 1) {
-            return current.medSluttDato(next.fraOgMed)
+        else if (current.tilOgMed?.avstand(next.fraOgMed) == 1) {
+            return current.medSluttDato(next.fraOgMed) // TODO: ikke kombiner
         }
         return current;
     }
 
-    private utledStartdato(): Date {
-        return DateTime.min(...this.perioder.map(periode => DateTime.fromJSDate(periode.fraOgMed))).toJSDate();
+    private utledStartdato(): Aksjonsdato {
+        return this.perioder[0].fraOgMed
     }
 
-    private utledSluttdato(): Date | undefined {
-        return this.perioder
-            .filter(
-                periode => !periode.tilOgMed).length > 0 ?
-            undefined :
-            DateTime.max(
-                ...this.perioder.map(
-                    periode => DateTime.fromJSDate(periode.tilOgMed || new Date(-100000))
-                )
-            ).toJSDate();
-    }
-
-    valider() {
-        if (this.perioder
-            .map((periode) => periode.label)
-            .filter((label) => label !== this.label)
-            .length > 0) {
-            console.error(`Ugyldig tilstand: tidslinje inkluderer perioder med ulike labels. Forventet kun "${this.label}" i ${this.perioder}`)
-        }
+    private utledSluttdato(): Aksjonsdato | undefined {
+        return this.perioder[this.perioder.length - 1].tilOgMed
     }
 
     med(periode: Periode) {
@@ -100,7 +83,7 @@ export default class Tidslinje {
         return this.perioder[this.perioder.length - 1]
     }
 
-    erstattSiste(aksjonsdato: Date, erstatter: PeriodeErstatter): Tidslinje {
+    erstattSiste(aksjonsdato: Aksjonsdato, erstatter: PeriodeErstatter): Tidslinje {
         return new Tidslinje([
             ...this.perioder.slice(0, this.perioder.length - 1),
             ...erstatter(aksjonsdato, this.perioder[this.perioder.length - 1])
@@ -120,8 +103,8 @@ export default class Tidslinje {
                 periode => (
                     [
                         periode.label,
-                        periode.fraOgMed.toLocaleDateString("nb-NO"),
-                        periode.tilOgMed?.toLocaleDateString("nb-NO") || "",
+                        periode.fraOgMed,
+                        periode.tilOgMed || "",
                         ...periode.egenskaper
                     ]
                         .join(";")

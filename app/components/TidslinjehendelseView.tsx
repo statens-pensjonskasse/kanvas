@@ -1,7 +1,8 @@
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Container, Heading, HStack, Text, Tooltip, UnorderedList, useToast, VStack } from "@chakra-ui/react";
-import { DateTime } from "luxon";
 import React, { useContext, useEffect, useState } from "react";
+import { Aksjonsdato } from "~/domain/Aksjonsdato";
+import Tidslinje from "~/domain/Tidslinje";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
 
@@ -48,7 +49,7 @@ export default function TidslinjehendelseView() {
     }, [tidslinjer, toast, isEnabled])
 
 
-    const formaterteTidslinjer = (nyeTidslinjer) => {
+    const formaterteTidslinjer = (nyeTidslinjer): Tidslinje[] => {
         return nyeTidslinjer
             .map(
                 tidslinje => ({
@@ -56,8 +57,8 @@ export default function TidslinjehendelseView() {
                     "perioder": tidslinje.perioder.map(
                         periode => ({
                             "id": tidslinje.label,
-                            "fraOgMed": DateTime.fromJSDate(periode.fraOgMed).toISODate().replaceAll("-", "."),
-                            "tilOgMed": periode.tilOgMed ? DateTime.fromJSDate(periode.tilOgMed).minus({ days: 1 }).toISODate().replaceAll("-", ".") : null,
+                            "fraOgMed": new Aksjonsdato(periode.fraOgMed),
+                            "tilOgMed": periode.tilOgMed ? new Aksjonsdato(periode.tilOgMed) : null,
                             "egenskaper": Object.fromEntries(
                                 periode.egenskaper
                                     .map(egenskap => egenskap.replace("_", ""))

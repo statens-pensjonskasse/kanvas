@@ -1,7 +1,8 @@
-import Tidslinjehendelse from './Tidslinjehendelse'
+import { Aksjonsdato } from './Aksjonsdato';
+import Tidslinjehendelse from './Tidslinjehendelse';
 
 export default interface KategorisertHendelse {
-    aksjonsdato: Date,
+    aksjonsdato: Aksjonsdato,
     kategorisering: string,
     hendelser: Tidslinjehendelse[]
 }

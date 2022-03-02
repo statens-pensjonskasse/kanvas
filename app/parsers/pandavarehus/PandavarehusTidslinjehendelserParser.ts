@@ -1,5 +1,5 @@
-import { DateTime } from "luxon"
-import Tidslinjehendelse from "../../domain/Tidslinjehendelse"
+import { Aksjonsdato } from "~/domain/Aksjonsdato";
+import Tidslinjehendelse from "../../domain/Tidslinjehendelse";
 
 
 export default class PandavarehusTidslinjehendelserParser {
@@ -18,7 +18,7 @@ export default class PandavarehusTidslinjehendelserParser {
         return data
             .map(
                 raw => ({
-                    Aksjonsdato: this.oversettDato(raw['Aksjonsdato']).toJSDate(),
+                    Aksjonsdato: this.oversettDato(raw['Aksjonsdato']),
                     Egenskap: raw['Egenskap'],
                     Forrige: raw['Forrige verdi'],
                     Neste: raw['Neste verdi'],
@@ -35,7 +35,7 @@ export default class PandavarehusTidslinjehendelserParser {
             .sort((a, b) => a.Hendelsesnummer - b.Hendelsesnummer)
     }
 
-    oversettDato(dato: string): DateTime {
-        return this.norskDato.test(dato) ? DateTime.fromFormat(dato, "d.M.yyyy") : DateTime.fromISO(dato);
+    oversettDato(dato: string): Aksjonsdato {
+        return new Aksjonsdato(dato)
     }
 }
