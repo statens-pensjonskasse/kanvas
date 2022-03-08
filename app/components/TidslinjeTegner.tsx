@@ -84,7 +84,7 @@ export async function tegnTidslinjer(
     const xScale = scalePoint()
         .domain([
             startDate.aksjonsdato,
-            ...allDates.map(d => d.aksjonsdato),
+            ...allDates.map(d => d.aksjonsdato).sort(),
             endDate.aksjonsdato
         ])
         .range([0, width - 1]);

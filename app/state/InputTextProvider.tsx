@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import { CSV_PARSER } from '../parsers/Parser';
-import { useStickyState } from '../util/useStickyState';
+import { CSV_PARSER } from '~/parsers/Parser';
+import { useStickyState } from '~/util/useStickyState';
 
 export const InputTextContext = createContext(null);
 

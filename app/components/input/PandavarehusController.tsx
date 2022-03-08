@@ -1,9 +1,11 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
-    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
+    PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
+import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
+import { Tidslinjehendelsediff } from "~/domain/Tidslinjehendelsediff";
 import { InputTextContext } from "../../state/InputTextProvider";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
 
@@ -40,7 +42,7 @@ export default function PandavarehusController() {
         return null
     }
 
-    const diffForHendelse = hendelse => {
+    const diffForHendelse = (hendelse: Tidslinjehendelse): Tidslinjehendelsediff | undefined => {
         return diff.diffForHendelse(hendelse)
     }
 
@@ -140,9 +142,15 @@ export default function PandavarehusController() {
                     <VStack shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
                         <HStack>
                             <Heading size={'sm'}>#{hendelser[0].Hendelsesnummer}</Heading>
-                            <Badge fontSize={'lg'}> {aksjonsdato.toLocaleDateString('nb-NO')} </Badge>
+                            <Badge fontSize={'lg'}>{aksjonsdato.aksjonsdato} </Badge>
                             <Heading size={'md'}>{kategorisering}</Heading>
                         </HStack>
+                        <VStack minH={'5em'}>
+                            {
+                                [...new Set(hendelser.map(hendelse => hendelse.Typeindikator))] // finn unike typeindikatorer
+                                    .map(typeindikator => <Badge>{typeindikator}</Badge>)
+                            }
+                        </VStack>
                         <Accordion minWidth={'100%'} maxW={'100%'} overflow={'clip'} minH={'20em'} allowToggle allowMultiple>
                             {
                                 hendelser
@@ -167,7 +175,7 @@ export default function PandavarehusController() {
                                                 key={i}
                                             >
                                                 <Tag>
-                                                    {kategoriserbarHendelse.aksjonsdato.toLocaleDateString('nb-no')}
+                                                    {kategoriserbarHendelse.aksjonsdato.aksjonsdato}
                                                 </Tag>
                                                 <Text >
                                                     {`${kategoriserbarHendelse.kategorisering}`}
@@ -178,7 +186,7 @@ export default function PandavarehusController() {
                                                             label={
                                                                 kategoriserbarHendelse.hendelser
                                                                     .filter(diffForHendelse)
-                                                                    .map(h => <Text>{h.Egenskap}</Text>)
+                                                                    .map((h, i) => <Text key={i}>{h.Egenskap}</Text>)
                                                             }
                                                         >
                                                             <Tag colorScheme={'blue'}>Endret</Tag>

@@ -6,7 +6,7 @@ export class Aksjonsdato {
     public static readonly TIDENES_SLUTT: Aksjonsdato = new Aksjonsdato('3000-01-01')
 
     public readonly DELIMITER = '.'
-    public readonly FORMAT = ['yyyy', 'mm', 'dd'].join(this.DELIMITER)
+    public readonly FORMAT = ['yyyy', 'MM', 'dd'].join(this.DELIMITER)
 
     private readonly somDateTime: DateTime;
     public readonly aksjonsdato: string
@@ -67,14 +67,13 @@ export class Aksjonsdato {
         return Number.parseInt(this.aksjonsdato.split(this.DELIMITER)[2])
     }
 
-    public avstand(other: Aksjonsdato) {
-        if (other.aksjonsdato.substring(0, 4) === this.aksjonsdato.substring(0, 4)) {
-            return Math.abs(other.dag() - this.dag()) // samme måned og år
-        }
-        else {
-            return Interval.fromDateTimes(this.somDateTime, other.somDateTime).difference()
-        }
+    public avstand(other: Aksjonsdato): number {
+        const start = DateTime.min(this.somDateTime, other.somDateTime)
+        const end = DateTime.max(this.somDateTime, other.somDateTime)
 
+        const avstand = Interval.fromDateTimes(start, end).length('days')
+
+        return this.somDateTime === end ? -avstand : avstand
     }
 
     public somDato() {
@@ -82,7 +81,7 @@ export class Aksjonsdato {
     }
 
     public getTime(): number {
-        return this.somDateTime.toSeconds()
+        return this.somDato().getTime()
     }
 
 }

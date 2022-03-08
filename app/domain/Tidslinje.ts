@@ -33,7 +33,6 @@ export default class Tidslinje {
                 , []
             )
 
-
         const sistePeriode = kombinertePerioder[0]
         const sluttdato = sistePeriode.tilOgMed
 
@@ -47,12 +46,12 @@ export default class Tidslinje {
         return justertePerioder.sort((a, b) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
     }
 
-    private kombinerSammenhengende(next: Periode, current: Periode): Periode {
+    private kombinerSammenhengende(neste: Periode, current: Periode): Periode {
         if (!current.tilOgMed) {
-            return current.medSluttDato(next.fraOgMed);
+            return current.medSluttDato(neste.fraOgMed);
         }
-        else if (current.tilOgMed?.avstand(next.fraOgMed) == 1) {
-            return current.medSluttDato(next.fraOgMed) // TODO: ikke kombiner
+        else if (current.tilOgMed?.avstand(neste.fraOgMed) == 1) {
+            return current.medSluttDato(neste.fraOgMed) // TODO: ikke kombiner
         }
         return current;
     }
@@ -103,8 +102,8 @@ export default class Tidslinje {
                 periode => (
                     [
                         periode.label,
-                        periode.fraOgMed,
-                        periode.tilOgMed || "",
+                        periode.fraOgMed.aksjonsdato,
+                        periode.tilOgMed?.aksjonsdato || "",
                         ...periode.egenskaper
                     ]
                         .join(";")

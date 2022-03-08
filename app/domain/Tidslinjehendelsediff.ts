@@ -31,8 +31,9 @@ export default class Tidslinjehendelsediffer {
     private static nøkkelFor(tidslinjehendelse: Tidslinjehendelse): string {
         return [
             tidslinjehendelse.PoliseId,
-            tidslinjehendelse.Aksjonsdato,
+            tidslinjehendelse.Aksjonsdato.aksjonsdato,
             tidslinjehendelse.Tidslinjehendelsestype,
+            tidslinjehendelse.TidslinjeId,
             tidslinjehendelse.Egenskap,
             tidslinjehendelse.Forrige,
             tidslinjehendelse.Neste
@@ -42,7 +43,7 @@ export default class Tidslinjehendelsediffer {
     // endringer
     // bytte tidslinje
     // bytte hendelse
-    
+
     private static finnEndringer(forrige: Tidslinjehendelse, neste: Tidslinjehendelse): Tidslinjehendelsediff | undefined {
         const beskrivelse = (
             () => {
@@ -91,11 +92,11 @@ export default class Tidslinjehendelsediffer {
         const nesteNøkler = Array.from(nestePerNøkkel.keys())
         const forsvunnet: [Tidslinjehendelse, Tidslinjehendelsediff][] = forrigeNøkler
             .filter(nøkkel => !nesteNøkler.includes(nøkkel))
-            .map(nøkkel => [forrigePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.FJERNET)])
+            .map(nøkkel => [forrigePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.FJERNET, `Fjernet hendelse ${forrigePerNøkkel.get(nøkkel).Hendelsestype}`)])
 
         const nye: [Tidslinjehendelse, Tidslinjehendelsediff][] = nesteNøkler
             .filter(nøkkel => !forrigeNøkler.includes(nøkkel))
-            .map(nøkkel => [nestePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.NY)])
+            .map(nøkkel => [nestePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.NY, `Ny hendelse ${nestePerNøkkel.get(nøkkel).Hendelsestype}`)])
 
         const felles: [Tidslinjehendelse, Tidslinjehendelse][] = nesteNøkler
             .filter(nøkkel => forrigeNøkler.includes(nøkkel))
