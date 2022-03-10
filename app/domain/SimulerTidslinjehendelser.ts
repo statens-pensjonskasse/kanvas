@@ -22,7 +22,7 @@ export default class SimulerTidslinjehendelser {
         )
     }
 
-    private static simulerPolise(hendelser: Tidslinjehendelse[]): PoliseSimulering {
+    static simulerPolise(hendelser: Tidslinjehendelse[]): PoliseSimulering {
         let samlinger: [KategorisertHendelse, Tidslinjesamling][] = []
         let gjeldendeHendelser: Tidslinjehendelse[] = []
         let gjeldende = Tidslinjesamling.tom()

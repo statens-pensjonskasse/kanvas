@@ -1,46 +1,35 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Button, Checkbox, CheckboxGroup, Container, Grid, GridItem, Heading, HStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent,
     PopoverHeader, PopoverTrigger, Radio, RadioGroup, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Stack, Tag, Text, Tooltip, VStack
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import { Tidslinjehendelsediff } from "~/domain/Tidslinjehendelsediff";
-import { InputTextContext } from "../../state/InputTextProvider";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
 
-export default function PandavarehusController() {
+export default function TidslinjehendelseController() {
     const {
         tilstand,
         maxTilstand,
         kategorisertHendelse,
         table,
         setTable,
-        person,
-        setPerson,
         tidslinjeIder,
         valgteTidslinjeIder,
         oppdaterTilstand,
         velgTidslinjeIder,
         toggleTidslinjeId,
         kategoriseringer,
-        diff,
-        poliseId,
-        velgPoliseId,
-        poliseIder
+        diff
     } = useContext(PandavarehusContext)
     const [showTooltip, setShowTooltip] = useState(false)
-    const { parser } = useContext(InputTextContext)
 
     const {
         aksjonsdato,
         kategorisering,
         hendelser
     } = kategorisertHendelse || {};
-
-    if (!parser.startsWith("PANDAVAREHUS_")) {
-        return null
-    }
 
     const diffForHendelse = (hendelse: Tidslinjehendelse): Tidslinjehendelsediff | undefined => {
         return diff.diffForHendelse(hendelse)
@@ -148,7 +137,7 @@ export default function PandavarehusController() {
                         <VStack minH={'5em'}>
                             {
                                 [...new Set(hendelser.map(hendelse => hendelse.Typeindikator))] // finn unike typeindikatorer
-                                    .map(typeindikator => <Badge>{typeindikator}</Badge>)
+                                    .map(typeindikator => <Badge key={typeindikator}>{typeindikator}</Badge>)
                             }
                         </VStack>
                         <Accordion minWidth={'100%'} maxW={'100%'} overflow={'clip'} minH={'20em'} allowToggle allowMultiple>
@@ -209,28 +198,6 @@ export default function PandavarehusController() {
     return (
         <VStack>
             <HStack width={'container.sm'}>
-                <Text>PersonId:</Text>
-                <Container shadow='md' rounded='lg'>
-                    <Input
-                        value={person}
-                        placeholder="PersonId"
-                        onChange={event => {
-                            event.preventDefault()
-                            setPerson(event.target.value)
-                        }}
-                        textAlign={'center'}
-                        variant={'flushed'}
-                        autoFocus
-                        blur
-                        opacity={"0"}
-                        _hover={{
-                            opacity: "100"
-                        }}
-                        _focus={{
-                            opacity: "100"
-                        }}
-                    />
-                </Container>
                 <Popover>
                     <PopoverTrigger>
                         <Button w={'md'} colorScheme={valgteTidslinjeIder.length ? 'orange' : null}>
@@ -270,19 +237,6 @@ export default function PandavarehusController() {
                 <>
                     <HendelserComponent />
                     <HStack>
-                        <HStack>
-                            <RadioGroup value={poliseId} onChange={e => velgPoliseId(Number.parseInt(e))}>
-                                <HStack>
-                                    {
-                                        poliseIder.map(
-                                            id => <Radio key={id} value={id}>
-                                                <Text>{`Polise:${id}`}</Text>
-                                            </Radio>
-                                        )
-                                    }
-                                </HStack>
-                            </RadioGroup>
-                        </HStack>
                         <Button
                             onClick={e => oppdaterTilstand(tilstand - 1)}
                             onMouseEnter={() => setShowTooltip(true)}

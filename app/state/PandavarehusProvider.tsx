@@ -1,34 +1,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import KategorisertHendelse from "../domain/KategorisertHendelse";
-import { PoliseSimulering } from "../domain/SimulerTidslinjehendelser";
 import Tidslinje from "../domain/Tidslinje";
 import Tidslinjehendelsediffer from "../domain/Tidslinjehendelsediff";
 import Tidslinjesamling from "../domain/Tidslinjesamling";
 import { useSessionState } from "../util/useSessionState";
-import { useStickyState } from "../util/useStickyState";
 import { ColorContext } from "./ColorProvider";
 import { TidslinjeContext } from "./TidslinjerProvider";
 
 interface PandavarehusContextInterface {
-    nullstill(): void,
     oppdaterMedNyeTidslinjer(tidslinjer: Tidslinje[]): void,
     oppdaterSimulerteSamlinger(nyeSamlinger: [KategorisertHendelse, Tidslinjesamling][]): void,
     oppdaterTilstand(nyTilstand: number): void,
     velgTidslinjeIder(nyeIder: string[]): void
     toggleTidslinjeId(id: string): void,
-    setPerson(nyPerson: string): void,
     setTable(newTable: string): void,
-    setCache(nyCache: Cache): void,
     setDiff(diff: Tidslinjehendelsediffer): void,
-    velgPoliseId(poliseId: number): void,
     setPoliseIder(poliseIder: number[]): void,
     poliseIder: number[],
-    poliseId: number,
     diff: Tidslinjehendelsediffer,
-    cache: Cache,
     tilstand: number,
     maxTilstand: number,
-    person: string,
     table: string,
     parset: string,
     kategoriseringer(): KategorisertHendelse[],
@@ -40,26 +31,9 @@ interface PandavarehusContextInterface {
 
 export const PandavarehusContext = createContext<PandavarehusContextInterface>(null)
 
-interface PoliseCache {
-    forrige: Tidslinje[],
-    neste: Tidslinje[]
-}
-interface TidslinjehendelseCache {
-    forrige: Map<number, PoliseSimulering>
-    neste: Map<number, PoliseSimulering>
-}
-
-interface Cache {
-    poliser: PoliseCache,
-    tidslinjehendelser: TidslinjehendelseCache
-}
-
 export default function PandavarehusProvider({ children }) {
-    const [cache, setCache] = useState<Cache>()
-
     const [tidslinjesamlinger, setTidslinjesamlinger] = useState<[KategorisertHendelse, Tidslinjesamling][]>([])
     const [poliseIder, setPoliseIder] = useState<number[]>([])
-    const [poliseId, setPoliseId] = useState(1)
     const [diff, setDiff] = useState<Tidslinjehendelsediffer>(Tidslinjehendelsediffer.tom())
     const { setTidslinjer } = useContext(TidslinjeContext)
 
@@ -67,20 +41,12 @@ export default function PandavarehusProvider({ children }) {
 
     const [tilstand, setTilstand] = useState(0)
     const [maxTilstand, setMaxTilstand] = useState(0)
-    const [person, setPerson] = useStickyState("", "pandavarehus_person")
     const [table, setTable] = useSessionState("neste", "pandavarehus_table")
 
     const [parset, setParset] = useState<string>("")
     const [kategorisertHendelse, setKategorisertHendelse] = useState<KategorisertHendelse>()
     const [tidslinjeIder, setTidslinjeIder] = useState<string[]>([])
     const [valgteTidslinjeIder, setValgteTidslinjeIder] = useState([])
-
-    const nullstill = () => {
-        setParset("")
-        oppdaterSimulerteSamlinger([])
-        setValgteTidslinjeIder([])
-        setKategorisertHendelse(null)
-    }
 
     const velgTidslinjeIder = (tidslinjeIder: string[]) => {
         setValgteTidslinjeIder(tidslinjeIder)
@@ -108,7 +74,7 @@ export default function PandavarehusProvider({ children }) {
         return tidslinjesamlinger.map(t => t[0])
     }
 
-    const oppdaterMedNyeTidslinjer = (tidslinjer) => {
+    const oppdaterMedNyeTidslinjer = (tidslinjer: Tidslinje[]) => {
         setTidslinjeIder((sisteSimulerteTilstand().length ? sisteSimulerteTilstand() : tidslinjer).map(t => t.label))
         setParset(
             tidslinjer.map(
@@ -119,16 +85,11 @@ export default function PandavarehusProvider({ children }) {
         setTidslinjer(tidslinjer)
     }
 
-    const oppdaterTilstand = tilstand => {
+    const oppdaterTilstand = (tilstand: number) => {
         const nyTilstand = Math.max(0, Math.min(tilstand, maxTilstand))
         setTilstand(nyTilstand);
         oppdaterMedNyeTidslinjer(tidslinjesamlinger[nyTilstand][1].tidslinjer)
     }
-
-    const velgPoliseId = poliseId => {
-        setPoliseId(poliseId)
-    }
-
 
     const oppdaterSimulerteSamlinger = (samlinger: [KategorisertHendelse, Tidslinjesamling][]) => {
         const nyMaxTilstand = Math.max(0, samlinger.length - 1)
@@ -158,17 +119,11 @@ export default function PandavarehusProvider({ children }) {
     const exported: PandavarehusContextInterface = {
         diff,
         setDiff,
-        cache,
-        setCache,
-        nullstill,
         tilstand,
         maxTilstand,
-        person,
-        setPerson,
         table,
         setTable,
         parset,
-        poliseId,
         kategoriseringer,
         kategorisertHendelse,
         tidslinjeIder,
@@ -178,7 +133,6 @@ export default function PandavarehusProvider({ children }) {
         oppdaterTilstand,
         velgTidslinjeIder,
         toggleTidslinjeId,
-        velgPoliseId,
         setPoliseIder,
         poliseIder,
         sisteSimulerteTilstand

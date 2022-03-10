@@ -39,7 +39,6 @@ export default class Tidslinjesamling {
         }
         else {
             const minsteStartdato: Aksjonsdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || Aksjonsdato.TIDENES_MORGEN
-            console.debug(`Fant ikke tidslinje ${tidslinjeId} i tidslinjesamling, oppretter ny med startdato ${minsteStartdato}.`)
 
             return this.leggTil(
                 new Tidslinje([
