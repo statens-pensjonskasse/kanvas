@@ -80,6 +80,6 @@ export default function PandavarehusInput() {
 
 
     return (
-        <Link to={`/pandavarehus/${personId}/tidslinjehendelser/1`}>Tidslinjehendelser</Link>
+        <Link to={`/pandavarehus/${personId}/tidslinjehendelser/1`}>Bytt til tidslinjehendelser</Link>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
 import TidslinjehendelseController from "~/components/input/TidslinjehendelseController";
@@ -64,8 +64,6 @@ export default function PandavarehusInput() {
         setPoliseIder
     } = useContext(PandavarehusContext)
 
-    const input = useRef()
-
     const data = useLoaderData()
 
     const { personId, poliseId, forrige, neste } = data
@@ -75,17 +73,21 @@ export default function PandavarehusInput() {
 
     const tidslinjeparser = new PandavarehusTidslinjehendelserParser();
 
-    const parsetForrige: Tidslinjehendelse[] = tidslinjeparser.parseAlle(forrige)
-    const parsetNeste: Tidslinjehendelse[] = tidslinjeparser.parseAlle(neste)
-    const simulertForrige: PoliseSimulering = SimulerTidslinjehendelser.simulerPolise(parsetForrige)
-    const simulertNeste: PoliseSimulering = SimulerTidslinjehendelser.simulerPolise(parsetNeste)
+    const parsetForrige: Tidslinjehendelse[] = useMemo(() => tidslinjeparser.parseAlle(forrige), [forrige])
+    const parsetNeste: Tidslinjehendelse[] = useMemo(() => tidslinjeparser.parseAlle(neste), [neste])
+
+    const simulertForrige: PoliseSimulering = useMemo(() => SimulerTidslinjehendelser.simulerPolise(parsetForrige), [parsetForrige])
+    const simulertNeste: PoliseSimulering = useMemo(() => SimulerTidslinjehendelser.simulerPolise(parsetNeste), [parsetNeste])
+
     const poliseIder = new Set([
         ...forrige,
         ...neste
     ].map(hendelse => hendelse.PoliseId))
-
     useEffect(() => {
         setDiff(Tidslinjehendelsediffer.utledPolise(parsetForrige, parsetNeste))
+    }, [])
+
+    useEffect(() => {
         setPoliseIder([...poliseIder])
         oppdaterSimulerteSamlinger(
             (table === 'forrige' ? simulertForrige : simulertNeste).simulering
@@ -95,7 +97,7 @@ export default function PandavarehusInput() {
 
     return (
         <>
-            <Link to={`/pandavarehus/${personId}/poliser`}>Poliser</Link>
+            <Link to={`/pandavarehus/${personId}/poliser`}>Bytt til poliser</Link>
             <TidslinjehendelseController />
         </>
     );
