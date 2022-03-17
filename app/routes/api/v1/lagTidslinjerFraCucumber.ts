@@ -9,7 +9,7 @@ export const action: ActionFunction = async ({ request }) => {
   const { kompakteEgenskaper = true } = body.data
 
   if (!tekst?.length) {
-    return new Response(`Mottok ikke forventet felt "data" (cucumber scenariotekst splittet på newline)")`, {
+    return new Response(`Mottok ikke forventet felt "data" (cucumber scenariotekst splittet på newline)"`, {
       status: 400
     })
   }

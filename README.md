@@ -25,9 +25,25 @@ Endepunktet støtter POST, og krever et felt `data` som inneholder scenarioet so
 
 Eksempel:
 ``` bash
-curl -X POST http://kanvas.kpt.spk.no/api/lagTidslinjer \
+curl -X POST http://kanvas.kpt.spk.no/api/v1/lagTidslinjerFraCucumber \
    -H "Content-Type: application/json" \
-   -d '{"data": ["Polise 1;2000;;", "Polise 1;2010;;"]}'
+   -d '
+{
+    "data":
+        [
+            "Scenario: Eksempel for kanvas",
+            "",
+            "Gitt at det simulerte poliseunderlaget har følgende innhold:",
+            "| ----------------------- | ------------------------ | ---------- |",
+            "| Tidslinje               | Polise                   |            |",
+            "| PoliseId                | 1                        |            |",
+            "|                         |                          |            |",
+            "| Tidslinjeperiode        | #1                       | #2         |",
+            "| Fra og med-dato         | 2000.01.01               | 2010.01.01 |",
+            "| Til og med-dato         | 2009.12.31               |            |",
+            "| Polisestatus            | 1                        | 1          |"
+        ]
+}'
 ```
 
 ## CSV-format
