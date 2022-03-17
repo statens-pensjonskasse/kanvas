@@ -41,7 +41,7 @@ export class Aksjonsdato {
 
     public plussDager(antallDager: number): Aksjonsdato {
         return new Aksjonsdato(
-            this.somDateTime.plus({ days: antallDager }).toFormat('yyyy.mm.dd')
+            this.somDateTime.plus({ days: antallDager }).toFormat(this.FORMAT)
         )
     }
 
