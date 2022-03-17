@@ -1,4 +1,4 @@
-import { Grid, GridItem, HStack, Radio, RadioGroup, Stack, VStack } from "@chakra-ui/react";
+import { Grid, GridItem, Radio, RadioGroup, Stack, VStack } from "@chakra-ui/react";
 import React, { useContext } from "react";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
 import KategoriseringListe from "../pandavarehus/KategoriseringListe";
@@ -12,16 +12,16 @@ export default function TidslinjehendelseController() {
         setTable,
     } = useContext(PandavarehusContext)
 
-    const HendelserComponent = () => {
+    const Hendelsesnavigering = () => {
         return (
             <Grid
                 templateRows='repeat(1, 1fr)'
                 templateColumns='repeat(3, 1fr)'
                 gap={4}
                 width={'90vw'}
-                maxH='50vh'
+                maxH='80vh'
             >
-                <GridItem colSpan={2} overflow='auto'>
+                <GridItem colSpan={2} overflow='auto' alignItems={'left'}>
                     <KategoriseringTabell />
                 </GridItem>
                 <GridItem colSpan={1} overflow='auto'>
@@ -33,8 +33,6 @@ export default function TidslinjehendelseController() {
 
     return (
         <VStack>
-            <HStack width={'container.sm'}>
-            </HStack>
             <RadioGroup onChange={setTable} value={table}>
                 <Stack direction={'row'}>
                     <Radio value='forrige'>Forrige</Radio>
@@ -43,7 +41,7 @@ export default function TidslinjehendelseController() {
             </RadioGroup>
             {kategorisertHendelse && (
                 <>
-                    <HendelserComponent />
+                    <Hendelsesnavigering />
                     <TilstandSlider />
                 </>
             )}

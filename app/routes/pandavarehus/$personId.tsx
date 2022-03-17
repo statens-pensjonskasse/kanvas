@@ -1,7 +1,6 @@
 import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react"
 import { useContext, useRef } from "react"
 import { Outlet } from "remix"
-import TidslinjerView from "~/components/TidslinjeView"
 import { PandavarehusContext } from "~/state/PandavarehusProvider"
 
 
@@ -11,8 +10,7 @@ export default function PersonPandavarehus() {
     return (
         <VStack spacing='3em'>
             <Outlet />
-            <TidslinjerView />
-            <HStack>
+            <HStack hidden>
                 <Textarea
                     ref={input}
                     readOnly

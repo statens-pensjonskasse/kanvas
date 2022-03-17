@@ -1,3 +1,4 @@
+import { Heading, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useMemo } from "react";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
@@ -7,6 +8,7 @@ import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import Tidslinjehendelsediffer from "~/domain/Tidslinjehendelsediff";
 import PandavarehusTidslinjehendelserParser from '~/parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { PandavarehusContext } from '~/state/PandavarehusProvider';
+import { unikeVerdier } from "~/util/utils";
 
 export const loader: LoaderFunction = async ({ params }) => {
     const { poliseId, personId } = params
@@ -79,16 +81,17 @@ export default function PandavarehusInput() {
     const simulertForrige: PoliseSimulering = useMemo(() => SimulerTidslinjehendelser.simulerPolise(parsetForrige), [parsetForrige])
     const simulertNeste: PoliseSimulering = useMemo(() => SimulerTidslinjehendelser.simulerPolise(parsetNeste), [parsetNeste])
 
-    const poliseIder = new Set([
-        ...forrige,
-        ...neste
-    ].map(hendelse => hendelse.PoliseId))
+    const poliseIder = unikeVerdier(
+        [...forrige, ...neste].map(hendelse => hendelse.PoliseId)
+    )
+        .map(Number.parseInt)
+
     useEffect(() => {
         setDiff(Tidslinjehendelsediffer.utledPolise(parsetForrige, parsetNeste))
     }, [])
 
     useEffect(() => {
-        setPoliseIder([...poliseIder])
+        setPoliseIder(poliseIder)
         oppdaterSimulerteSamlinger(
             (table === 'forrige' ? simulertForrige : simulertNeste).simulering
         )
@@ -96,9 +99,10 @@ export default function PandavarehusInput() {
 
 
     return (
-        <>
+        <VStack>
             <Link to={`/pandavarehus/${personId}/poliser`}>Bytt til poliser</Link>
+            <Heading>{`Kategoriseringer Polise ${poliseId}`}</Heading>
             <TidslinjehendelseController />
-        </>
+        </VStack >
     );
 }

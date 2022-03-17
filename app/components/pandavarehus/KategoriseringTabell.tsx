@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import { Tidslinjehendelsediff } from "~/domain/Tidslinjehendelsediff";
 import { PandavarehusContext } from "~/state/PandavarehusProvider";
+import { unikeVerdier } from "~/util/utils";
 
 export default function KategoriseringTabell() {
     const { kategorisertHendelse } = useContext(PandavarehusContext)
@@ -14,7 +15,7 @@ export default function KategoriseringTabell() {
     } = kategorisertHendelse || {};
 
     return (
-        <VStack shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
+        <VStack justifyItems={'left'} shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
             <HStack>
                 <Heading size={'sm'}>#{hendelser[0].Hendelsesnummer}</Heading>
                 <Badge fontSize={'lg'}>{aksjonsdato.aksjonsdato} </Badge>
@@ -22,12 +23,16 @@ export default function KategoriseringTabell() {
             </HStack>
             <VStack minH={'5em'}>
                 {
-                    [...new Set(hendelser.map(hendelse => hendelse.Typeindikator))] // finn unike typeindikatorer
-                        .map(typeindikator => <Badge key={typeindikator}>{typeindikator}</Badge>)
+                    unikeVerdier(hendelser.map(h => h.Typeindikator))
+                        .map(
+                            typeindikator => (
+                                <Badge key={typeindikator}>{typeindikator}</Badge>
+                            )
+                        )
                 }
             </VStack>
             <Table variant='striped' colorScheme='orange'>
-                <TableCaption>Endrede tidslinjehendelser</TableCaption>
+                <TableCaption>Tidslinjehendelser som inngår i kategoriseringen</TableCaption>
                 <Thead>
                     <Tr>
                         <Th>Egenskap</Th>
@@ -70,7 +75,9 @@ function KategoriseringRad(props: RadProps) {
                     <VStack alignItems={'left'}>
                         <Text>{tidslinjehendelse.Egenskap}</Text>
                         <Tooltip>
-                            <Tag size='sm'>{tidslinjehendelse.TidslinjeId.replace(/_/g, ' ').toLowerCase()}</Tag>
+                            <Tag size='sm' maxW={'15em'} shadow='base' padding='2'>
+                                {tidslinjehendelse.TidslinjeId.replace(/_/g, ' ').toLowerCase()}
+                            </Tag>
                         </Tooltip>
                     </VStack>
                     {harDiff && (

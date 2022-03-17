@@ -1,31 +1,20 @@
 import { JSDOM } from 'jsdom';
 import { ActionFunction } from "remix";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
-import CSVTidslinjeparser from "~/parsers/CSVTidslinjeparser";
+import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.json()
-  const csv = body.data
-  const delimiter = body.delimiter || ";"
-  const identifikatorIndex = body.identifikatorIndex || 0
-  const fraOgMedIndex = body.fraOgMedIndex || 1
-  const tilOgMedIndex = body.tilOgMedIndex || 2
+  const tekst = body.data
+  const { kompakteEgenskaper = true } = body.data
 
-  if (!csv?.length) {
-    return new Response(`Mottok ikke forventet felt "data" (liste med csv-rader med delimiter "${delimiter}")`, {
+  if (!tekst?.length) {
+    return new Response(`Mottok ikke forventet felt "data" (cucumber scenariotekst splittet på newline)")`, {
       status: 400
     })
   }
-  const props = {
-    delimiter,
-    identifikatorIndex,
-    fraOgMedIndex,
-    tilOgMedIndex
-  }
-  const parser = new CSVTidslinjeparser(props)
-  const data = csv
-  const tidslinjer = parser.parse(data)
-
+  const parser = new GherkinTidslinjeparser()
+  const tidslinjer = parser.parse(tekst)
 
   const document = new JSDOM(`
       <div>
@@ -44,7 +33,7 @@ export const action: ActionFunction = async ({ request }) => {
     svg,
     xAxis,
     container,
-    false,
+    kompakteEgenskaper,
     tidslinjer,
     new Map(),
     new Map()

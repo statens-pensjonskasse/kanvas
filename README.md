@@ -9,7 +9,19 @@ Jenkins-jobben ligger her: http://jenkins.spk.no/job/kanvas/
 ## API
 
 Kanvas tilbyr et api som kan generere tidslinjer som SVG.
+
+
+### CSV
 Endepunktet støtter POST, og krever et felt `data` som inneholder en array med csv-linjer (hvert element er en csv-rad).
+
+Eksempel:
+``` bash
+curl -X POST http://kanvas.kpt.spk.no/api/lagTidslinjer \
+   -H "Content-Type: application/json" \
+   -d '{"data": ["Polise 1;2000;;", "Polise 1;2010;;"]}'
+```
+### Cucumber
+Endepunktet støtter POST, og krever et felt `data` som inneholder scenarioet som skal visualiseres splittet på newline (hvert element er en csv-rad).
 
 Eksempel:
 ``` bash
@@ -49,7 +61,7 @@ Applikasjonen er bygd på node.js med React og d3. Lokalt utviklingsmiljø kan s
 
 ``` bash
 npm install
-npm run start
+npm run dev
 ```
 
 ## Produksjon
@@ -58,7 +70,7 @@ I "produksjon" (Lyn) bygges først applikasjonen, før den serves på port 8080 
 
 ``` bash
 npm run build
-npm run serve
+npm run start
 ```
 
 Applikasjonen blir da tilgjengelig på http://localhost:8080/

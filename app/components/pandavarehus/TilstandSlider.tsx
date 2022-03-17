@@ -8,15 +8,7 @@ export default function TilstandSlider() {
     const {
         tilstand,
         maxTilstand,
-        kategorisertHendelse,
-        table,
-        setTable,
-        tidslinjeIder,
-        valgteTidslinjeIder,
         oppdaterTilstand,
-        velgTidslinjeIder,
-        toggleTidslinjeId,
-        kategoriseringer,
         diff
     } = useContext(PandavarehusContext)
     const [showTooltip, setShowTooltip] = useState(false)

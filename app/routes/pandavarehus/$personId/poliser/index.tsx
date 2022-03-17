@@ -1,7 +1,10 @@
+import { Heading } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
+import TidslinjeSelector from "~/components/pandavarehus/TidslinjeSelector";
+import TidslinjerView from "~/components/TidslinjeView";
 import Tidslinje from "~/domain/Tidslinje";
 import PandavarehusPoliserParser from "~/parsers/pandavarehus/PandavarehusPoliserParser";
 import { PandavarehusContext } from '~/state/PandavarehusProvider';
@@ -80,6 +83,12 @@ export default function PandavarehusInput() {
 
 
     return (
-        <Link to={`/pandavarehus/${personId}/tidslinjehendelser/1`}>Bytt til tidslinjehendelser</Link>
+        <>
+            <Link to={`/pandavarehus/${personId}/tidslinjehendelser/1`}>Bytt til tidslinjehendelser</Link>
+            <Heading>{`Poliser`}</Heading>
+            <TidslinjeSelector />
+            <TidslinjerView />
+        </>
+
     );
 }
