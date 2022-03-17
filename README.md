@@ -42,7 +42,7 @@ curl -X POST http://kanvas.kpt.spk.no/api/v1/lagTidslinjerFraCucumber \
          "| Tidslinjeperiode        | #1                       | #2         |",
          "| Fra og med-dato         | 2000.01.01               | 2010.01.01 |",
          "| Til og med-dato         | 2009.12.31               |            |",
-         "| Polisestatus            | 1                        | 1          |"
+         "| Polisestatus            | Aktiv                    | Oppsatt    |"
       ]
 }'
 ```
