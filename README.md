@@ -29,20 +29,21 @@ curl -X POST http://kanvas.kpt.spk.no/api/v1/lagTidslinjerFraCucumber \
    -H "Content-Type: application/json" \
    -d '
 {
-    "data":
-        [
-            "Scenario: Eksempel for kanvas",
-            "",
-            "Gitt at det simulerte poliseunderlaget har følgende innhold:",
-            "| ----------------------- | ------------------------ | ---------- |",
-            "| Tidslinje               | Polise                   |            |",
-            "| PoliseId                | 1                        |            |",
-            "|                         |                          |            |",
-            "| Tidslinjeperiode        | #1                       | #2         |",
-            "| Fra og med-dato         | 2000.01.01               | 2010.01.01 |",
-            "| Til og med-dato         | 2009.12.31               |            |",
-            "| Polisestatus            | 1                        | 1          |"
-        ]
+   "kompakteEgenskaper": false,
+   "data":
+      [
+         "Scenario: Eksempel for kanvas",
+         "",
+         "Gitt at det simulerte poliseunderlaget har følgende innhold:",
+         "| ----------------------- | ------------------------ | ---------- |",
+         "| Tidslinje               | Polise                   |            |",
+         "| PoliseId                | 1                        |            |",
+         "|                         |                          |            |",
+         "| Tidslinjeperiode        | #1                       | #2         |",
+         "| Fra og med-dato         | 2000.01.01               | 2010.01.01 |",
+         "| Til og med-dato         | 2009.12.31               |            |",
+         "| Polisestatus            | 1                        | 1          |"
+      ]
 }'
 ```
 
