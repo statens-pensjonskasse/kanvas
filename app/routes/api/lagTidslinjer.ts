@@ -1,6 +1,8 @@
 import { JSDOM } from 'jsdom';
 import { ActionFunction } from "remix";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
+import Colorparser from '~/parsers/CSVColorparser';
+import Filterparser from '~/parsers/CSVFilterparser';
 import CSVTidslinjeparser from "~/parsers/CSVTidslinjeparser";
 
 export const action: ActionFunction = async ({ request }) => {
@@ -22,10 +24,14 @@ export const action: ActionFunction = async ({ request }) => {
     fraOgMedIndex,
     tilOgMedIndex
   }
-  const parser = new CSVTidslinjeparser(props)
-  const data = csv
-  const tidslinjer = parser.parse(data)
+  const tidslinjeParser = new CSVTidslinjeparser(props)
+  const colorParser = new Colorparser({ delimiter })
+  const filterParser = new Filterparser({ delimiter })
 
+  const data = csv
+  const tidslinjer = tidslinjeParser.parse(data)
+  const colors = colorParser.parse(data)
+  const filters = filterParser.parse(data)
 
   const document = new JSDOM(`
       <div>
@@ -46,8 +52,8 @@ export const action: ActionFunction = async ({ request }) => {
     container,
     false,
     tidslinjer,
-    new Map(),
-    new Map()
+    filters,
+    colors
   )
 
   return new Response(container.outerHTML,

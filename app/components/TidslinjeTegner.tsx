@@ -11,7 +11,7 @@ const kortNedEgenskap = egenskap => {
     return egenskap
 }
 
-const filtrerEgenskaper = (egenskaper: string[], filter): string[] => {
+const filtrerEgenskaper = (egenskaper: string[], filter: RegExp): string[] => {
     return egenskaper
         .filter(e => filter?.test(e) ?? true)
         .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
@@ -35,7 +35,7 @@ export async function tegnTidslinjer(
     containerRef: SVGSVGElement,
     kompakteEgenskaper: boolean,
     tidslinjer: Tidslinje[],
-    filters: Map<string, string>,
+    filters: Map<string, RegExp>,
     colors: Map<string, string>
 ) {
     if (!tidslinjer?.length) {
