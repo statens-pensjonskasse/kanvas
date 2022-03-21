@@ -3,7 +3,7 @@ import Periode from '~/domain/Periode';
 import Tidslinje from '~/domain/Tidslinje';
 
 
-const kortNedEgenskap = egenskap => {
+const kortNedEgenskap = (egenskap: string) => {
     const separated = egenskap.split(":")
     if (separated.length > 1) {
         return separated.slice(1).join(":")
@@ -14,8 +14,6 @@ const kortNedEgenskap = egenskap => {
 const filtrerEgenskaper = (egenskaper: string[], filter: RegExp): string[] => {
     return egenskaper
         .filter(e => filter?.test(e) ?? true)
-        .map(e => filter?.test(e) ?? false ? e.replace(/^.+: ?/g, "") : e) // henter ut verdien dersom det finnes et filter
-        .filter(e => e !== "")
 }
 
 
