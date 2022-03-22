@@ -1,4 +1,4 @@
-import { Button, Center, FormControl, FormLabel, HStack, Image, Switch, Text, VStack } from "@chakra-ui/react";
+import { Button, FormControl, FormLabel, HStack, Image, Switch, Text, VStack } from "@chakra-ui/react";
 import html2canvas from "html2canvas";
 import { useContext, useEffect, useRef, useState } from "react";
 import Tidslinje from "../domain/Tidslinje";
@@ -65,16 +65,14 @@ export default function TidslinjerView() {
       shadow={'dark-lg'}
       maxWidth={'95%'}
       overflow={'auto'}
-      padding={'3em'}
+      padding={'5em'}
     >
-      <Center>
-        <div ref={containerRef}>
-          <svg ref={wrapperRef}>
-            <g ref={tidslinjeRef} />
-            <g ref={xAxisRef} />
-          </svg>
-        </div>
-      </Center>
+      <div ref={containerRef}>
+        <svg ref={wrapperRef}>
+          <g ref={tidslinjeRef} />
+          <g ref={xAxisRef} />
+        </svg>
+      </div>
       <HStack>
         <VStack>
           <HStack>
