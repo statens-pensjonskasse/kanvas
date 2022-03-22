@@ -5,7 +5,6 @@ import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
 import PandavarehusProvider from '../state/PandavarehusProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
-import PandavarehusController from './input/TidslinjehendelseController';
 import InputComponent from './InputComponent';
 import ParserSelector from './ParserSelector';
 import TidslinjerView from './TidslinjeView';
@@ -26,7 +25,6 @@ function App() {
               <PandavarehusProvider>
                 <InputTextProvider>
                   <ParserSelector />
-                  <PandavarehusController />
                   <TidslinjerView />
 
                   {/* <TidslinjehendelseView /> */}
