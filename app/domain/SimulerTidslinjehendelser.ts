@@ -69,7 +69,7 @@ export default class SimulerTidslinjehendelser {
                 hendelse.Aksjonsdato,
                 hendelse.TidslinjeId,
                 (aksjonsdato, periode) => [
-                    periode.medSluttDato(aksjonsdato.plussDager(1))
+                    periode.medSluttDato(aksjonsdato)
                 ]
             )
         }
@@ -88,7 +88,7 @@ export default class SimulerTidslinjehendelser {
                     }
 
                     return [
-                        periode.medSluttDato(aksjonsdato),
+                        periode.medSluttDato(aksjonsdato).erstattEgenskap(hendelse.Egenskap, hendelse.Forrige),
                         erstatning
                     ]
                 }

@@ -145,16 +145,20 @@ export async function tegnTidslinjer(
 
     svg
         .selectAll(".periodeDelimiter")
-        .data(tidslinjer.flatMap(
-            tidslinje => tidslinje.datoer.map(
-                dato => ({
-                    label: tidslinje.label,
-                    dato: dato,
-                    posisjon: tidslinje.posisjon,
-                    color: colors.get(tidslinje.label) || "black"
-                })
+        .data(
+            tidslinjer.flatMap(
+                tidslinje => tidslinje.datoer
+                    .filter(dato => dato !== Aksjonsdato.UKJENT_DATO)
+                    .map(
+                        dato => ({
+                            label: tidslinje.label,
+                            dato: dato,
+                            posisjon: tidslinje.posisjon,
+                            color: colors.get(tidslinje.label) || "black"
+                        })
+                    )
             )
-        ))
+        )
         .join("line")
         .attr("class", "periodeDelimiter")
         .attr("stroke", periode => periode.color)
@@ -201,9 +205,15 @@ export async function tegnTidslinjer(
         .call(
             axisBottom(xScale)
                 .tickFormat(
-                    dato => [startDate.aksjonsdato, endDate.aksjonsdato].includes(dato) ?
-                        "" :
-                        dato
+                    dato => {
+                        if ([startDate.aksjonsdato, endDate.aksjonsdato].includes(dato)) {
+                            return ""
+                        }
+                        else if (dato === Aksjonsdato.UKJENT_DATO.aksjonsdato) {
+                            return "Ukjent dato"
+                        }
+                        return dato
+                    }
                 )
         );
 }

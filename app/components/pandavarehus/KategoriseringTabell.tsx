@@ -15,7 +15,7 @@ export default function KategoriseringTabell() {
     } = kategorisertHendelse || {};
 
     return (
-        <VStack justifyItems={'left'} shadow={'md'} minH={'100%'} rounded={'xl'} padding={'3'}>
+        <VStack alignItems={'left'} minH={'100%'} padding={'3'}>
             <HStack>
                 <Heading size={'sm'}>#{hendelser[0].Hendelsesnummer}</Heading>
                 <Badge fontSize={'lg'}>{aksjonsdato.aksjonsdato} </Badge>
@@ -36,8 +36,8 @@ export default function KategoriseringTabell() {
                 <Thead>
                     <Tr>
                         <Th>Egenskap</Th>
-                        <Th>Forrige</Th>
-                        <Th>Neste</Th>
+                        <Th>Gammel verdi</Th>
+                        <Th>Ny verdi</Th>
                     </Tr>
                 </Thead>
                 <Tbody>
@@ -87,8 +87,22 @@ function KategoriseringRad(props: RadProps) {
                     )}
                 </HStack>
             </Td>
-            <Td>{tidslinjehendelse.Forrige?.split("\\n").map((rad, i) => <Text key={i}>{rad}</Text>) || "<tom>"}</Td>
-            <Td>{tidslinjehendelse.Neste?.split("\\n").map((rad, i) => <Text key={i}>{rad}</Text>) || "<tom>"}</Td>
-        </Tr>
+            {
+                ["Forrige", "Neste"].map(
+                    kilde => (
+                        <Td key={kilde}>
+                            {
+                                tidslinjehendelse[kilde]?.split("\\n")
+                                    .map((rad: string, i: number) =>
+                                        <Text key={i}>{rad}</Text>
+                                    ) || "<tom>"
+
+                            }
+                        </Td>
+
+                    )
+                )
+            }
+        </Tr >
     )
 }

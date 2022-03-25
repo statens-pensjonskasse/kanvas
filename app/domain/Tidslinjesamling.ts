@@ -38,22 +38,28 @@ export default class Tidslinjesamling {
             ])
         }
         else {
-            const minsteStartdato: Aksjonsdato = this.tidslinjer.map(t => t.fraOgMed).sort((a, b) => a.getTime() - b.getTime())[0] || Aksjonsdato.TIDENES_MORGEN
+            const minsteStartdato: Aksjonsdato = this.tidslinjer
+                .map(t => t.fraOgMed)
+                .sort((a, b) => a.getTime() - b.getTime())[0] || Aksjonsdato.UKJENT_DATO
 
             return this.leggTil(
                 new Tidslinje([
                     ...(this.løperTil(minsteStartdato, aksjonsdato) ? [] : [
-                        new Periode(
-                            tidslinjeId,
-                            minsteStartdato,
-                            aksjonsdato
-                        )
-                    ]),
+                        erstatter(
+                            aksjonsdato,
+                            new Periode(
+                                tidslinjeId,
+                                minsteStartdato,
+                                aksjonsdato
+                            )
+                        )[0] // Endringshendelse uten motsvarende "ny"-hendelse. "erstatter" setter hva forrige verdi skulle vært
+                    ]
+                    ),
                     ...erstatter(
                         aksjonsdato,
                         new Periode(
                             tidslinjeId,
-                            aksjonsdato.plussDager(1)
+                            aksjonsdato
                         )
                     )
                 ])

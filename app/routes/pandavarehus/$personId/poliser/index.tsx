@@ -48,6 +48,7 @@ export const loader: LoaderFunction = async ({ params }) => {
             neste: nesteJson,
         }
     }
+    return null;
 }
 
 

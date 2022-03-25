@@ -3,6 +3,9 @@ import React, { useContext, useEffect, useMemo } from "react";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
 import TidslinjehendelseController from "~/components/input/TidslinjehendelseController";
+import TidslinjeSelector from "~/components/pandavarehus/TidslinjeSelector";
+import TilstandSlider from "~/components/pandavarehus/TilstandSlider";
+import TidslinjerView from "~/components/TidslinjeView";
 import SimulerTidslinjehendelser, { PoliseSimulering } from "~/domain/SimulerTidslinjehendelser";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import Tidslinjehendelsediffer from "~/domain/Tidslinjehendelsediff";
@@ -27,7 +30,7 @@ export const loader: LoaderFunction = async ({ params }) => {
             ['forrige', 'neste']
                 .map(
                     async tidslinjetabell => {
-                        const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?PersonId=eq.${personId}&PoliseId=eq.${poliseId}`
+                        const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?PersonId=eq.${personId}&PoliseId=eq.${poliseId}&Hendelsestype=neq.KONVERTERING&not.and("Forrige verdi".is.null,"Neste verdi".is.null)`
                         return await fetch(URL)
                     }
                 )
@@ -99,10 +102,15 @@ export default function PandavarehusInput() {
 
 
     return (
-        <VStack>
-            <Link to={`/pandavarehus/${personId}/poliser`}>Bytt til poliser</Link>
-            <Heading>{`Kategoriseringer Polise ${poliseId}`}</Heading>
-            <TidslinjehendelseController />
-        </VStack >
+        <>
+            <VStack>
+                <Link to={`/pandavarehus/${personId}/poliser`}>Bytt til poliser</Link>
+                <Heading>{`Kategoriseringer Polise ${poliseId}`}</Heading>
+                <TidslinjehendelseController />
+            </VStack >
+            <TidslinjeSelector />
+            <TilstandSlider />
+            <TidslinjerView />
+        </>
     );
 }

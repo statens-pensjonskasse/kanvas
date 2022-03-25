@@ -21,7 +21,7 @@ export default function TidslinjehendelseController() {
                 width={'90vw'}
                 maxH='80vh'
             >
-                <GridItem colSpan={2} overflow='auto' alignItems={'left'}>
+                <GridItem colSpan={2} overflow='auto' alignItems={'left'} shadow='base' rounded={'xl'} padding={'3em'}>
                     <KategoriseringTabell />
                 </GridItem>
                 <GridItem colSpan={1} overflow='auto'>
@@ -41,8 +41,8 @@ export default function TidslinjehendelseController() {
             </RadioGroup>
             {kategorisertHendelse && (
                 <>
-                    <Hendelsesnavigering />
                     <TilstandSlider />
+                    <Hendelsesnavigering />
                 </>
             )}
 
