@@ -54,9 +54,7 @@ export default function PandavarehusInput() {
             const kriterier = [
                 `PersonId=eq.${personId}`,
                 `PoliseId=eq.${poliseId}`,
-                `Hendelsestype=not.eq.FREMSKRIVING`,
-                `Hendelsestype=not.eq.KONVERTERING`,
-                `Hendelsestype=not.eq.UKJENT`
+                `Hendelsestype=not.eq.FREMSKRIVING`
             ]
             const URL = `${tidslinjehendelseHost}/${tidslinjetabell}?${kriterier.join("&")}`
             let data: Response;
