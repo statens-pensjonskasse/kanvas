@@ -3,7 +3,7 @@ import { useContext } from "react";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import { Tidslinjehendelsediff } from "~/domain/Tidslinjehendelsediff";
 import { PandavarehusContext } from "~/state/PandavarehusProvider";
-
+import { AksjonsdatoTag } from "./AksjonsdatoTag";
 
 export default function KategoriseringListe() {
     const { diff, tilstand, oppdaterTilstand, kategoriseringer } = useContext(PandavarehusContext)
@@ -25,9 +25,9 @@ export default function KategoriseringListe() {
                                     shadow={tilstand === i ? 'outline' : 'none'}
                                     key={i}
                                 >
-                                    <Tag>
-                                        {kategoriserbarHendelse.aksjonsdato.aksjonsdato}
-                                    </Tag>
+                                    <AksjonsdatoTag
+                                        aksjonsdato={kategoriserbarHendelse.aksjonsdato}
+                                    />
                                     <Text>
                                         {`${kategoriserbarHendelse.kategorisering}`}
                                     </Text>

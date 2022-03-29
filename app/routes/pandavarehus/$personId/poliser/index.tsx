@@ -1,8 +1,7 @@
-import { Heading } from "@chakra-ui/react";
-import React, { useContext, useEffect } from "react";
+import { Heading, useToast } from "@chakra-ui/react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { LoaderFunction, useLoaderData } from "remix";
-import invariant from "ts-invariant";
 import TidslinjeSelector from "~/components/pandavarehus/TidslinjeSelector";
 import TidslinjerView from "~/components/TidslinjeView";
 import Tidslinje from "~/domain/Tidslinje";
@@ -11,44 +10,15 @@ import { PandavarehusContext } from '~/state/PandavarehusProvider';
 
 export const loader: LoaderFunction = async ({ params }) => {
     const { personId } = params
-    const poliserHost = "http://localhost:3033"
 
     if (!personId) {
         return new Response('Mangler personId', {
             status: 400
         })
     }
-
-    let dataForrige: Response;
-    let dataNeste: Response;
-    try {
-        const [forrige, neste] = await Promise.all(
-            ['forrige', 'neste']
-                .map(
-                    async tidslinjetabell => {
-                        const URL = `${poliserHost}/${tidslinjetabell}?PersonId=eq.${personId}`
-                        return await fetch(URL)
-                    }
-                )
-        )
-        dataForrige = forrige
-        dataNeste = neste
-
-    } catch (error) {
-        return new Response(`Feil ved henting fra ${poliserHost}, kjører pandavarehus-kanvas-connector?`, {
-            status: 404
-        })
+    return {
+        personId,
     }
-    if (dataForrige.ok) {
-        const forrigeJson = await dataForrige.json()
-        const nesteJson = await dataNeste.json()
-        return {
-            personId,
-            forrige: forrigeJson,
-            neste: nesteJson,
-        }
-    }
-    return null;
 }
 
 
@@ -58,30 +28,72 @@ export default function PandavarehusInput() {
         setPoliseIder,
         oppdaterMedNyeTidslinjer,
     } = useContext(PandavarehusContext)
+    const [forrige, setForrige] = useState([])
+    const [neste, setNeste] = useState([])
 
+    const toast = useToast()
     const data = useLoaderData()
 
-    const { personId, forrige, neste } = data
-    invariant(forrige, 'Mangler poliser for forrige')
-    invariant(neste, 'Mangler poliser for neste')
+    const { personId } = data
+    const poliserHost = "http://localhost:3033"
 
     const tidslinjeparser = new PandavarehusPoliserParser();
 
-    const parsetForrige: Tidslinje[] = tidslinjeparser.parse(forrige)
-    const parsetNeste: Tidslinje[] = tidslinjeparser.parse(neste)
+    useEffect(() => {
+        const fetchData = async (tidslinjetabell: string) => {
+            const kriterier = [
+                `PersonId=eq.${personId}`,
+            ]
+            const URL = `${poliserHost}/${tidslinjetabell}?${kriterier.join("&")}`
+            let data: Response;
+            try {
+                data = await fetch(URL)
+            } catch (error) {
+                toast({
+                    title: `Feil ved henting fra ${poliserHost}`,
+                    description: `${error.message}, kjører pandavarehus-kanvas-connector.sh?`,
+                    position: "top-right",
+                    status: "error"
+                })
+                return []
+            }
+
+            if (data.ok) {
+                return await data.json()
+            }
+            else {
+                toast({
+                    title: `Feil ved henting fra ${poliserHost}`,
+                    description: `${data.status}: ${data.statusText}. Husk å kjøre pandavarehus-kanvas-connector.sh på nytt om du har lastet inn nye data.`,
+                    position: "top-right",
+                    status: "error"
+                })
+                return []
+            }
+        }
+
+        Promise.all([
+            fetchData("forrige"),
+            fetchData("neste")
+        ])
+            .then(([forrige, neste]) => {
+                console.log(forrige)
+                setForrige(forrige)
+                setNeste(neste)
+            })
+    }, [personId, poliserHost])
+
+    const parsetForrige: Tidslinje[] = useMemo(() => tidslinjeparser.parse(forrige), [forrige])
+    const parsetNeste: Tidslinje[] = useMemo(() => tidslinjeparser.parse(neste), [neste])
 
     useEffect(() => {
         oppdaterMedNyeTidslinjer(
             (table === 'forrige' ? parsetForrige : parsetNeste)
         )
-    }, [])
-
-    useEffect(() => {
         oppdaterMedNyeTidslinjer(
             (table === 'forrige' ? parsetForrige : parsetNeste)
         )
-    }, [table])
-
+    }, [forrige, neste])
 
     return (
         <>

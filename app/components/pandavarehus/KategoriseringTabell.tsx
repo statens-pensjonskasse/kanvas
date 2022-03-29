@@ -1,12 +1,13 @@
 import { Badge, Heading, HStack, Table, TableCaption, Tag, Tbody, Td, Text, Th, Thead, Tooltip, Tr, VStack } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import { Tidslinjehendelsediff } from "~/domain/Tidslinjehendelsediff";
 import { PandavarehusContext } from "~/state/PandavarehusProvider";
 import { unikeVerdier } from "~/util/utils";
 
 export default function KategoriseringTabell() {
-    const { kategorisertHendelse } = useContext(PandavarehusContext)
+    const { kategorisertHendelse, diff } = useContext(PandavarehusContext)
+    const [kunEndringer, setKunEndringer] = useState(true)
 
     const {
         aksjonsdato,
@@ -35,6 +36,8 @@ export default function KategoriseringTabell() {
                 <TableCaption>Tidslinjehendelser som inngår i kategoriseringen</TableCaption>
                 <Thead>
                     <Tr>
+                        <Th>Aksjonsdato</Th>
+                        <Th>Tidslinje</Th>
                         <Th>Egenskap</Th>
                         <Th>Gammel verdi</Th>
                         <Th>Ny verdi</Th>
@@ -44,10 +47,18 @@ export default function KategoriseringTabell() {
                     {
                         hendelser
                             .map(
-                                (tidslinjehendelse, i) => (
+                                (tidslinjehendelse: Tidslinjehendelse) => ({
+                                    tidslinjehendelse,
+                                    diffForHendelse: diff.diffForHendelse(tidslinjehendelse)
+                                })
+                            )
+                            .filter(({ diffForHendelse }) => !kunEndringer || !!diffForHendelse)
+                            .map(
+                                ({ tidslinjehendelse, diffForHendelse }, i) => (
                                     <KategoriseringRad
                                         key={i}
                                         tidslinjehendelse={tidslinjehendelse}
+                                        diffForHendelse={diffForHendelse}
                                     />
                                 )
                             )
@@ -60,26 +71,26 @@ export default function KategoriseringTabell() {
 
 interface RadProps {
     tidslinjehendelse: Tidslinjehendelse,
+    diffForHendelse: Tidslinjehendelsediff | undefined
 }
 
 function KategoriseringRad(props: RadProps) {
-    const { tidslinjehendelse } = props
-    const { diff } = useContext(PandavarehusContext)
-    const diffForHendelse: Tidslinjehendelsediff | undefined = diff.diffForHendelse(tidslinjehendelse)
+    const { tidslinjehendelse, diffForHendelse } = props
     const harDiff = !!diffForHendelse
 
     return (
         <Tr>
+            <Td> {tidslinjehendelse.Aksjonsdato.aksjonsdato} </Td>
+            <Td>
+                <Tooltip>
+                    <Tag size='sm' maxW={'15em'} shadow='base' padding='2'>
+                        {tidslinjehendelse.TidslinjeId.replace(/_/g, ' ').toLowerCase()}
+                    </Tag>
+                </Tooltip>
+            </Td>
             <Td>
                 <HStack>
-                    <VStack alignItems={'left'}>
-                        <Text>{tidslinjehendelse.Egenskap}</Text>
-                        <Tooltip>
-                            <Tag size='sm' maxW={'15em'} shadow='base' padding='2'>
-                                {tidslinjehendelse.TidslinjeId.replace(/_/g, ' ').toLowerCase()}
-                            </Tag>
-                        </Tooltip>
-                    </VStack>
+                    <Text>{tidslinjehendelse.Egenskap}</Text>
                     {harDiff && (
                         <Tooltip label={diffForHendelse?.beskrivelse}>
                             <Tag colorScheme={'blue'}>{diffForHendelse?.diffType}</Tag>

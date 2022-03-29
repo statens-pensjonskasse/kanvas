@@ -37,7 +37,8 @@ export default class SimulerTidslinjehendelser {
                 const kategorisert = {
                     aksjonsdato: sisteGyldige.Aksjonsdato,
                     kategorisering: sisteGyldige.Hendelsestype,
-                    hendelser: gjeldendeHendelser.sort((a, b) => (a.Egenskap > b.Egenskap) ? 1 : -1)
+                    hendelser: gjeldendeHendelser
+                        .sort((a, b) => (a.Aksjonsdato.aksjonsdato > b.Aksjonsdato.aksjonsdato) ? 1 : -1)
                 }
                 samlinger.push([kategorisert, gjeldende])
                 gjeldendeHendelser = []
