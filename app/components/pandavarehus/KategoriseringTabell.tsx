@@ -7,7 +7,7 @@ import { unikeVerdier } from "~/util/utils";
 
 export default function KategoriseringTabell() {
     const { kategorisertHendelse, diff } = useContext(PandavarehusContext)
-    const [kunEndringer, setKunEndringer] = useState(true)
+    const [kunEndringer, setKunEndringer] = useState(false)
 
     const {
         aksjonsdato,
