@@ -1,20 +1,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import GjeldendeEgenskapdiffer from "~/domain/GjeldendeEgenskapdiff";
+import GjeldendeEgenskaper from "~/domain/GjeldendeEgenskaper";
+import { SimulertTilstand } from "~/domain/SimulerTidslinjehendelser";
 import KategorisertHendelse from "../domain/KategorisertHendelse";
 import Tidslinje from "../domain/Tidslinje";
 import Tidslinjehendelsediffer from "../domain/Tidslinjehendelsediff";
-import Tidslinjesamling from "../domain/Tidslinjesamling";
 import { useSessionState } from "../util/useSessionState";
 import { ColorContext } from "./ColorProvider";
 import { TidslinjeContext } from "./TidslinjerProvider";
 
 interface PandavarehusContextInterface {
     oppdaterMedNyeTidslinjer(tidslinjer: Tidslinje[]): void,
-    oppdaterSimulerteSamlinger(nyeSamlinger: [KategorisertHendelse, Tidslinjesamling][]): void,
+    oppdaterSimulerteSamlinger(nyeSamlinger: SimulertTilstand[]): void,
     oppdaterTilstand(nyTilstand: number): void,
     velgTidslinjeIder(nyeIder: string[]): void
     toggleTidslinjeId(id: string): void,
     setTable(newTable: string): void,
     setDiff(diff: Tidslinjehendelsediffer): void,
+    setGjeldendeEgenskaperdiffer(diff: GjeldendeEgenskapdiffer): void,
+    gjeldendeEgenskaperdiffer: GjeldendeEgenskapdiffer,
     setPoliseIder(poliseIder: number[]): void,
     poliseIder: number[],
     diff: Tidslinjehendelsediffer,
@@ -22,6 +26,7 @@ interface PandavarehusContextInterface {
     maxTilstand: number,
     table: string,
     parset: string,
+    gjeldendeEgenskaper: GjeldendeEgenskaper,
     kategoriseringer(): KategorisertHendelse[],
     kategorisertHendelse: KategorisertHendelse,
     tidslinjeIder: string[],
@@ -32,9 +37,11 @@ interface PandavarehusContextInterface {
 export const PandavarehusContext = createContext<PandavarehusContextInterface>(null)
 
 export default function PandavarehusProvider({ children }) {
-    const [tidslinjesamlinger, setTidslinjesamlinger] = useState<[KategorisertHendelse, Tidslinjesamling][]>([])
+    const [tidslinjesamlinger, setTidslinjesamlinger] = useState<SimulertTilstand[]>([])
     const [poliseIder, setPoliseIder] = useState<number[]>([])
     const [diff, setDiff] = useState<Tidslinjehendelsediffer>(Tidslinjehendelsediffer.tom())
+    const [gjeldendeEgenskaper, setGjeldendeEgenskaper] = useState<GjeldendeEgenskaper>(GjeldendeEgenskaper.tom())
+    const [gjeldendeEgenskaperdiffer, setGjeldendeEgenskaperdiffer] = useState<GjeldendeEgenskapdiffer>(GjeldendeEgenskapdiffer.tom())
     const { setTidslinjer } = useContext(TidslinjeContext)
 
     const { setColors } = useContext(ColorContext)
@@ -64,18 +71,19 @@ export default function PandavarehusProvider({ children }) {
         }
     }
 
-    const sisteSimulerteTilstand = () => {
+    const sisteSimulerteTidslinjesamling = (): Tidslinje[] => {
         if (tidslinjesamlinger.length) {
-            return tidslinjesamlinger[maxTilstand][1].tidslinjer
+            return tidslinjesamlinger[maxTilstand].tidslinjesamling.tidslinjer
         }
         return []
     }
+
     const kategoriseringer = () => {
-        return tidslinjesamlinger.map(t => t[0])
+        return tidslinjesamlinger.map(t => t.kategorisertHendelse)
     }
 
     const oppdaterMedNyeTidslinjer = (tidslinjer: Tidslinje[]) => {
-        setTidslinjeIder((sisteSimulerteTilstand().length ? sisteSimulerteTilstand() : tidslinjer).map(t => t.label))
+        setTidslinjeIder((sisteSimulerteTidslinjesamling().length ? sisteSimulerteTidslinjesamling() : tidslinjer).map(t => t.label))
         setParset(
             tidslinjer.map(
                 t => t.somCSV().join("\n")
@@ -88,15 +96,19 @@ export default function PandavarehusProvider({ children }) {
     const oppdaterTilstand = (tilstand: number) => {
         const nyTilstand = Math.max(0, Math.min(tilstand, maxTilstand))
         setTilstand(nyTilstand);
-        oppdaterMedNyeTidslinjer(tidslinjesamlinger[nyTilstand][1].tidslinjer)
+        const nySimulertTilstand = tidslinjesamlinger[nyTilstand]
+        oppdaterMedNyeTidslinjer(nySimulertTilstand.tidslinjesamling.tidslinjer)
+        setGjeldendeEgenskaper(nySimulertTilstand?.gjeldendeEgenskaper || GjeldendeEgenskaper.tom())
     }
 
-    const oppdaterSimulerteSamlinger = (samlinger: [KategorisertHendelse, Tidslinjesamling][]) => {
+    const oppdaterSimulerteSamlinger = (samlinger: SimulertTilstand[]) => {
         const nyMaxTilstand = Math.max(0, samlinger.length - 1)
         setMaxTilstand(nyMaxTilstand)
         setTidslinjesamlinger(samlinger)
         if (samlinger.length) {
-            oppdaterMedNyeTidslinjer(samlinger[Math.min(tilstand, nyMaxTilstand)][1].tidslinjer)
+            const ønsketTilstand = Math.min(tilstand, nyMaxTilstand)
+            oppdaterMedNyeTidslinjer(samlinger[ønsketTilstand].tidslinjesamling.tidslinjer)
+            setTilstand(ønsketTilstand)
         }
         else {
             oppdaterMedNyeTidslinjer([])
@@ -105,7 +117,7 @@ export default function PandavarehusProvider({ children }) {
 
     useEffect(() => {
         if (tidslinjesamlinger.length && tilstand < tidslinjesamlinger.length) {
-            const [kategorisertHendelse, tidslinjesamling] = tidslinjesamlinger[tilstand]
+            const { kategorisertHendelse, tidslinjesamling } = tidslinjesamlinger[tilstand]
             setKategorisertHendelse(kategorisertHendelse)
             setColors(new Map(
                 kategorisertHendelse.hendelser
@@ -117,6 +129,9 @@ export default function PandavarehusProvider({ children }) {
     }, [tidslinjesamlinger, tilstand])
 
     const exported: PandavarehusContextInterface = {
+        gjeldendeEgenskaper,
+        gjeldendeEgenskaperdiffer,
+        setGjeldendeEgenskaperdiffer,
         diff,
         setDiff,
         tilstand,
@@ -135,7 +150,7 @@ export default function PandavarehusProvider({ children }) {
         toggleTidslinjeId,
         setPoliseIder,
         poliseIder,
-        sisteSimulerteTilstand
+        sisteSimulerteTilstand: sisteSimulerteTidslinjesamling
     }
 
     return (

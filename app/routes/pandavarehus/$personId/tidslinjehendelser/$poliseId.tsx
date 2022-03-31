@@ -3,9 +3,10 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
 import TidslinjehendelseController from "~/components/input/TidslinjehendelseController";
+import GjeldendeEgenskaperListe from "~/components/pandavarehus/GjeldendeEgenskaperListe";
 import TidslinjeSelector from "~/components/pandavarehus/TidslinjeSelector";
-import TilstandSlider from "~/components/pandavarehus/TilstandSlider";
 import TidslinjerView from "~/components/TidslinjeView";
+import GjeldendeEgenskapdiffer from "~/domain/GjeldendeEgenskapdiff";
 import SimulerTidslinjehendelser, { PoliseSimulering } from "~/domain/SimulerTidslinjehendelser";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import Tidslinjehendelsediffer from "~/domain/Tidslinjehendelsediff";
@@ -33,6 +34,7 @@ export default function PandavarehusInput() {
         table,
         oppdaterSimulerteSamlinger,
         setDiff,
+        setGjeldendeEgenskaperdiffer,
         setPoliseIder
     } = useContext(PandavarehusContext)
     const [forrige, setForrige] = useState([])
@@ -101,6 +103,8 @@ export default function PandavarehusInput() {
 
     const diff: Tidslinjehendelsediffer = useMemo(() => Tidslinjehendelsediffer.utledPolise(parsetForrige, parsetNeste), [parsetForrige, parsetNeste])
 
+    const gjeldendeEgenskapDiffer: GjeldendeEgenskapdiffer = useMemo(() => GjeldendeEgenskapdiffer.utled(simulertForrige, simulertNeste), [simulertForrige, simulertNeste])
+
     const poliseIder = unikeVerdier(
         [...forrige, ...neste].map(hendelse => hendelse.PoliseId)
     )
@@ -109,6 +113,7 @@ export default function PandavarehusInput() {
 
     useEffect(() => {
         setDiff(diff)
+        setGjeldendeEgenskaperdiffer(gjeldendeEgenskapDiffer)
         setPoliseIder(poliseIder)
         oppdaterSimulerteSamlinger(
             (table === 'forrige' ? simulertForrige : simulertNeste).simulering
@@ -124,7 +129,7 @@ export default function PandavarehusInput() {
                 <TidslinjehendelseController />
             </VStack >
             <TidslinjeSelector />
-            <TilstandSlider />
+            <GjeldendeEgenskaperListe />
             <TidslinjerView />
         </>
     );

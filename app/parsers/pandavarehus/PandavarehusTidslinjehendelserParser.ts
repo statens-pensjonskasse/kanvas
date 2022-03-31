@@ -16,6 +16,8 @@ export default class PandavarehusTidslinjehendelserParser {
 
     parseAlle(data: any[]): Tidslinjehendelse[] {
         return data
+            .filter(r => r["Typeindikator"] !== "RESERVEFREMSKRIVINGER")
+            .sort(rad => rad['Hendelsesnummer'])
             .map(
                 raw => ({
                     Aksjonsdato: this.oversettDato(raw['Aksjonsdato']),
@@ -31,7 +33,6 @@ export default class PandavarehusTidslinjehendelserParser {
                     Typeindikator: raw['Typeindikator']
                 })
             )
-            .filter(r => r.Typeindikator !== "RESERVEFREMSKRIVINGER")
             .sort((a, b) => a.Hendelsesnummer - b.Hendelsesnummer)
     }
 

@@ -1,12 +1,19 @@
 import KategorisertHendelse from '../domain/KategorisertHendelse'
 import { Aksjonsdato } from './Aksjonsdato'
+import GjeldendeEgenskaper from './GjeldendeEgenskaper'
 import Periode from './Periode'
 import Tidslinje from './Tidslinje'
 import Tidslinjehendelse from './Tidslinjehendelse'
 import Tidslinjesamling from './Tidslinjesamling'
 
+export interface SimulertTilstand {
+    kategorisertHendelse: KategorisertHendelse,
+    tidslinjesamling: Tidslinjesamling,
+    gjeldendeEgenskaper: GjeldendeEgenskaper
+}
+
 export interface PoliseSimulering {
-    simulering: [KategorisertHendelse, Tidslinjesamling][]
+    simulering: SimulertTilstand[]
 }
 
 export default class SimulerTidslinjehendelser {
@@ -23,7 +30,7 @@ export default class SimulerTidslinjehendelser {
     }
 
     static simulerPolise(hendelser: Tidslinjehendelse[]): PoliseSimulering {
-        let samlinger: [KategorisertHendelse, Tidslinjesamling][] = []
+        let samlinger: SimulertTilstand[] = []
         let gjeldendeHendelser: Tidslinjehendelse[] = []
         let gjeldende = Tidslinjesamling.tom()
 
@@ -34,13 +41,18 @@ export default class SimulerTidslinjehendelser {
             const hendelse = hendelser[i]
             if ((hendelse.Hendelsesnummer !== hendelsesnummer || (i === sisteHendelsesnummer))) {
                 const sisteGyldige = gjeldendeHendelser[gjeldendeHendelser.length - 1]
-                const kategorisert = {
+                const kategorisertHendelse = {
                     aksjonsdato: sisteGyldige.Aksjonsdato,
                     kategorisering: sisteGyldige.Hendelsestype,
                     hendelser: gjeldendeHendelser
                         .sort((a, b) => (a.Aksjonsdato.aksjonsdato > b.Aksjonsdato.aksjonsdato) ? 1 : -1)
                 }
-                samlinger.push([kategorisert, gjeldende])
+                const simulertTilstand: SimulertTilstand = {
+                    kategorisertHendelse,
+                    tidslinjesamling: gjeldende,
+                    gjeldendeEgenskaper: GjeldendeEgenskaper.utled(gjeldende.tidslinjer)
+                }
+                samlinger.push(simulertTilstand)
                 gjeldendeHendelser = []
                 hendelsesnummer = hendelse.Hendelsesnummer
             }
