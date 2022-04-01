@@ -3,15 +3,14 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, LoaderFunction, useLoaderData } from "remix";
 import invariant from "ts-invariant";
 import TidslinjehendelseController from "~/components/input/TidslinjehendelseController";
-import GjeldendeEgenskaperListe from "~/components/pandavarehus/GjeldendeEgenskaperListe";
 import TidslinjeSelector from "~/components/pandavarehus/TidslinjeSelector";
-import TidslinjerView from "~/components/TidslinjeView";
 import GjeldendeEgenskapdiffer from "~/domain/GjeldendeEgenskapdiff";
 import SimulerTidslinjehendelser, { PoliseSimulering } from "~/domain/SimulerTidslinjehendelser";
 import Tidslinjehendelse from "~/domain/Tidslinjehendelse";
 import Tidslinjehendelsediffer from "~/domain/Tidslinjehendelsediff";
 import PandavarehusTidslinjehendelserParser from '~/parsers/pandavarehus/PandavarehusTidslinjehendelserParser';
 import { PandavarehusContext } from '~/state/PandavarehusProvider';
+import { TidslinjeContext } from "~/state/TidslinjerProvider";
 import { unikeVerdier } from "~/util/utils";
 
 export const loader: LoaderFunction = async ({ params }) => {
@@ -35,8 +34,10 @@ export default function PandavarehusInput() {
         oppdaterSimulerteSamlinger,
         setDiff,
         setGjeldendeEgenskaperdiffer,
-        setPoliseIder
+        setPoliseIder,
     } = useContext(PandavarehusContext)
+    const { tidslinjer } = useContext(TidslinjeContext)
+
     const [forrige, setForrige] = useState([])
     const [neste, setNeste] = useState([])
 
@@ -129,8 +130,6 @@ export default function PandavarehusInput() {
                 <TidslinjehendelseController />
             </VStack >
             <TidslinjeSelector />
-            <GjeldendeEgenskaperListe />
-            <TidslinjerView />
         </>
     );
 }

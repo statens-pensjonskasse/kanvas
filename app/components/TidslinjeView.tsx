@@ -61,8 +61,10 @@ export default function TidslinjerView() {
   return (
     <VStack
       alignItems={'left'}
-      rounded='md'
-      shadow={'dark-lg'}
+      rounded='xl'
+      border={'2px'}
+      borderColor={'blackAlpha.200'}
+      shadow={'lg'}
       maxWidth={'95%'}
       overflow={'auto'}
       padding={'5em'}

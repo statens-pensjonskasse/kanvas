@@ -1,12 +1,7 @@
+import { DiffType } from './DiffType'
 import Egenskap from './Egenskap'
 import KategorisertHendelse from './KategorisertHendelse'
 import { PoliseSimulering } from './SimulerTidslinjehendelser'
-
-export enum DiffType {
-    NY = "Ny",
-    ENDRET = "Endret",
-    FJERNET = "Fjernet"
-}
 
 export class GjeldendeEgenskapdiff {
     readonly diffType: DiffType
@@ -39,15 +34,11 @@ export default class GjeldendeEgenskapdiffer {
         ].join(';')
     }
 
-    // endringer
-    // bytte tidslinje
-    // bytte hendelse
-
     private static finnEndringer(forrige: Egenskap, neste: Egenskap): GjeldendeEgenskapdiff | undefined {
         const beskrivelse = (
             () => {
                 if (forrige.verdi !== neste.verdi) {
-                    return `Endret ${forrige.type} fra ${forrige.verdi} til ${neste.verdi}`
+                    return `${forrige.type} var før ${forrige.verdi}, men er nå ${neste.verdi}.`
                 }
                 return
             })()
@@ -61,8 +52,6 @@ export default class GjeldendeEgenskapdiffer {
     }
 
     static utled(forrige: PoliseSimulering, neste: PoliseSimulering): GjeldendeEgenskapdiffer {
-        // per aksjonsdato og kategorisering (nøkkel)
-        // ny/endret/fjernet
         const [forrigePerNøkkel, nestePerNøkkel]: Map<string, Egenskap>[] = [forrige, neste].map(
             polisesimulering =>
                 new Map(
@@ -98,7 +87,7 @@ export default class GjeldendeEgenskapdiffer {
             .map(
                 egenskap => [
                     egenskap,
-                    new GjeldendeEgenskapdiff(DiffType.FJERNET, `Har ikke lenger ${egenskap.type}: ${egenskap.verdi}`)]
+                    new GjeldendeEgenskapdiff(DiffType.FJERNET, `Har ikke lenger ${egenskap.type}: ${egenskap.verdi}.`)]
             )
 
         const nye: [Egenskap, GjeldendeEgenskapdiff][] = nesteNøkler
@@ -107,7 +96,7 @@ export default class GjeldendeEgenskapdiffer {
             .map(
                 egenskap => [
                     egenskap,
-                    new GjeldendeEgenskapdiff(DiffType.NY, `Har nå fått ${egenskap.type}: ${egenskap.verdi}`)
+                    new GjeldendeEgenskapdiff(DiffType.NY, `Har nå fått ${egenskap.type}: ${egenskap.verdi}.`)
                 ])
 
         const endret: [Egenskap, Egenskap][] = nesteNøkler

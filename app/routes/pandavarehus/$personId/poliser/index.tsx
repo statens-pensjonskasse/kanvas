@@ -77,7 +77,6 @@ export default function PandavarehusInput() {
             fetchData("neste")
         ])
             .then(([forrige, neste]) => {
-                console.log(forrige)
                 setForrige(forrige)
                 setNeste(neste)
             })

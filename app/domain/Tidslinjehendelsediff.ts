@@ -1,10 +1,5 @@
+import { DiffType } from './DiffType'
 import Tidslinjehendelse from './Tidslinjehendelse'
-
-export enum DiffType {
-    NY = "Ny",
-    ENDRET = "Endret",
-    FJERNET = "Fjernet"
-}
 
 export class Tidslinjehendelsediff {
     readonly diffType: DiffType
@@ -48,10 +43,10 @@ export default class Tidslinjehendelsediffer {
         const beskrivelse = (
             () => {
                 if (forrige.Hendelsestype != neste.Hendelsestype) {
-                    return `Flyttet fra hendelse ${forrige.Hendelsestype} til ${neste.Hendelsestype}`
+                    return `Denne endringen av ${neste.Egenskap} var før i hendelsen ${forrige.Hendelsestype}, men er nå flyttet til ${neste.Hendelsestype}.`
                 }
                 if (forrige.TidslinjeId != neste.TidslinjeId) {
-                    return "Endret tidslinje"
+                    return `Denne endringen av ${neste.Egenskap} har blitt flyttet fra tidslinjen ${forrige.TidslinjeId} til ${neste.TidslinjeId}.`
                 }
                 return
             })()
@@ -92,11 +87,23 @@ export default class Tidslinjehendelsediffer {
         const nesteNøkler = Array.from(nestePerNøkkel.keys())
         const forsvunnet: [Tidslinjehendelse, Tidslinjehendelsediff][] = forrigeNøkler
             .filter(nøkkel => !nesteNøkler.includes(nøkkel))
-            .map(nøkkel => [forrigePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.FJERNET, `Fjernet hendelse ${forrigePerNøkkel.get(nøkkel).Hendelsestype}`)])
+            .map(nøkkel => forrigePerNøkkel.get(nøkkel))
+            .map(
+                hendelse => [
+                    hendelse,
+                    new Tidslinjehendelsediff(DiffType.FJERNET, `Denne endringen av ${hendelse.Egenskap} er ikke lenger med i hendelsen ${hendelse.Hendelsestype}.`)
+                ]
+            )
 
         const nye: [Tidslinjehendelse, Tidslinjehendelsediff][] = nesteNøkler
             .filter(nøkkel => !forrigeNøkler.includes(nøkkel))
-            .map(nøkkel => [nestePerNøkkel.get(nøkkel), new Tidslinjehendelsediff(DiffType.NY, `Ny hendelse ${nestePerNøkkel.get(nøkkel).Hendelsestype}`)])
+            .map(nøkkel => nestePerNøkkel.get(nøkkel))
+            .map(
+                hendelse => [
+                    hendelse,
+                    new Tidslinjehendelsediff(DiffType.NY, `Denne endringen av ${hendelse.Egenskap} var ikke med i hendelsen ${hendelse.Hendelsestype} før.`)
+                ]
+            )
 
         const felles: [Tidslinjehendelse, Tidslinjehendelse][] = nesteNøkler
             .filter(nøkkel => forrigeNøkler.includes(nøkkel))

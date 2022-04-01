@@ -79,7 +79,7 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
 
     private oversettTilOgMed(tilOgMed: string): Aksjonsdato | undefined {
         if (tilOgMed !== "9999-12-31") {
-            return this.oversettDato(tilOgMed)
+            return this.oversettDato(tilOgMed).plussDager(1) // kombinerer med påfølgende
         }
     }
 

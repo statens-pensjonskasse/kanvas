@@ -5,6 +5,7 @@ export class Aksjonsdato {
     public static readonly TIDENES_MORGEN: Aksjonsdato = new Aksjonsdato('1000-01-01')
     public static readonly UKJENT_DATO: Aksjonsdato = new Aksjonsdato('1000-01-02')
     public static readonly TIDENES_SLUTT: Aksjonsdato = new Aksjonsdato('3000-01-01')
+    public static readonly SPK_1917: Aksjonsdato = new Aksjonsdato('1917-01-01')
 
     public readonly DELIMITER = '.'
     public readonly FORMAT = ['yyyy', 'MM', 'dd'].join(this.DELIMITER)

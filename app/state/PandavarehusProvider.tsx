@@ -2,11 +2,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import GjeldendeEgenskapdiffer from "~/domain/GjeldendeEgenskapdiff";
 import GjeldendeEgenskaper from "~/domain/GjeldendeEgenskaper";
 import { SimulertTilstand } from "~/domain/SimulerTidslinjehendelser";
+import { unikeVerdier } from "~/util/utils";
 import KategorisertHendelse from "../domain/KategorisertHendelse";
 import Tidslinje from "../domain/Tidslinje";
 import Tidslinjehendelsediffer from "../domain/Tidslinjehendelsediff";
 import { useSessionState } from "../util/useSessionState";
-import { ColorContext } from "./ColorProvider";
+import { FilterContext } from "./FilterProvider";
 import { TidslinjeContext } from "./TidslinjerProvider";
 
 interface PandavarehusContextInterface {
@@ -44,7 +45,7 @@ export default function PandavarehusProvider({ children }) {
     const [gjeldendeEgenskaperdiffer, setGjeldendeEgenskaperdiffer] = useState<GjeldendeEgenskapdiffer>(GjeldendeEgenskapdiffer.tom())
     const { setTidslinjer } = useContext(TidslinjeContext)
 
-    const { setColors } = useContext(ColorContext)
+    const { setFilters } = useContext(FilterContext)
 
     const [tilstand, setTilstand] = useState(0)
     const [maxTilstand, setMaxTilstand] = useState(0)
@@ -93,11 +94,26 @@ export default function PandavarehusProvider({ children }) {
         setTidslinjer(tidslinjer)
     }
 
+    const simulerteTidslinjer = (simulertTilstand: SimulertTilstand) => {
+        const erKonvertering = simulertTilstand.kategorisertHendelse.kategorisering.toLowerCase() === 'konvertering'
+
+        const påvirket = unikeVerdier(
+            simulertTilstand.kategorisertHendelse.hendelser
+                .filter(h => !erKonvertering)
+                .map(h => h.TidslinjeId)
+        )
+        return simulertTilstand
+            .tidslinjesamling
+            .tidslinjer
+            .filter(tidslinje => påvirket.includes(tidslinje.label))
+            .map((tidslinje, i) => tidslinje.medPosisjon(i))
+    }
+
     const oppdaterTilstand = (tilstand: number) => {
         const nyTilstand = Math.max(0, Math.min(tilstand, maxTilstand))
         setTilstand(nyTilstand);
         const nySimulertTilstand = tidslinjesamlinger[nyTilstand]
-        oppdaterMedNyeTidslinjer(nySimulertTilstand.tidslinjesamling.tidslinjer)
+        oppdaterMedNyeTidslinjer(simulerteTidslinjer(nySimulertTilstand))
         setGjeldendeEgenskaper(nySimulertTilstand?.gjeldendeEgenskaper || GjeldendeEgenskaper.tom())
     }
 
@@ -107,7 +123,9 @@ export default function PandavarehusProvider({ children }) {
         setTidslinjesamlinger(samlinger)
         if (samlinger.length) {
             const ønsketTilstand = Math.min(tilstand, nyMaxTilstand)
-            oppdaterMedNyeTidslinjer(samlinger[ønsketTilstand].tidslinjesamling.tidslinjer)
+            const nySimulertTilstand = samlinger[ønsketTilstand]
+            oppdaterMedNyeTidslinjer(simulerteTidslinjer(nySimulertTilstand))
+            setGjeldendeEgenskaper(nySimulertTilstand?.gjeldendeEgenskaper || GjeldendeEgenskaper.tom())
             setTilstand(ønsketTilstand)
         }
         else {
@@ -119,12 +137,13 @@ export default function PandavarehusProvider({ children }) {
         if (tidslinjesamlinger.length && tilstand < tidslinjesamlinger.length) {
             const { kategorisertHendelse, tidslinjesamling } = tidslinjesamlinger[tilstand]
             setKategorisertHendelse(kategorisertHendelse)
-            setColors(new Map(
+            const kunEndredeEgenskaper = new Map(
                 kategorisertHendelse.hendelser
                     .map(
-                        hendelse => [hendelse.TidslinjeId, 'red']
+                        hendelse => [hendelse.TidslinjeId, new RegExp(hendelse.Egenskap)]
                     )
-            ))
+            )
+            setFilters(kunEndredeEgenskaper)
         }
     }, [tidslinjesamlinger, tilstand])
 
