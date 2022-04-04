@@ -63,13 +63,12 @@ export default function PeriodeInput() {
 
     return (
         <VStack>
-            <HStack size={'xl'}>
+            <HStack>
                 <Textarea
                     ref={input}
                     variant={'filled'}
                     resize={'both'}
                     autoFocus
-                    type="text"
                     spellCheck="false"
                     onChange={handleChange}
                     placeholder="Gherkin"

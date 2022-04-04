@@ -30,38 +30,48 @@ export default class SimulerTidslinjehendelser {
     }
 
     static simulerPolise(hendelser: Tidslinjehendelse[]): PoliseSimulering {
-        let samlinger: SimulertTilstand[] = []
+        let simulering: SimulertTilstand[] = []
         let gjeldendeHendelser: Tidslinjehendelse[] = []
         let gjeldende = Tidslinjesamling.tom()
 
         let hendelsesnummer = hendelser[0]?.Hendelsesnummer || 0
-        const sisteHendelsesnummer = hendelser.length - 1
+        const sisteHendelsesIndeks = hendelser.length - 1
 
         for (let i = 0; i < hendelser.length; i++) {
             const hendelse = hendelser[i]
-            if ((hendelse.Hendelsesnummer !== hendelsesnummer || (i === sisteHendelsesnummer))) {
-                const sisteGyldige = gjeldendeHendelser[gjeldendeHendelser.length - 1]
-                const kategorisertHendelse = {
-                    aksjonsdato: sisteGyldige.Aksjonsdato,
-                    kategorisering: sisteGyldige.Hendelsestype,
-                    hendelser: gjeldendeHendelser
-                        .sort((a, b) => (a.Aksjonsdato.aksjonsdato > b.Aksjonsdato.aksjonsdato) ? 1 : -1)
-                }
-                const simulertTilstand: SimulertTilstand = {
-                    kategorisertHendelse,
-                    tidslinjesamling: gjeldende,
-                    gjeldendeEgenskaper: GjeldendeEgenskaper.utled(gjeldende.tidslinjer)
-                }
-                samlinger.push(simulertTilstand)
+            if (hendelse.Hendelsesnummer !== hendelsesnummer) {
+                const simulertTilstand = SimulerTidslinjehendelser.utledSimulertTilstand(gjeldendeHendelser, gjeldende)
+                simulering.push(simulertTilstand)
                 gjeldendeHendelser = []
                 hendelsesnummer = hendelse.Hendelsesnummer
             }
             gjeldendeHendelser.push(hendelse)
             gjeldende = SimulerTidslinjehendelser.simulerHendelse(hendelse, gjeldende)
+
+            if (i === sisteHendelsesIndeks) {
+                const simulertTilstand = SimulerTidslinjehendelser.utledSimulertTilstand(gjeldendeHendelser, gjeldende)
+                simulering.push(simulertTilstand)
+            }
         }
         return {
-            simulering: samlinger
+            simulering
         };
+    }
+
+    private static utledSimulertTilstand(gjeldendeHendelser: Tidslinjehendelse[], gjeldende: Tidslinjesamling) {
+        const sisteGyldige = gjeldendeHendelser[gjeldendeHendelser.length - 1]
+        const kategorisertHendelse = {
+            aksjonsdato: sisteGyldige.Aksjonsdato,
+            kategorisering: sisteGyldige.Hendelsestype,
+            hendelser: gjeldendeHendelser
+                .sort((a, b) => (a.Aksjonsdato.aksjonsdato > b.Aksjonsdato.aksjonsdato) ? 1 : -1)
+        }
+        const simulertTilstand: SimulertTilstand = {
+            kategorisertHendelse,
+            tidslinjesamling: gjeldende,
+            gjeldendeEgenskaper: GjeldendeEgenskaper.utled(gjeldende.tidslinjer)
+        }
+        return simulertTilstand
     }
 
     private static simulerHendelse(hendelse: Tidslinjehendelse, gjeldende: Tidslinjesamling): Tidslinjesamling {

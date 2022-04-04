@@ -18,7 +18,7 @@ export default class Egenskap {
             case 0: return new Egenskap("", "")
             case 1: return new Egenskap("", egenskapArray[0])
             case 2: return new Egenskap(egenskapArray[0], egenskapArray[1])
-            default: return new Egenskap("UGYLDIG EGENSKAP", tekst)
+            default: return new Egenskap(egenskapArray[0], egenskapArray.slice(1).join())
         }
     }
 

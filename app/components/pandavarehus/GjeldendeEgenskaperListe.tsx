@@ -21,19 +21,26 @@ export default function GjeldendeEgenskaperListe() {
                     <Tbody>
                         {
                             [...egenskaper.keys()]
-                                .map(
+                                .flatMap(
                                     tidslinje => egenskaper.get(tidslinje)
                                         .flatMap(x => x)
-                                        .sort((a, b) => a.type < b.type ? -1 : 1)
+                                        .filter(egenskap => !!egenskap.type && !!egenskap.verdi)
                                         .map(
-                                            egenskap => (
-                                                <Tr>
-                                                    <Td>{egenskap.type}</Td>
-                                                    <Td>{egenskap.verdi}</Td>
-                                                    <Td>{tidslinje}</Td>
-                                                </Tr>
-                                            )
+                                            egenskap => ({
+                                                egenskap,
+                                                tidslinje
+                                            })
                                         )
+                                )
+                                .sort((a, b) => a.egenskap.type < b.egenskap.type ? -1 : 1)
+                                .map(
+                                    ({ egenskap, tidslinje }) => (
+                                        <Tr>
+                                            <Td>{egenskap.type}</Td>
+                                            <Td>{egenskap.verdi}</Td>
+                                            <Td>{tidslinje}</Td>
+                                        </Tr>
+                                    )
                                 )
                         }
                     </Tbody>
