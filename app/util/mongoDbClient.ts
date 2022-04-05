@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const url = 'mongodb://localhost:27017';
+const url = process.env.PANDAVAREHUS_DB || 'mongodb://sterope_stoetteapplikasjoner:sterope_stoetteapplikasjoner@mongodb.utv.spk.no:27017?authSource=sterope_stoetteapplikasjoner&readPreference=primary&directConnection=true&ssl=false&authMechanism=DEFAULT'
 const dbName = 'sterope_stoetteapplikasjoner';
 
 const client = new MongoClient(url);
