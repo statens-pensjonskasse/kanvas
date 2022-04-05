@@ -11,9 +11,9 @@ import PandavarehusTidslinjehendelserParser from '~/parsers/pandavarehus/Pandava
 import { PandavarehusContext } from '~/state/PandavarehusProvider';
 import { unikeVerdier } from "~/util/utils";
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
     const { poliseId, sessionId, personId } = params
-    const tidslinjehendelseHost = "http://localhost:3000"
+    const BASE_URL = new URL(request.url).origin
 
     if (!personId) {
         return new Response('Mangler personId', {
@@ -34,7 +34,7 @@ export const loader: LoaderFunction = async ({ params }) => {
                             `personId=${personId}`,
                             `kilde=${tidslinjetabell}`
                         ]
-                        const URL = `${tidslinjehendelseHost}/api/v1/hent?${searchParams.join("&")}`
+                        const URL = `${BASE_URL}/api/v1/hent?${searchParams.join("&")}`
                         return await fetch(URL)
                     }
                 )
@@ -43,7 +43,7 @@ export const loader: LoaderFunction = async ({ params }) => {
         dataNeste = neste
 
     } catch (error) {
-        return new Response(`Feil ved henting fra ${tidslinjehendelseHost}, kjører pandavarehus-kanvas-connector?`, {
+        return new Response(`Feil ved henting fra api ${BASE_URL}`, {
             status: 404
         })
     }

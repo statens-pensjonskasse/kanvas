@@ -8,9 +8,9 @@ import PandavarehusPoliserParser from "~/parsers/pandavarehus/PandavarehusPolise
 import { PandavarehusContext } from '~/state/PandavarehusProvider';
 
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
     const { personId, sessionId } = params
-    const poliserHost = "http://localhost:3000"
+    const BASE_URL = new URL(request.url).origin
 
     if (!personId) {
         return new Response('Mangler personId', {
@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ params }) => {
                             `personId=${personId}`,
                             `kilde=${tidslinjetabell}`
                         ]
-                        const URL = `${poliserHost}/api/v1/hent?${searchParams.join("&")}`
+                        const URL = `${BASE_URL}/api/v1/hent?${searchParams.join("&")}`
                         return await fetch(URL)
                     }
                 )
@@ -39,8 +39,9 @@ export const loader: LoaderFunction = async ({ params }) => {
         dataForrige = forrige
         dataNeste = neste
 
+        console.log(dataForrige)
     } catch (error) {
-        return new Response(`Feil ved henting fra ${poliserHost}, kjører pandavarehus-kanvas-connector?`, {
+        return new Response(`Feil ved henting fra api`, {
             status: 404
         })
     }
