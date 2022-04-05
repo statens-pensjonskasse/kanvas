@@ -16,7 +16,7 @@ export default function EndredeEgenskaperListe() {
     )
 
     return (
-        <VStack shadow='md' rounded='xl' padding={3}>
+        <VStack shadow='md' rounded='xl' padding={3} alignItems={'left'}>
             {
                 alleDifferanser
                     .map(

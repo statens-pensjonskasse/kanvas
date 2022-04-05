@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { TidslinjeContext } from "~/state/TidslinjerProvider";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
 import KategoriseringListe from "../pandavarehus/KategoriseringListe";
-import KategoriseringTabell from "../pandavarehus/KategoriseringTabell";
+import TidslinjehendelseTabell from "../pandavarehus/TidslinjehendelseTabell";
 import TilstandSlider from "../pandavarehus/TilstandSlider";
 
 export default function TidslinjehendelseController() {
@@ -23,7 +23,7 @@ export default function TidslinjehendelseController() {
                 width={'90vw'}
             >
                 <GridItem colSpan={2} overflow='auto' alignItems={'left'} shadow='base' rounded={'xl'} padding={'3em'}>
-                    <KategoriseringTabell />
+                    <TidslinjehendelseTabell />
                 </GridItem>
                 <GridItem colSpan={1} overflow='auto' maxH={'50em'}>
                     <KategoriseringListe />

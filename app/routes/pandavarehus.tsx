@@ -1,8 +1,7 @@
-import { Input } from "@chakra-ui/react";
+import { Container, Input } from "@chakra-ui/react";
 import { ActionFunction, Form, LoaderFunction, Outlet, redirect, useLoaderData } from "remix";
 import ColorProvider from "~/state/ColorProvider";
 import FilterProvider from "~/state/FilterProvider";
-import InputTextProvider from "~/state/InputTextProvider";
 import PandavarehusProvider from "~/state/PandavarehusProvider";
 import TidslinjerProvider from "~/state/TidslinjerProvider";
 
@@ -25,7 +24,7 @@ export default function Pandavarehus() {
             <FilterProvider>
                 <ColorProvider>
                     <PandavarehusProvider>
-                        <InputTextProvider>
+                        <Container>
                             <Form
                                 method="post"
                             >
@@ -36,8 +35,8 @@ export default function Pandavarehus() {
                                 >
                                 </Input>
                             </Form>
-                            <Outlet />
-                        </InputTextProvider>
+                        </Container>
+                        <Outlet />
                     </PandavarehusProvider>
                 </ColorProvider>
             </FilterProvider>
