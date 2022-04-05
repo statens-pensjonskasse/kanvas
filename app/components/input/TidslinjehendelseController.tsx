@@ -1,6 +1,5 @@
 import { Grid, GridItem, Radio, RadioGroup, Stack, VStack } from "@chakra-ui/react";
 import React, { useContext } from "react";
-import { TidslinjeContext } from "~/state/TidslinjerProvider";
 import { PandavarehusContext } from "../../state/PandavarehusProvider";
 import KategoriseringListe from "../pandavarehus/KategoriseringListe";
 import TidslinjehendelseTabell from "../pandavarehus/TidslinjehendelseTabell";
@@ -12,7 +11,6 @@ export default function TidslinjehendelseController() {
         table,
         setTable,
     } = useContext(PandavarehusContext)
-    const { tidslinjer } = useContext(TidslinjeContext)
 
     const Hendelsesnavigering = () => {
         return (

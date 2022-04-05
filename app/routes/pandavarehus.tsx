@@ -1,42 +1,51 @@
-import { Container, Input } from "@chakra-ui/react";
-import { ActionFunction, Form, LoaderFunction, Outlet, redirect, useLoaderData } from "remix";
+import { Heading, ListItem, UnorderedList, VStack } from "@chakra-ui/react";
+import { json, Link, LoaderFunction, Outlet, useLoaderData } from "remix";
 import ColorProvider from "~/state/ColorProvider";
 import FilterProvider from "~/state/FilterProvider";
 import PandavarehusProvider from "~/state/PandavarehusProvider";
 import TidslinjerProvider from "~/state/TidslinjerProvider";
 
-export const action: ActionFunction = async ({ request }) => {
-    const body = await request.formData()
-    const personId = body.get('personId')
-    return redirect(`/pandavarehus/${personId}/poliser`)
-}
+export const loader: LoaderFunction = async () => {
+    const { pandavarehus } = await import("~/util/mongoDbClient");
+    const db = await pandavarehus()
 
-export const loader: LoaderFunction = ({ params }) => {
-    return {
-        personId: params.personId
-    }
+    const sessions = await db.distinct('sessionId')
+    return json({ sessions });
 }
 
 export default function Pandavarehus() {
-    const data = useLoaderData()
+    const { sessions } = useLoaderData();
     return (
         <TidslinjerProvider>
             <FilterProvider>
                 <ColorProvider>
                     <PandavarehusProvider>
-                        <Container>
-                            <Form
-                                method="post"
-                            >
-                                <Input
-                                    name='personId'
-                                    placeholder="personId"
-                                    defaultValue={data.personId}
-                                >
-                                </Input>
-                            </Form>
-                        </Container>
-                        <Outlet />
+                        {
+                            <VStack>
+                                <Heading>Økter</Heading>
+                                <UnorderedList>
+                                    {
+                                        sessions
+                                            .sort()
+                                            .map(
+                                                (sessionId: string) => (
+                                                    <ListItem key={sessionId} >
+                                                        <Link
+                                                            prefetch="intent"
+                                                            to={`./${sessionId}/`}
+                                                        >
+                                                            {sessionId}
+                                                        </Link>
+
+                                                    </ListItem>
+                                                )
+                                            )
+                                    }
+
+                                </UnorderedList>
+                                <Outlet />
+                            </VStack>
+                        }
                     </PandavarehusProvider>
                 </ColorProvider>
             </FilterProvider>

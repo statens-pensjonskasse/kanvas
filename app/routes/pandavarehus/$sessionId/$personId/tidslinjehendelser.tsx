@@ -5,20 +5,23 @@ import { PandavarehusContext } from "~/state/PandavarehusProvider";
 
 export const loader: LoaderFunction = ({ params }) => {
     return {
+        sessionId: params.sessionId,
         personId: params.personId
     }
 }
 
 export default function Tidslinjehendelser() {
     const data = useLoaderData()
-    const personId = data.personId
+    const { personId, sessionId } = data
     const { poliseIder } = useContext(PandavarehusContext)
 
     return (
         <>
-            {poliseIder.map(
-                poliseId => <Link key={poliseId} to={`/pandavarehus/${personId}/tidslinjehendelser/${poliseId}`}></Link>
-            )}
+            {
+                poliseIder.map(
+                    poliseId => <Link prefetch="render" key={poliseId} to={`/pandavarehus/${sessionId}/${personId}/tidslinjehendelser/${poliseId}`}></Link>
+                )
+            }
 
             <Outlet />
         </>

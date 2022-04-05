@@ -18,14 +18,14 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
         const perioderPerLabel: Map<string, Periode[]> = data
             .map(
                 periode => ({
-                    Typeindikator: periode["Typeindikator"],
+                    Typeindikator: periode["Type"],
                     PoliseId: periode["PoliseId"],
-                    FraOgMed: this.oversettDato(periode["Fra og med-dato"]),
-                    TilOgMed: this.oversettTilOgMed(periode["Til og med-dato"]),
+                    FraOgMed: this.oversettDato(periode["FraOgMed"]),
+                    TilOgMed: this.oversettTilOgMed(periode["TilOgMed"]),
                     Polisestatus: periode["Polisestatus"] || "",
                     AvtaleForReserve: periode["Avtale for reserve"] || "",
                     Ordningsgruppe: periode["Ordningsgruppe"] || "",
-                    Stillingsforholdnummer: periode["Stillingsforholdnummer"] || "",
+                    Stillingsforholdnummer: periode["Stillingsforhold"] || "",
                     Polisetype: periode["Polisetype"] || "",
                     Polisegrad: periode["Polisegrad"] || ""
                 })
@@ -78,7 +78,7 @@ export default class PandavarehusPoliserParser implements Pandavarehusparser {
 
 
     private oversettTilOgMed(tilOgMed: string): Aksjonsdato | undefined {
-        if (tilOgMed !== "9999-12-31") {
+        if (!!tilOgMed) {
             return this.oversettDato(tilOgMed).plussDager(1) // kombinerer med påfølgende
         }
     }
