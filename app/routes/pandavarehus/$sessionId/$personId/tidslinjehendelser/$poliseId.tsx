@@ -59,7 +59,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
         }
     }
 
-    return new Response(`Noe gikk galt ved henting fra ${tidslinjehendelseHost}`, {
+    return new Response(`Noe gikk galt ved henting fra API på ${BASE_URL}`, {
         status: 500
     })
 }

@@ -6,7 +6,7 @@ import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.json()
   const tekst = body.data
-  const { kompakteEgenskaper = false } = body.data
+  const { kompakteEgenskaper = false } = body
 
   if (!tekst?.length) {
     return new Response(`Mottok ikke forventet felt "data" (cucumber scenariotekst splittet på newline)"`, {
