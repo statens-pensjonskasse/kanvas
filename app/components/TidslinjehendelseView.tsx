@@ -1,18 +1,17 @@
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
 import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Container, Heading, HStack, Text, Tooltip, UnorderedList, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
-import { Aksjonsdato } from "~/domain/Aksjonsdato";
 import Tidslinje from "~/domain/Tidslinje";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-const API_SERVER = process.env.REACT_APP_API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
+const API_SERVER = "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
 
 export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
     const [warning, setWarning] = useState("")
     const [pandaVersjon, setPandaVersjon] = useState([])
-    const [isEnabled, setIsEnabled] = useState(false)
+    const [isEnabled, setIsEnabled] = useState(true)
 
     const { tidslinjer } = useContext(TidslinjeContext);
     const toast = useToast();
@@ -49,7 +48,7 @@ export default function TidslinjehendelseView() {
     }, [tidslinjer, toast, isEnabled])
 
 
-    const formaterteTidslinjer = (nyeTidslinjer): Tidslinje[] => {
+    const formaterteTidslinjer = (nyeTidslinjer: Tidslinje[]) => {
         return nyeTidslinjer
             .map(
                 tidslinje => ({
@@ -57,8 +56,8 @@ export default function TidslinjehendelseView() {
                     "perioder": tidslinje.perioder.map(
                         periode => ({
                             "id": tidslinje.label,
-                            "fraOgMed": new Aksjonsdato(periode.fraOgMed),
-                            "tilOgMed": periode.tilOgMed ? new Aksjonsdato(periode.tilOgMed) : null,
+                            "fraOgMed": periode.fraOgMed.aksjonsdato,
+                            "tilOgMed": periode.tilOgMed?.aksjonsdato,
                             "egenskaper": Object.fromEntries(
                                 periode.egenskaper
                                     .map(egenskap => egenskap.replace("_", ""))
@@ -89,11 +88,10 @@ export default function TidslinjehendelseView() {
     }
 
     const kjenteKategoriseringer = kategoriseringer
-        .filter(k => k.kategorisering !== 'UKJENT')
 
     return (
         <HStack >
-            <Button colorScheme={isEnabled ? 'red' : 'green'} onClick={() => setIsEnabled(!isEnabled)}>
+            <Button colorScheme={isEnabled ? 'orange' : 'green'} onClick={() => setIsEnabled(!isEnabled)}>
                 {isEnabled ? "Slå av" : "Slå på kategorisering"}
             </Button>
             {

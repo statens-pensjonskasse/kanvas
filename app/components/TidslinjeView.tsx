@@ -84,6 +84,7 @@ export default function TidslinjerView() {
           {screenshot && <Text>(Høyreklikk og kopier)</Text>}
           {screenshot && <Image height={'10em'} src={screenshot} />}
         </VStack>
+
         <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='kompakte-egenskaper' mb='0'>
             Kompakte egenskaper?

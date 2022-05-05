@@ -7,6 +7,7 @@ import PandavarehusProvider from '../state/PandavarehusProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import InputComponent from './InputComponent';
 import ParserSelector from './ParserSelector';
+import TidslinjehendelseView from './TidslinjehendelseView';
 import TidslinjerView from './TidslinjeView';
 
 
@@ -25,9 +26,9 @@ function App() {
               <PandavarehusProvider>
                 <InputTextProvider>
                   <ParserSelector />
-                  <TidslinjerView />
 
-                  {/* <TidslinjehendelseView /> */}
+                  <TidslinjehendelseView />
+                  <TidslinjerView />
 
                   <InputComponent />
                 </InputTextProvider>
