@@ -3,7 +3,6 @@ import React from "react";
 import ColorProvider from '../state/ColorProvider';
 import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
-import PandavarehusProvider from '../state/PandavarehusProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import InputComponent from './InputComponent';
 import ParserSelector from './ParserSelector';
@@ -23,17 +22,15 @@ function App() {
         <ColorProvider>
           <FilterProvider>
             <TidslinjerProvider>
-              <PandavarehusProvider>
-                <InputTextProvider>
-                  <ParserSelector />
+              <InputTextProvider>
+                <ParserSelector />
 
-                  <TidslinjehendelseView />
-                  <TidslinjerView />
+                <TidslinjehendelseView />
+                <TidslinjerView />
 
-                  <InputComponent />
-                </InputTextProvider>
+                <InputComponent />
+              </InputTextProvider>
 
-              </PandavarehusProvider>
             </TidslinjerProvider>
           </FilterProvider>
         </ColorProvider>

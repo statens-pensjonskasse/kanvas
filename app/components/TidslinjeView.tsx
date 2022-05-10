@@ -4,7 +4,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import Tidslinje from "../domain/Tidslinje";
 import { ColorContext } from "../state/ColorProvider";
 import { FilterContext } from "../state/FilterProvider";
-import { PandavarehusContext } from "../state/PandavarehusProvider";
 import { TidslinjeContext } from '../state/TidslinjerProvider';
 
 
@@ -12,15 +11,10 @@ export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
-  const { valgteTidslinjeIder, sisteSimulerteTilstand } = useContext(PandavarehusContext)
   const [screenshot, setScreenshot] = useState("")
   const [kompakteEgenskaper, setKompakteEgenskaper] = useState(false)
 
-  const visningsTidslinjer: Tidslinje[] = valgteTidslinjeIder.length ? tidslinjer
-    .filter(t => valgteTidslinjeIder.includes(t.label))
-    .sort((a, b) => a.posisjon - b.posisjon)
-    .map((t, i) => t.medPosisjon(i))
-    : tidslinjer
+  const visningsTidslinjer: Tidslinje[] = tidslinjer
 
   const tidslinjeRef = useRef<SVGSVGElement>();
   const xAxisRef = useRef<SVGSVGElement>();
@@ -47,8 +41,7 @@ export default function TidslinjerView() {
     colors,
     tidslinjer,
     filters,
-    kompakteEgenskaper,
-    valgteTidslinjeIder
+    kompakteEgenskaper
   ]);
 
   const generateScreenshot = async () => {

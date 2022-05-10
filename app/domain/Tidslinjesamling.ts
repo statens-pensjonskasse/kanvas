@@ -27,43 +27,4 @@ export default class Tidslinjesamling {
     løperTil(periode: Aksjonsdato, aksjonsdato: Aksjonsdato) {
         return periode.avstand(aksjonsdato) <= 1
     }
-
-    erstattSiste(aksjonsdato: Aksjonsdato, tidslinjeId: string, erstatter: PeriodeErstatter): Tidslinjesamling {
-        const tidslinjeIndeks = this.tidslinjer.findIndex(t => t.label === tidslinjeId)
-        if (tidslinjeIndeks > -1) {
-            return new Tidslinjesamling([
-                ...this.tidslinjer.slice(0, tidslinjeIndeks),
-                this.tidslinjer[tidslinjeIndeks].erstattSiste(aksjonsdato, erstatter),
-                ...this.tidslinjer.slice(tidslinjeIndeks + 1)
-            ])
-        }
-        else {
-            const minsteStartdato: Aksjonsdato = this.tidslinjer
-                .map(t => t.fraOgMed)
-                .sort((a, b) => a.getTime() - b.getTime())[0] || Aksjonsdato.UKJENT_DATO
-
-            return this.leggTil(
-                new Tidslinje([
-                    ...(this.løperTil(minsteStartdato, aksjonsdato) ? [] : [
-                        erstatter(
-                            aksjonsdato,
-                            new Periode(
-                                tidslinjeId,
-                                minsteStartdato,
-                                aksjonsdato
-                            )
-                        )[0] // Endringshendelse uten motsvarende "ny"-hendelse. "erstatter" setter hva forrige verdi skulle vært
-                    ]
-                    ),
-                    ...erstatter(
-                        aksjonsdato,
-                        new Periode(
-                            tidslinjeId,
-                            aksjonsdato
-                        )
-                    )
-                ])
-            )
-        }
-    }
 }

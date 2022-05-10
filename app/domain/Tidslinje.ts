@@ -1,6 +1,5 @@
 import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
-import { PeriodeErstatter } from "./Tidslinjesamling";
 
 export default class Tidslinje {
     readonly label: string;
@@ -47,13 +46,6 @@ export default class Tidslinje {
 
     siste() {
         return this.perioder[this.perioder.length - 1]
-    }
-
-    erstattSiste(aksjonsdato: Aksjonsdato, erstatter: PeriodeErstatter): Tidslinje {
-        return new Tidslinje([
-            ...this.perioder.slice(0, this.perioder.length - 1),
-            ...erstatter(aksjonsdato, this.perioder[this.perioder.length - 1])
-        ])
     }
 
     medPosisjon(posisjon: number) {
