@@ -1,12 +1,11 @@
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Badge, Box, Button, Container, Heading, HStack, Text, Tooltip, UnorderedList, useToast, VStack } from "@chakra-ui/react";
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, HStack, Table, TableCaption, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
-import { Aksjonsdato } from "~/domain/Aksjonsdato";
 import Tidslinje from "~/domain/Tidslinje";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
 
-const API_SERVER = process.env.REACT_APP_API_SERVER || "http://panda-hendelseskategorisering-webservice.lyn.spk.no"
+const API_SERVER = "http://panda-hendelseskategorisering-webservice.kpt.spk.no"
 
 export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
@@ -49,7 +48,7 @@ export default function TidslinjehendelseView() {
     }, [tidslinjer, toast, isEnabled])
 
 
-    const formaterteTidslinjer = (nyeTidslinjer): Tidslinje[] => {
+    const formaterteTidslinjer = (nyeTidslinjer: Tidslinje[]) => {
         return nyeTidslinjer
             .map(
                 tidslinje => ({
@@ -57,8 +56,8 @@ export default function TidslinjehendelseView() {
                     "perioder": tidslinje.perioder.map(
                         periode => ({
                             "id": tidslinje.label,
-                            "fraOgMed": new Aksjonsdato(periode.fraOgMed),
-                            "tilOgMed": periode.tilOgMed ? new Aksjonsdato(periode.tilOgMed) : null,
+                            "fraOgMed": periode.fraOgMed.aksjonsdato,
+                            "tilOgMed": periode.tilOgMed?.aksjonsdato,
                             "egenskaper": Object.fromEntries(
                                 periode.egenskaper
                                     .map(egenskap => egenskap.replace("_", ""))
@@ -89,11 +88,10 @@ export default function TidslinjehendelseView() {
     }
 
     const kjenteKategoriseringer = kategoriseringer
-        .filter(k => k.kategorisering !== 'UKJENT')
 
     return (
         <HStack >
-            <Button colorScheme={isEnabled ? 'red' : 'green'} onClick={() => setIsEnabled(!isEnabled)}>
+            <Button colorScheme={isEnabled ? 'orange' : 'green'} onClick={() => setIsEnabled(!isEnabled)}>
                 {isEnabled ? "Slå av" : "Slå på kategorisering"}
             </Button>
             {
@@ -112,50 +110,43 @@ export default function TidslinjehendelseView() {
                                     </AccordionButton>
                                 </h2>
                                 <AccordionPanel>
-                                    {
-                                        kjenteKategoriseringer
-                                            .map(
-                                                ({ kategorisering, tidslinjehendelse, polisestatus }, i) => (
-                                                    <Container
-                                                        key={kategorisering + i}
-                                                        shadow={'base'}
-                                                        rounded={'md'}
-                                                        padding='3'
-                                                    >
-                                                        <Tooltip
-                                                            label={<pre>{JSON.stringify(tidslinjehendelse, null, 2)}</pre>}
-                                                            maxWidth={'90vw'}
-                                                        >
-                                                            <VStack align={'left'}>
-                                                                <Heading size='sm'>
-                                                                    <HStack>
-                                                                        <Text>{tidslinjehendelse.aksjonsdato}</Text>
-                                                                        <Badge
-                                                                            colorScheme={'blue'}
-                                                                            fontSize={'md'}
-                                                                        >
-                                                                            {kategorisering.replaceAll("_", " ")}
-                                                                        </Badge>
-                                                                        <Badge>
-                                                                            {polisestatus}
-                                                                        </Badge>
-                                                                    </HStack>
-                                                                </Heading>
-                                                                <UnorderedList>
-                                                                    {
-                                                                        tidslinjehendelse.endredeEgenskaper
-                                                                            ?.flatMap(x => x)
-                                                                            .map(
-                                                                                egenskap => <Text key={egenskap}> {egenskap.replaceAll("->", "➡️")} </Text>
-                                                                            )
-                                                                    }
-                                                                </UnorderedList>
-                                                            </VStack>
-                                                        </Tooltip>
-                                                    </Container>
-                                                )
-                                            )
-                                    }
+                                    <Table variant={'striped'} colorScheme={'orange'}>
+                                        <TableCaption>Kategoriseringer</TableCaption>
+                                        <Thead>
+                                            <Tr>
+                                                <Th>Aksjonsdato</Th>
+                                                <Th>Kategorisering</Th>
+                                                <Th>Endring</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            <Tbody>
+                                                {
+                                                    kjenteKategoriseringer
+                                                        .map(
+                                                            ({ kategorisering, tidslinjehendelse, polisestatus }, i) => (
+                                                                <Tooltip label={<pre>{JSON.stringify(tidslinjehendelse, null, 2)}</pre>} maxW={'90vw'}>
+                                                                    <Tr>
+                                                                        <Td>{tidslinjehendelse.aksjonsdato}</Td>
+                                                                        <Td> {kategorisering.replaceAll("_", " ")} </Td>
+                                                                        <Td>
+                                                                            <VStack>
+                                                                                {
+                                                                                    tidslinjehendelse.endredeEgenskaper.map(
+                                                                                        egenskap => <Text key={egenskap}> {egenskap} </Text>
+                                                                                    )
+                                                                                }
+                                                                            </VStack>
+                                                                        </Td>
+                                                                    </Tr>
+                                                                </Tooltip>
+                                                            )
+                                                        )
+                                                }
+                                            </Tbody>
+                                        </Tbody>
+
+                                    </Table>
                                 </AccordionPanel>
                             </AccordionItem>
                         </Accordion>

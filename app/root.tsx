@@ -1,6 +1,6 @@
-import { ChakraProvider, HStack } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import {
-  Link, Links,
+  Links,
   LiveReload,
   Meta, MetaFunction, Outlet,
   Scripts,
@@ -22,12 +22,6 @@ export default function App() {
       </head>
       <body>
         <ChakraProvider>
-          <nav>
-            <HStack>
-              <Link to='/'>Hjem</Link>
-              <Link to='/pandavarehus'>Pandavarehus</Link>
-            </HStack>
-          </nav>
           <Outlet />
         </ChakraProvider>
         <ScrollRestoration />
