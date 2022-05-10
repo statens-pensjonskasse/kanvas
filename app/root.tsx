@@ -1,11 +1,6 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import {
-  Links,
-  LiveReload,
-  Meta, MetaFunction, Outlet,
-  Scripts,
-  ScrollRestoration
-} from "remix";
+import { MetaFunction } from "@remix-run/node";
+import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return { title: "kanvas" };

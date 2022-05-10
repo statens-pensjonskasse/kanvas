@@ -7,7 +7,6 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production remix build",
     "dev": "cross-env NODE_ENV=development remix dev",
-    "postinstall": "remix setup node",
     "test": "jest",
     "testwatch": "jest --watch",
     "start": "cross-env NODE_ENV=production PORT=8080 remix-serve build"
@@ -17,8 +16,9 @@
     "@chakra-ui/react": "^1.8.5",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "@remix-run/react": "^1.2.2",
-    "@remix-run/serve": "^1.2.2",
+    "@remix-run/node": "^1.4.0",
+    "@remix-run/react": "^1.4.0",
+    "@remix-run/serve": "^1.4.0",
     "@types/jsdom": "^16.2.14",
     "cross-env": "^7.0.3",
     "d3": "^7.3.0",
@@ -28,11 +28,10 @@
     "luxon": "^2.3.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "remix": "^1.2.2",
     "ts-invariant": "^0.9.4"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.2.2",
+    "@remix-run/dev": "^1.4.0",
     "@swc/core": "^1.2.148",
     "@swc/jest": "^0.2.20",
     "@types/d3": "^7.1.0",

@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { ActionFunction } from "remix";
+import { ActionFunction } from "@remix-run/node";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
 
