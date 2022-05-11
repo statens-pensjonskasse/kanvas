@@ -1,5 +1,5 @@
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, HStack, Table, TableCaption, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useToast, VStack } from "@chakra-ui/react";
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, HStack, Table, TableCaption, Tbody, Td, Text, Tooltip, Tr, useToast, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import Tidslinje from "~/domain/Tidslinje";
 import Egenskap from "../domain/Egenskap";
@@ -112,13 +112,6 @@ export default function TidslinjehendelseView() {
                                 <AccordionPanel>
                                     <Table variant={'striped'} colorScheme={'orange'}>
                                         <TableCaption>Kategoriseringer</TableCaption>
-                                        <Thead>
-                                            <Tr>
-                                                <Th>Aksjonsdato</Th>
-                                                <Th>Kategorisering</Th>
-                                                <Th>Endring</Th>
-                                            </Tr>
-                                        </Thead>
                                         <Tbody>
                                             <Tbody>
                                                 {
@@ -130,11 +123,12 @@ export default function TidslinjehendelseView() {
                                                                         <Td>{tidslinjehendelse.aksjonsdato}</Td>
                                                                         <Td> {kategorisering.replaceAll("_", " ")} </Td>
                                                                         <Td>
-                                                                            <VStack>
+                                                                            <VStack alignItems={'left'}>
                                                                                 {
-                                                                                    tidslinjehendelse.endredeEgenskaper.map(
-                                                                                        egenskap => <Text key={egenskap}> {egenskap} </Text>
-                                                                                    )
+                                                                                    tidslinjehendelse.endredeEgenskaper?.[0]
+                                                                                        .map(
+                                                                                            egenskap => <Text key={egenskap}> {egenskap} </Text>
+                                                                                        )
                                                                                 }
                                                                             </VStack>
                                                                         </Td>
