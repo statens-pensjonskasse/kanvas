@@ -12,7 +12,7 @@ export default class Tidslinje {
     constructor(perioder: Periode[]) {
         this.label = perioder[0]?.label || "Tidslinje"
         this.posisjon = Math.max(...perioder.map(p => p.posisjon), -1)
-        this.perioder = perioder.sort((a, b) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
+        this.perioder = this.justerSammenhengendePerioder(perioder)
         this.datoer = this.perioder
             .flatMap(periode => [periode.fraOgMed, periode.tilOgMed])
             .flatMap(x => x)
@@ -20,6 +20,36 @@ export default class Tidslinje {
 
         this.fraOgMed = this.utledStartdato()
         this.tilOgMed = this.utledSluttdato()
+    }
+
+    justerSammenhengendePerioder(perioder: Periode[]): Periode[] {
+        const kombinertePerioder = perioder
+            .sort((a, b) => b.fraOgMed.getTime() - a.fraOgMed.getTime())
+            .reduce(
+                (acc: Periode[], current: Periode) => acc.length === 0
+                    ? [current]
+                    : [...acc, this.kombinerSammenhengende(acc[acc.length - 1], current)]
+                , []
+            )
+
+        const sistePeriode = kombinertePerioder[0]
+        const sluttdato = sistePeriode.tilOgMed
+
+        const justertePerioder = sluttdato ?
+            [
+                sistePeriode.medSluttDato(sluttdato),
+                ...kombinertePerioder.slice(1)
+            ] :
+            kombinertePerioder
+
+        return justertePerioder.sort((a, b) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
+    }
+
+    private kombinerSammenhengende(neste: Periode, current: Periode): Periode {
+        if (!current.tilOgMed) {
+            return current.medSluttDato(neste.fraOgMed);
+        }
+        return current;
     }
 
     private utledStartdato(): Aksjonsdato {

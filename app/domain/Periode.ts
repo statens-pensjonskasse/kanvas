@@ -44,6 +44,24 @@ export default class Periode {
             .medPosisjon(this.posisjon);
     }
 
+    kombinerMed(annen: Periode): Periode[] {
+        if (!this.løperTil(annen)) {
+            console.warn("Perioder må kombineres i kronologisk rekkefølge, forsøkte å kombinere", this, annen)
+            return [this, annen]
+        }
+        const den = annen.egenskaper.sort().join("_")
+        const denne = this.egenskaper.sort().join("_")
+        if (den === denne) {
+            if (annen.tilOgMed) {
+                return [this.medSluttDato(annen.tilOgMed)]
+            }
+            return [this.somLøpende()]
+
+        }
+        return [this, annen];
+    }
+
+
     erstattEgenskap(egenskap: string, verdi: string): Periode {
         return new Periode(
             this.label,
