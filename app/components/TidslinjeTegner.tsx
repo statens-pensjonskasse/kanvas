@@ -96,7 +96,7 @@ export async function tegnTidslinjer(
 
     const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger: (egenskap: string) => boolean) => {
         // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
+        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed?.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
         const antallPerioder = tidslinje.perioder.length
         const filter = filters.get(tidslinje.label)
         const filtrerteEgenskaper: string[] = filtrerEgenskaper(periode.egenskaper, filter)
