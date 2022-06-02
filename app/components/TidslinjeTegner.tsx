@@ -60,19 +60,8 @@ export async function tegnTidslinjer(
     const endDate: Aksjonsdato = tidslinjer.some(tidslinje => tidslinje.erLøpende()) ? Aksjonsdato.TIDENES_SLUTT : allDates[allDates.length - 1]; // TODO finn største verdi
 
     const numTimelines = tidslinjer.length || 0
-    const periodeStrl = Math.max(
-        0,
-        ...(tidslinjer
-            .flatMap(t => [...t.perioder.map(p => p.egenskaper), [t.label]])
-            .flatMap(
-                egenskaper => ([
-                    egenskaper.filter(egenskap => egenskap.startsWith("_")).join(", ").length,
-                    egenskaper.filter(egenskap => !egenskap.startsWith("_")).join(", ").length
-                ])
-            )
-        )
-    )
-    const periodeBredde = Math.min(periodeStrl, 25) * 16 // 16px
+
+    const periodeBredde = 25 * 16 // 16px
     const antallPeriodeBredde = Math.max(allDates.length, 3)
     const width = periodeBredde * antallPeriodeBredde
 

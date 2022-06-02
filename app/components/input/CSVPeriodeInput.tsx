@@ -72,6 +72,8 @@ export default function PeriodeInput() {
     const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
     const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
 
+    const longestLine = Math.max(...inputText?.split("\n").map(t => t.length), 50)
+
     return (
         <VStack>
             <HStack size={'xl'}>
@@ -85,7 +87,7 @@ export default function PeriodeInput() {
                     onChange={handleChange}
                     placeholder={`${periodeHint}`}
                     defaultValue={inputText || hardkodet.join("\n")}
-                    minWidth={'lg'}
+                    minWidth={`${Math.min(100, longestLine)}em`}
                     minHeight={'20em'}
                     wrap='off'
                     overflow={'auto'}
