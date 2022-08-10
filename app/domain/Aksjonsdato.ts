@@ -7,22 +7,21 @@ export class Aksjonsdato {
     public static readonly TIDENES_SLUTT: Aksjonsdato = new Aksjonsdato('3000-01-01')
     public static readonly SPK_1917: Aksjonsdato = new Aksjonsdato('1917-01-01')
 
-    public readonly DELIMITER = '.'
-    public readonly FORMAT = ['yyyy', 'MM', 'dd'].join(this.DELIMITER)
+    public static readonly DELIMITER = '.'
+    public readonly FORMAT = ['yyyy', 'MM', 'dd'].join(Aksjonsdato.DELIMITER)
 
     private readonly somDateTime: DateTime;
     public readonly aksjonsdato: string
 
     constructor(aksjonsdato: string) {
-        invariant(aksjonsdato, 'Aksjonsdato mangler')
         const parset = this.normaliserDato(aksjonsdato)
         this.aksjonsdato = parset
         this.somDateTime = DateTime.fromFormat(parset, this.FORMAT)
     }
 
     private normaliserDato(dato: string): string {
-        const split = dato.replace(/[^0-9]/g, this.DELIMITER)
-            .split(this.DELIMITER)
+        const split = dato.replace(/[^0-9]/g, Aksjonsdato.DELIMITER)
+            .split(Aksjonsdato.DELIMITER)
             .filter(s => !!s)
             .map(s => s.trim())
 
@@ -31,10 +30,10 @@ export class Aksjonsdato {
             return `${split[0]}.01.01`
         }
         if (split[0].length === 4) {
-            return split.join(this.DELIMITER)
+            return split.join(Aksjonsdato.DELIMITER)
         }
         else if (split[2].length === 4) {
-            return split.reverse().join(this.DELIMITER)
+            return split.reverse().join(Aksjonsdato.DELIMITER)
         }
         else {
             throw Error(`Klarte ikke parse ${dato} som aksjonsdato`)
@@ -48,7 +47,7 @@ export class Aksjonsdato {
     }
 
     public static erGyldig(text: string) {
-        const split = text.replace("-", ".")
+        const split = text.replace(/[^0-9]/g, Aksjonsdato.DELIMITER)
             .split(".")
             .filter(s => !!s)
             .map(s => s.trim())
@@ -58,15 +57,15 @@ export class Aksjonsdato {
     }
 
     public år(): number {
-        return Number.parseInt(this.aksjonsdato.split(this.DELIMITER)[0])
+        return Number.parseInt(this.aksjonsdato.split(Aksjonsdato.DELIMITER)[0])
     }
 
     public måned(): number {
-        return Number.parseInt(this.aksjonsdato.split(this.DELIMITER)[1])
+        return Number.parseInt(this.aksjonsdato.split(Aksjonsdato.DELIMITER)[1])
     }
 
     public dag(): number {
-        return Number.parseInt(this.aksjonsdato.split(this.DELIMITER)[2])
+        return Number.parseInt(this.aksjonsdato.split(Aksjonsdato.DELIMITER)[2])
     }
 
     public avstand(other: Aksjonsdato): number {
