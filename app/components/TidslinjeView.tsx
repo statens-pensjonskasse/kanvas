@@ -53,24 +53,6 @@ export default function TidslinjerView() {
 
   return (
     <VStack maxWidth={'95vw'}>
-      <Box
-        alignItems={'left'}
-        rounded='xl'
-        border={'2px'}
-        borderColor={'blackAlpha.200'}
-        shadow={'lg'}
-        maxW='100%'
-        overflow={'auto'}
-        paddingX={'5em'}
-        paddingY={'1em'}
-      >
-        <div ref={containerRef}>
-          <svg ref={wrapperRef}>
-            <g ref={tidslinjeRef} />
-            <g ref={xAxisRef} />
-          </svg>
-        </div>
-      </Box>
       <HStack>
         {/* <VStack>
           <HStack>
@@ -93,6 +75,24 @@ export default function TidslinjerView() {
           </FormControl>
         </Tooltip>
       </HStack>
+      <Box
+        alignItems={'left'}
+        rounded='xl'
+        border={'2px'}
+        borderColor={'blackAlpha.200'}
+        shadow={'lg'}
+        maxW='100%'
+        overflow={'auto'}
+        paddingX={'5em'}
+        paddingY={'1em'}
+      >
+        <div ref={containerRef}>
+          <svg ref={wrapperRef}>
+            <g ref={tidslinjeRef} />
+            <g ref={xAxisRef} />
+          </svg>
+        </div>
+      </Box>
     </VStack >
   );
 }

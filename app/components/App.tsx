@@ -4,7 +4,6 @@ import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import InputComponent from './InputComponent';
-import ParserSelector from './ParserSelector';
 import TidslinjerView from './TidslinjeView';
 
 
@@ -12,7 +11,7 @@ function App() {
 
   return (
     <ChakraProvider>
-      <VStack spacing={'2em'} width={'100vw'} padding={'25'}>
+      <VStack spacing={'2em'} width={'98vw'} padding={'25'}>
         <Heading size='lg' marginTop='5'>
           kanvas <span role="img" aria-label="paint brush">🖌️</span>
         </Heading>
@@ -21,8 +20,6 @@ function App() {
           <FilterProvider>
             <TidslinjerProvider>
               <InputTextProvider>
-                <ParserSelector />
-
                 <TidslinjerView />
 
                 <InputComponent />

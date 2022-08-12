@@ -1,10 +1,11 @@
-import { Heading, Tab, TabList, TabPanel, TabPanels, Tabs, Textarea } from "@chakra-ui/react";
+import { Heading, Tab, TabList, TabPanel, TabPanels, Tabs, Textarea, VStack } from "@chakra-ui/react";
 import { useContext } from "react";
 import { TidslinjeContext } from "~/state/TidslinjerProvider";
 import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser";
 import { InputTextContext } from '../state/InputTextProvider';
 import CSVPeriodeInput from './input/CSVPeriodeInput';
 import GherkinPeriodeInput from './input/GherkinPeriodeInput';
+import ParserSelector from "./ParserSelector";
 import TidslinjehendelseView from "./TidslinjehendelseView";
 
 export default function InputComponent() {
@@ -35,7 +36,10 @@ export default function InputComponent() {
 
                 <TabPanels>
                     <TabPanel>
-                        {parserComponentFor(parser)}
+                        <VStack>
+                            <ParserSelector />
+                            {parserComponentFor(parser)}
+                        </VStack >
                     </TabPanel>
                     <TabPanel>
                         <>

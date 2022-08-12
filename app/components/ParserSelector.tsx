@@ -1,4 +1,4 @@
-import { Container, Select } from "@chakra-ui/react"
+import { Radio, RadioGroup, Stack, Tooltip } from "@chakra-ui/react"
 import { useContext } from "react"
 import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser"
 import { InputTextContext } from "../state/InputTextProvider"
@@ -6,18 +6,19 @@ import { InputTextContext } from "../state/InputTextProvider"
 export default function ParserSelector() {
     const { parser, setParser, parseInputText } = useContext(InputTextContext)
 
-    function handleParserChange(event) {
+    function handleParserChange(value) {
         parseInputText("")
-        setParser(event.target.value)
+        setParser(value)
     }
 
     return (
-        <Container >
-            <Select className="parser-selector" value={parser} onChange={handleParserChange}>
-                <option value={CSV_PARSER}>CSV</option>
-                <option value={GHERKIN_PARSER}>Cucumber</option>
-            </Select>
-        </Container>
-
+        <RadioGroup onChange={handleParserChange} value={parser}>
+            <Tooltip label={"Type input"}>
+                <Stack direction={'row'}>
+                    <Radio value={CSV_PARSER}>CSV</Radio>
+                    <Radio value={GHERKIN_PARSER}>Cucumber</Radio>
+                </Stack>
+            </Tooltip>
+        </RadioGroup>
     )
 }
