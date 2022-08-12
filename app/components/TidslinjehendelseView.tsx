@@ -1,6 +1,6 @@
 import { CheckIcon, WarningIcon } from "@chakra-ui/icons";
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, HStack, Table, TableCaption, Tbody, Td, Text, Tooltip, Tr, useToast, VStack } from "@chakra-ui/react";
-import React, { useContext, useEffect, useState } from "react";
+import { HStack, Table, TableCaption, Tag, Tbody, Td, Text, Tooltip, Tr, useToast, VStack } from "@chakra-ui/react";
+import { useContext, useEffect, useState } from "react";
 import Tidslinje from "~/domain/Tidslinje";
 import Egenskap from "../domain/Egenskap";
 import { TidslinjeContext } from "../state/TidslinjerProvider";
@@ -11,13 +11,12 @@ export default function TidslinjehendelseView() {
     const [kategoriseringer, setKategoriseringer] = useState([])
     const [warning, setWarning] = useState("")
     const [pandaVersjon, setPandaVersjon] = useState([])
-    const [isEnabled, setIsEnabled] = useState(false)
 
     const { tidslinjer } = useContext(TidslinjeContext);
     const toast = useToast();
 
     useEffect(() => {
-        if (isEnabled) {
+        if (true) {
             postData(
                 `${API_SERVER}/api/fra-tidslinjer/`,
                 formaterteTidslinjer(tidslinjer)
@@ -45,7 +44,7 @@ export default function TidslinjehendelseView() {
                     }
                 )
         }
-    }, [tidslinjer, toast, isEnabled])
+    }, [tidslinjer, toast])
 
 
     const formaterteTidslinjer = (nyeTidslinjer: Tidslinje[]) => {
@@ -90,70 +89,58 @@ export default function TidslinjehendelseView() {
     const kjenteKategoriseringer = kategoriseringer
 
     return (
-        <HStack >
-            <Button colorScheme={isEnabled ? 'orange' : 'green'} onClick={() => setIsEnabled(!isEnabled)}>
-                {isEnabled ? "Slå av" : "Slå på kategorisering"}
-            </Button>
+        <HStack>
             {
-                isEnabled ? (
-                    <HStack>
-                        <Accordion allowToggle>
-                            <AccordionItem>
-                                <h2>
-                                    <AccordionButton >
-                                        <Tooltip label={`Basert på pa-res-ba ${pandaVersjon}`}>
-                                            <Box flex='1' textAlign='left'>
-                                                {`${kjenteKategoriseringer.length} hendelseskategorisering${kjenteKategoriseringer.length === 1 ? "" : "er"}`}
-                                            </Box>
+                <VStack>
+                    <Table variant={'striped'} colorScheme={'orange'}>
+                        <TableCaption>
+                            <HStack>
+                                <h2>panda-reserveberegning</h2>
+                                <Tag>{pandaVersjon}</Tag>
+                                {warning.length > 0 ? (
+                                    <Tooltip label={warning} maxW={'40vw'} maxH={'100vh'}>
+                                        <WarningIcon color={'orange.400'} />
+                                    </Tooltip>
+                                )
+                                    : (
+                                        <Tooltip label={"Tidslinjehendelser kategorisert OK"}>
+                                            <CheckIcon color={'green.500'} />
                                         </Tooltip>
-                                        <AccordionIcon />
-                                    </AccordionButton>
-                                </h2>
-                                <AccordionPanel>
-                                    <Table variant={'striped'} colorScheme={'orange'}>
-                                        <TableCaption>Kategoriseringer</TableCaption>
-                                        <Tbody>
-                                            <Tbody>
-                                                {
-                                                    kjenteKategoriseringer
-                                                        .map(
-                                                            ({ kategorisering, tidslinjehendelse, polisestatus }, i) => (
-                                                                <Tooltip label={<pre>{JSON.stringify(tidslinjehendelse, null, 2)}</pre>} maxW={'90vw'}>
-                                                                    <Tr>
-                                                                        <Td>{tidslinjehendelse.aksjonsdato}</Td>
-                                                                        <Td> {kategorisering.replaceAll("_", " ")} </Td>
-                                                                        <Td>
-                                                                            <VStack alignItems={'left'}>
-                                                                                {
-                                                                                    tidslinjehendelse.endredeEgenskaper?.[0]
-                                                                                        .map(
-                                                                                            egenskap => <Text key={egenskap}> {egenskap} </Text>
-                                                                                        )
-                                                                                }
-                                                                            </VStack>
-                                                                        </Td>
-                                                                    </Tr>
-                                                                </Tooltip>
-                                                            )
-                                                        )
-                                                }
-                                            </Tbody>
-                                        </Tbody>
+                                    )}
 
-                                    </Table>
-                                </AccordionPanel>
-                            </AccordionItem>
-                        </Accordion>
+                            </HStack>
+                        </TableCaption>
+                        <Tbody>
+                            <Tbody>
+                                {
+                                    kjenteKategoriseringer
+                                        .map(
+                                            ({ kategorisering, tidslinjehendelse, polisestatus }, i) => (
+                                                <Tooltip label={<pre>{JSON.stringify(tidslinjehendelse, null, 2)}</pre>} maxW={'90vw'}>
+                                                    <Tr>
+                                                        <Td>{tidslinjehendelse.aksjonsdato}</Td>
+                                                        <Td> {kategorisering.replaceAll("_", " ")} </Td>
+                                                        <Td>
+                                                            <VStack alignItems={'left'}>
+                                                                {
+                                                                    tidslinjehendelse.endredeEgenskaper?.[0]
+                                                                        .map(
+                                                                            egenskap => <Text key={egenskap}> {egenskap} </Text>
+                                                                        )
+                                                                }
+                                                            </VStack>
+                                                        </Td>
+                                                    </Tr>
+                                                </Tooltip>
+                                            )
+                                        )
+                                }
+                            </Tbody>
+                        </Tbody>
 
-                        {warning.length > 0 ? (
-                            <Tooltip label={warning} maxW={'40vw'} maxH={'100vh'}>
-                                <WarningIcon color={'orange.400'} />
-                            </Tooltip>
-                        )
-                            : <CheckIcon color={'green.500'} />}
-                    </HStack>
+                    </Table>
 
-                ) : null
+                </VStack>
             }
         </HStack >
     );

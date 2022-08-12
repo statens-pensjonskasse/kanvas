@@ -1,12 +1,10 @@
 import { ChakraProvider, Container, Heading, HStack, Link, VStack } from '@chakra-ui/react';
-import React from "react";
 import ColorProvider from '../state/ColorProvider';
 import FilterProvider from '../state/FilterProvider';
 import InputTextProvider from '../state/InputTextProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import InputComponent from './InputComponent';
 import ParserSelector from './ParserSelector';
-import TidslinjehendelseView from './TidslinjehendelseView';
 import TidslinjerView from './TidslinjeView';
 
 
@@ -25,7 +23,6 @@ function App() {
               <InputTextProvider>
                 <ParserSelector />
 
-                <TidslinjehendelseView />
                 <TidslinjerView />
 
                 <InputComponent />

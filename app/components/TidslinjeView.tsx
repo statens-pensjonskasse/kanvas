@@ -1,4 +1,4 @@
-import { Box, Checkbox, FormControl, FormLabel, HStack, VStack } from "@chakra-ui/react";
+import { Box, Checkbox, FormControl, FormLabel, HStack, Tooltip, VStack } from "@chakra-ui/react";
 import html2canvas from "html2canvas";
 import { useContext, useEffect, useRef, useState } from "react";
 import Tidslinje from "../domain/Tidslinje";
@@ -52,15 +52,14 @@ export default function TidslinjerView() {
 
 
   return (
-    <VStack
-    >
+    <VStack maxWidth={'95vw'}>
       <Box
         alignItems={'left'}
         rounded='xl'
         border={'2px'}
         borderColor={'blackAlpha.200'}
         shadow={'lg'}
-        maxWidth={'95%'}
+        maxW='100%'
         overflow={'auto'}
         paddingX={'5em'}
         paddingY={'1em'}
@@ -81,16 +80,18 @@ export default function TidslinjerView() {
           {screenshot && <Text>(Høyreklikk og kopier)</Text>}
           {screenshot && <Image height={'10em'} src={screenshot} />}
         </VStack> */}
-        <FormControl display='flex' alignItems='center'>
-          <Checkbox
-            id='kompakte-egenskaper'
-            isChecked={kompakteEgenskaper}
-            onChange={e => setKompakteEgenskaper(e.target.checked)}
-          />
-          <FormLabel htmlFor='kompakte-egenskaper' mx='1' mb='0'>
-            Kompakte egenskaper
-          </FormLabel>
-        </FormControl>
+        <Tooltip label={'Vis kun verdiene for egenskapene (ikke type)'}>
+          <FormControl display='flex' alignItems='center'>
+            <Checkbox
+              id='kompakte-egenskaper'
+              isChecked={kompakteEgenskaper}
+              onChange={e => setKompakteEgenskaper(e.target.checked)}
+            />
+            <FormLabel htmlFor='kompakte-egenskaper' mx='1' mb='0'>
+              Kompakte egenskaper
+            </FormLabel>
+          </FormControl>
+        </Tooltip>
       </HStack>
     </VStack >
   );
