@@ -147,7 +147,7 @@ export default class Tidslinje {
 
             for (let j = 0; j < antallPerioder; j++) { // en kolonne per periode
                 const periode = this.perioder[j]
-                const verdi = periode.egenskaper.find(e => e.startsWith(egenskap)).split(":")[1] || ""
+                const verdi = periode.egenskaper.find(e => e.startsWith(egenskap))?.split(":")[1] || ""
                 rad.push(verdi.trim())
             }
             egenskapRader.push(rad)
