@@ -37,7 +37,6 @@ export async function tegnTidslinjer(
     colors: Map<string, string>
 ) {
     if (!tidslinjer?.length) {
-        console.warn("Fant ingen tidslinjer")
         return
     }
     const { max, axisBottom, scaleLinear, scalePoint, select } = await import('d3');

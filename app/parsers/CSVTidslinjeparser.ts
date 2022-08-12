@@ -66,7 +66,6 @@ export default class CSVTidslinjeparser implements Tidslinjeparser {
     kanOversettes(rad: string[]): boolean {
         const fraOgMedString = rad[this.fraOgMedIndex]?.trim()
         if (!fraOgMedString || !Aksjonsdato.erGyldig(fraOgMedString)) {
-            console.warn(`${fraOgMedString} er ikke gyldig dato`)
             return false
         }
         const fraOgMed = this.oversettDato(fraOgMedString)

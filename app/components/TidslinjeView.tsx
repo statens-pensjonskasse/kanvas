@@ -1,4 +1,4 @@
-import { Button, Flex, FormControl, FormLabel, HStack, Image, Switch, Text, VStack } from "@chakra-ui/react";
+import { Box, Checkbox, FormControl, FormLabel, HStack, VStack } from "@chakra-ui/react";
 import html2canvas from "html2canvas";
 import { useContext, useEffect, useRef, useState } from "react";
 import Tidslinje from "../domain/Tidslinje";
@@ -53,45 +53,43 @@ export default function TidslinjerView() {
 
   return (
     <VStack
-      alignItems={'left'}
-      rounded='xl'
-      border={'2px'}
-      borderColor={'blackAlpha.200'}
-      shadow={'lg'}
-      maxWidth={'95%'}
-      overflow={'auto'}
-      padding={'5em'}
     >
-      <Flex style={{
-        alignItems: 'flex-end',
-        minHeight: '300px'
-      }}>
+      <Box
+        alignItems={'left'}
+        rounded='xl'
+        border={'2px'}
+        borderColor={'blackAlpha.200'}
+        shadow={'lg'}
+        maxWidth={'95%'}
+        overflow={'auto'}
+        paddingX={'5em'}
+        paddingY={'1em'}
+      >
         <div ref={containerRef}>
           <svg ref={wrapperRef}>
             <g ref={tidslinjeRef} />
             <g ref={xAxisRef} />
           </svg>
         </div>
-      </Flex>
+      </Box>
       <HStack>
-        <VStack>
+        {/* <VStack>
           <HStack>
             <Button colorScheme={'blue'} onClick={generateScreenshot}>Generer skjermbilde</Button>
             {screenshot && <Button onClick={() => setScreenshot(null)}>X</Button>}
           </HStack>
           {screenshot && <Text>(Høyreklikk og kopier)</Text>}
           {screenshot && <Image height={'10em'} src={screenshot} />}
-        </VStack>
-
+        </VStack> */}
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='kompakte-egenskaper' mb='0'>
-            Kompakte egenskaper?
-          </FormLabel>
-          <Switch
+          <Checkbox
             id='kompakte-egenskaper'
             isChecked={kompakteEgenskaper}
             onChange={e => setKompakteEgenskaper(e.target.checked)}
           />
+          <FormLabel htmlFor='kompakte-egenskaper' mx='1' mb='0'>
+            Kompakte egenskaper
+          </FormLabel>
         </FormControl>
       </HStack>
     </VStack >
