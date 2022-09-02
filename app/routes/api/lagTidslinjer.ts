@@ -1,9 +1,10 @@
-import { JSDOM } from 'jsdom';
 import { ActionFunction } from "@remix-run/node";
+import { JSDOM } from 'jsdom';
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import Colorparser from '~/parsers/CSVColorparser';
 import Filterparser from '~/parsers/CSVFilterparser';
 import CSVTidslinjeparser from "~/parsers/CSVTidslinjeparser";
+import { cache } from "~/util/cache.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.json()
@@ -12,6 +13,21 @@ export const action: ActionFunction = async ({ request }) => {
   const identifikatorIndex = body.identifikatorIndex || 0
   const fraOgMedIndex = body.fraOgMedIndex || 1
   const tilOgMedIndex = body.tilOgMedIndex || 2
+
+  const cacheKey = JSON.stringify(body)
+  const cacheResult = cache.get(cacheKey)
+
+  if (cacheResult) {
+    return new Response(
+      cacheResult,
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "image/svg+xml"
+        }
+      }
+    )
+  }
 
   if (!csv?.length) {
     return new Response(`Mottok ikke forventet felt "data" (liste med csv-rader med delimiter "${delimiter}")`, {
@@ -56,11 +72,15 @@ export const action: ActionFunction = async ({ request }) => {
     colors
   )
 
-  return new Response(container.outerHTML,
+  cache.set(cacheKey, container.outerHTML)
+
+  return new Response(
+    container.outerHTML,
     {
       status: 200,
       headers: {
         "Content-Type": "image/svg+xml"
       }
-    })
+    }
+  )
 }

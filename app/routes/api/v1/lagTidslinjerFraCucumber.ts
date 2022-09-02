@@ -1,12 +1,28 @@
-import { JSDOM } from 'jsdom';
 import { ActionFunction } from "@remix-run/node";
+import { JSDOM } from 'jsdom';
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
+import { cache } from '~/util/cache.server';
 
 export const action: ActionFunction = async ({ request }) => {
   const body = await request.json()
   const tekst = body.data
   const { kompakteEgenskaper = false } = body
+
+  const cacheKey = JSON.stringify(body)
+  const cacheResult = cache.get(cacheKey)
+
+  if (cacheResult) {
+    return new Response(
+      cacheResult,
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "image/svg+xml"
+        }
+      }
+    )
+  }
 
   if (!tekst?.length) {
     return new Response(`Mottok ikke forventet felt "data" (cucumber scenariotekst splittet på newline)"`, {
@@ -39,7 +55,10 @@ export const action: ActionFunction = async ({ request }) => {
     new Map()
   )
 
-  return new Response(container.outerHTML,
+  cache.set(cacheKey, container.outerHTML)
+
+  return new Response(
+    container.outerHTML,
     {
       status: 200,
       headers: {
