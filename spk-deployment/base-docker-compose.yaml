@@ -8,7 +8,6 @@ services:
       OPEN_AM_ENDPOINT: '[FROM_ENV: OPEN_AM_ENDPOINT]'
       ENVIRONMENT_NAME: '[FROM_ENV: ENVIRONMENT_NAME]'
       ENVIRONMENT_ADDRESS: '[FROM_ENV: ENVIRONMENT_ADDRESS]'
-      REACT_APP_API_SERVER: 'panda-hendelseskategorisering-webservice.lyn.spk.no'
       NODE_ENV: 'prod'
     deploy:
       replicas: 1

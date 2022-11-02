@@ -11,4 +11,6 @@ if (env.BRANCH_NAME == 'develop') {
 if ( env.BRANCH_NAME == 'master') {
     String[] deploy2env = ["lyn"]
     d.dockerDeployToTest( 'preprod', deploy2env )
+
+    d.dockerDeploy( 'prod', 'prod' )
 }
