@@ -37,21 +37,27 @@ export async function tegnTidslinjer(
     colors: Map<string, string>
 ) {
     if (!tidslinjer?.length) {
+        console.warn("Fant ingen tidslinjer")
         return
     }
-    const { max, axisBottom, scaleLinear, scalePoint, select } = await import('d3');
+    const { axisBottom, scaleLinear, scalePoint, select } = await import('d3');
     const svg = select(svgRef);
     const xAxis = select(xAxisRef);
     const container = select(containerRef)
 
+    const harPoliser = tidslinjer.some(t => t.label.toUpperCase().includes("POLISE"))
+
     // finner alle datoer som skal på x-aksen
-    const allDates: Aksjonsdato[] = tidslinjer
-        .flatMap(
-            tidslinje => tidslinje.datoer
-        )
-        .flatMap(x => x)
+    const allDates: Aksjonsdato[] = [
+        ...tidslinjer
+            .flatMap(
+                tidslinje => tidslinje.datoer
+            )
+            .flatMap(x => x),
+        ...(harPoliser ? [Aksjonsdato.KONVERTERINGSDATO] : [])
+    ]
         .filter((date, i, self) =>
-            self.findIndex(d => d.getTime() === date.getTime()) === i
+            self.findIndex(d => d.aksjonsdato === date.aksjonsdato) === i
         )
         .sort((a, b) => a.getTime() - b.getTime())
 
@@ -84,7 +90,7 @@ export async function tegnTidslinjer(
 
     const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger: (egenskap: string) => boolean) => {
         // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed?.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
+        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
         const antallPerioder = tidslinje.perioder.length
         const filter = filters.get(tidslinje.label)
         const filtrerteEgenskaper: string[] = filtrerEgenskaper(periode.egenskaper, filter)
@@ -105,14 +111,16 @@ export async function tegnTidslinjer(
             tidslinje => {
                 return tidslinje.perioder
                     .map(
-                        periode => Object.assign(
-                            periode,
-                            {
+                        periode => ({
+                            ...periode,
+                            ...{
                                 posisjon: tidslinje.posisjon,
                                 fullTekstOver: lagVisbarTekst(tidslinje, periode, egenskap => !egenskap.startsWith("_")),
-                                fullTekstUnder: lagVisbarTekst(tidslinje, periode, egenskap => egenskap.startsWith("_"))
+                                fullTekstUnder: lagVisbarTekst(tidslinje, periode, egenskap => egenskap.startsWith("_")),
+                                erKonsolidert: !!periode.egenskaper.filter(egenskap => egenskap.toUpperCase().trim().match(/\b(KONSOLIDERT)|(DØD)\b/g)).length,
+                                color: colors.get(periode.label) || "black"
                             }
-                        )
+                        })
                     )
             }
         )
@@ -120,16 +128,18 @@ export async function tegnTidslinjer(
 
     svg
         .selectAll(".tidslinje")
-        .data(tidslinjer.flatMap(t => t.perioder))
+        .data(tilpassedePerioder)
         .join("line")
+        .style("opacity", periode => periode.erKonsolidert ? "0.5" : "1")
+        .attr("stroke-dasharray", periode => periode.erKonsolidert ? "1, 10" : "1, 0")
         .attr("data-tip", tidslinje => tidslinje.label)
-        .attr("class", tidslinje => tidslinje.tilOgMed ? "tidslinje" : "tidslinje running")
-        .attr("stroke", tidslinje => colors.get(tidslinje.label) || "black")
+        .attr("class", periode => periode.tilOgMed ? "tidslinje" : "tidslinje running")
+        .attr("stroke", periode => periode.color)
         .attr("stroke-width", 2)
-        .attr("x1", tidslinje => xScale(tidslinje.fraOgMed.aksjonsdato))
-        .attr("y1", tidslinje => yScale(tidslinje.posisjon))
-        .attr("x2", tidslinje => xScale(tidslinje.tilOgMed?.aksjonsdato || endDate.aksjonsdato))
-        .attr("y2", tidslinje => yScale(tidslinje.posisjon));
+        .attr("x1", periode => xScale(periode.fraOgMed.aksjonsdato))
+        .attr("y1", periode => yScale(periode.posisjon))
+        .attr("x2", periode => xScale(periode.tilOgMed?.aksjonsdato || endDate.aksjonsdato))
+        .attr("y2", periode => yScale(periode.posisjon));
 
     svg
         .selectAll(".periodeDelimiter")
@@ -157,9 +167,25 @@ export async function tegnTidslinjer(
         .attr("y2", periode => yScale(periode.posisjon) - 5);
 
     svg
+        .selectAll(".konverteringsMarker")
+        .data(
+            (harPoliser ? [Aksjonsdato.KONVERTERINGSDATO] : [])
+        )
+        .join("line")
+        .attr("class", "periodeDelimiter")
+        .attr("stroke", "green")
+        .attr("opacity", "0.5")
+        .attr("stroke-width", 3)
+        .attr("x1", dato => xScale(dato.aksjonsdato))
+        .attr("y1", yScale(tidslinjer.length))
+        .attr("x2", dato => xScale(dato.aksjonsdato))
+        .attr("y2", yScale(-1));
+
+    svg
         .selectAll(".periodeEgenskaper")
         .data(tilpassedePerioder)
         .join("text")
+        .style("opacity", periode => periode.erKonsolidert ? "0.5" : "1")
         .attr("class", "periodeEgenskaper")
         .attr("fill", periode => colors.get(periode.label) || "black")
         .attr("x", periode => xScale(periode.fraOgMed.aksjonsdato) + 20)
@@ -171,6 +197,7 @@ export async function tegnTidslinjer(
         .data(tilpassedePerioder)
         .join("text")
         .attr('class', 'periodeUndertekst')
+        .style("opacity", periode => periode.erKonsolidert ? "0.5" : "1")
         .attr("fill", periode => colors.get(periode.label) || "black")
         .attr("x", periode => xScale(periode.fraOgMed.aksjonsdato) + 20)
         .attr("y", periode => yScale(periode.posisjon) + 20)
@@ -189,13 +216,16 @@ export async function tegnTidslinjer(
     xAxis
         .attr('width', width)
         .attr('transform', `translate(0, ${height + timelineHeight / 2})`)
-        .style("font-size", "0.9em")
+        .style("font-size", "1em")
         .call(
             axisBottom(xScale)
                 .tickFormat(
                     dato => {
                         if ([startDate.aksjonsdato, endDate.aksjonsdato].includes(dato)) {
                             return ""
+                        }
+                        else if (harPoliser && dato === Aksjonsdato.KONVERTERINGSDATO.aksjonsdato) {
+                            return `${dato} - konvertering`
                         }
                         else if (dato === Aksjonsdato.UKJENT_DATO.aksjonsdato) {
                             return "Ukjent dato"
