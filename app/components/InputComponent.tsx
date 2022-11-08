@@ -6,7 +6,6 @@ import { InputTextContext } from '../state/InputTextProvider';
 import CSVPeriodeInput from './input/CSVPeriodeInput';
 import GherkinPeriodeInput from './input/GherkinPeriodeInput';
 import ParserSelector from "./ParserSelector";
-import TidslinjehendelseView from "./TidslinjehendelseView";
 
 export default function InputComponent() {
 
@@ -31,7 +30,6 @@ export default function InputComponent() {
                 <TabList>
                     <Tab>⌨️ Input</Tab>
                     <Tab>📃 Kjørende dokumentasjon</Tab>
-                    <Tab>▶️ Tidslinjehendelser</Tab>
                 </TabList>
 
                 <TabPanels>
@@ -52,12 +50,6 @@ export default function InputComponent() {
                                 fontFamily={'mono'}
                                 minH={'50em'}
                             />
-                        </>
-                    </TabPanel>
-                    <TabPanel>
-                        <>
-                            <Heading size={'sm'}>Genererte kategoriseringer for tidslinjene</Heading>
-                            <TidslinjehendelseView />
                         </>
                     </TabPanel>
                 </TabPanels>

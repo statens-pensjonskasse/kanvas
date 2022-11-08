@@ -37,14 +37,15 @@ export async function tegnTidslinjer(
     colors: Map<string, string>,
     minAntallTidslinjer: number = 0
 ) {
-    if (!tidslinjer?.length) {
-        console.warn("Fant ingen tidslinjer")
-        return
-    }
     const { axisBottom, scaleLinear, scalePoint, select } = await import('d3');
     const svg = select(svgRef);
     const xAxis = select(xAxisRef);
     const container = select(containerRef)
+
+    if (!tidslinjer?.length) {
+        console.warn("Fant ingen tidslinjer")
+        svg.selectChildren().remove()
+    }
 
     const harPoliser = tidslinjer.some(t => t.label.toUpperCase().includes("POLISE"))
 
@@ -61,6 +62,10 @@ export async function tegnTidslinjer(
             self.findIndex(d => d.aksjonsdato === date.aksjonsdato) === i
         )
         .sort((a, b) => a.getTime() - b.getTime())
+
+    if (allDates.length === 0) {
+        return null
+    }
 
     const startDate = Aksjonsdato.TIDENES_MORGEN;
     const endDate: Aksjonsdato = tidslinjer.some(tidslinje => tidslinje.erLøpende()) ? Aksjonsdato.TIDENES_SLUTT : allDates[allDates.length - 1]; // TODO finn største verdi
