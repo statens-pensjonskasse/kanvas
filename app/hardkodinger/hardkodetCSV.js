@@ -1,12 +1,16 @@
 export const hardkodet = `\
-Avtalekobling 1;2000;2010;
-Stillingsforholdunderlag 1;2000;2010;Stilling 1
+Polise 1;2000;;Aktiv;100%;_200123
+Polise 1;2005;;Aktiv;40%;_200123
+Polise 1;2010;;Konsolidert;0%;_200011
 
-Pensjonsvedtak 1;2010;;ALD
+Polise 2;2005;;Uførepensjon;60%;_200011
+Polise 2;2010;;Uførepensjon;100%;_200011
 
-Polise 1;2000;;Polisestatus: Aktiv
-Polise 1;2010;;Polisestatus: Alderspensjon
+HarDelvisPensjon;2000;;Nei
+HarDelvisPensjon;2005;;Ja
+HarDelvisPensjon;2010;;Nei
+HarDelvisPensjon;2010;;Nei
 
 # Farging av tidslinjer
-Polise 1;COLOR;blue
+HarDelvisPensjon;color;grey
 `.split('\n')

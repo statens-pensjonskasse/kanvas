@@ -31,7 +31,8 @@ export default function TidslinjerView() {
         kompakteEgenskaper,
         visningsTidslinjer || [],
         filters,
-        colors
+        colors,
+        4
       )
     }
 

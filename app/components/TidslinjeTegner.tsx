@@ -34,7 +34,8 @@ export async function tegnTidslinjer(
     kompakteEgenskaper: boolean,
     tidslinjer: Tidslinje[],
     filters: Map<string, RegExp>,
-    colors: Map<string, string>
+    colors: Map<string, string>,
+    minAntallTidslinjer: number = 0
 ) {
     if (!tidslinjer?.length) {
         console.warn("Fant ingen tidslinjer")
@@ -64,7 +65,7 @@ export async function tegnTidslinjer(
     const startDate = Aksjonsdato.TIDENES_MORGEN;
     const endDate: Aksjonsdato = tidslinjer.some(tidslinje => tidslinje.erLøpende()) ? Aksjonsdato.TIDENES_SLUTT : allDates[allDates.length - 1]; // TODO finn største verdi
 
-    const numTimelines = tidslinjer.length || 0
+    const numTimelines = Math.max(tidslinjer.length, minAntallTidslinjer)
 
     const periodeBredde = 25 * 16 // 16px
     const antallPeriodeBredde = Math.max(allDates.length, 3)
@@ -90,7 +91,7 @@ export async function tegnTidslinjer(
 
     const lagVisbarTekst = (tidslinje: Tidslinje, periode: Periode, egenskapVelger: (egenskap: string) => boolean) => {
         // maks bokstaver som kan vises avhenger av lengden på perioden og hvorvidt perioden er den siste i tidslinjen
-        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
+        const maksBokstaver = 0.13 * (xScale((periode.tilOgMed?.aksjonsdato === tidslinje.tilOgMed?.aksjonsdato ? endDate.aksjonsdato : periode.tilOgMed?.aksjonsdato) || endDate.aksjonsdato) - xScale(periode.fraOgMed.aksjonsdato))
         const antallPerioder = tidslinje.perioder.length
         const filter = filters.get(tidslinje.label)
         const filtrerteEgenskaper: string[] = filtrerEgenskaper(periode.egenskaper, filter)
