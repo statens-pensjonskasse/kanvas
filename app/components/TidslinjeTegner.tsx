@@ -44,10 +44,8 @@ export async function tegnTidslinjer(
 
     if (!tidslinjer?.length) {
         console.warn("Fant ingen tidslinjer")
-        svg.selectChildren().remove()
+        return
     }
-
-    const harPoliser = tidslinjer.some(t => t.label.toUpperCase().includes("POLISE"))
 
     // finner alle datoer som skal på x-aksen
     const allDates: Aksjonsdato[] = [
@@ -56,7 +54,6 @@ export async function tegnTidslinjer(
                 tidslinje => tidslinje.datoer
             )
             .flatMap(x => x),
-        ...(harPoliser ? [Aksjonsdato.KONVERTERINGSDATO] : [])
     ]
         .filter((date, i, self) =>
             self.findIndex(d => d.aksjonsdato === date.aksjonsdato) === i
@@ -123,7 +120,7 @@ export async function tegnTidslinjer(
                                 posisjon: tidslinje.posisjon,
                                 fullTekstOver: lagVisbarTekst(tidslinje, periode, egenskap => !egenskap.startsWith("_")),
                                 fullTekstUnder: lagVisbarTekst(tidslinje, periode, egenskap => egenskap.startsWith("_")),
-                                erKonsolidert: !!periode.egenskaper.filter(egenskap => egenskap.toUpperCase().trim().match(/\b(KONSOLIDERT)|(DØD)\b/g)).length,
+                                erKonsolidert: periode.label.toUpperCase().includes("POLISE") && Boolean(periode.egenskaper.filter(egenskap => egenskap.toUpperCase().trim().match(/\b(KONSOLIDERT)|(DØD)|(KNS)|(DOD)\b/g)).length),
                                 color: colors.get(periode.label) || "black"
                             }
                         })
@@ -173,21 +170,6 @@ export async function tegnTidslinjer(
         .attr("y2", periode => yScale(periode.posisjon) - 5);
 
     svg
-        .selectAll(".konverteringsMarker")
-        .data(
-            (harPoliser ? [Aksjonsdato.KONVERTERINGSDATO] : [])
-        )
-        .join("line")
-        .attr("class", "periodeDelimiter")
-        .attr("stroke", "green")
-        .attr("opacity", "0.5")
-        .attr("stroke-width", 3)
-        .attr("x1", dato => xScale(dato.aksjonsdato))
-        .attr("y1", yScale(tidslinjer.length))
-        .attr("x2", dato => xScale(dato.aksjonsdato))
-        .attr("y2", yScale(-1));
-
-    svg
         .selectAll(".periodeEgenskaper")
         .data(tilpassedePerioder)
         .join("text")
@@ -229,9 +211,6 @@ export async function tegnTidslinjer(
                     dato => {
                         if ([startDate.aksjonsdato, endDate.aksjonsdato].includes(dato)) {
                             return ""
-                        }
-                        else if (harPoliser && dato === Aksjonsdato.KONVERTERINGSDATO.aksjonsdato) {
-                            return `${dato} - konvertering`
                         }
                         else if (dato === Aksjonsdato.UKJENT_DATO.aksjonsdato) {
                             return "Ukjent dato"
