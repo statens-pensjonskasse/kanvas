@@ -1,4 +1,5 @@
 import { unikeVerdier } from "~/util/utils";
+import { MedlemsdataSerializer } from "../parsers/MedlemsdataSerializer";
 import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
 
@@ -100,6 +101,10 @@ export default class Tidslinje {
                 )
             )
 
+    }
+
+    somMedlemsdata(personId: String): String[] {
+        return MedlemsdataSerializer.serialize(personId, this)
     }
 
     somCucumber(): String[] {

@@ -1,4 +1,5 @@
 import { Aksjonsdato } from "./Aksjonsdato";
+import Egenskap from "./Egenskap";
 
 export default class Periode {
     readonly fraOgMed: Aksjonsdato;
@@ -12,6 +13,13 @@ export default class Periode {
         this.label = label || "Tidslinje"
         this.fraOgMed = fraOgMed
         this.tilOgMed = tilOgMed
+    }
+
+    egenskap(egenskap: String): String {
+        return this.egenskaper
+            .map(Egenskap.parse)
+            .filter(e => e.type == egenskap)
+            .map(e => e.verdi)[0]
     }
 
     medEgenskaper(egenskaper: string[]) {
