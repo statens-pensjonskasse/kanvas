@@ -8,20 +8,20 @@
     },
     {
       "groupName": "automerge",
-      "matchPackagePatterns": ["cross-env", "d3", "lru-cache", "ts-invariant", "luxon"],
+      "matchPackagePrefixes": ["cross-env", "d3", "lru-cache", "ts-invariant", "luxon"],
       "automerge": true
     },
     {
       "groupName": "chakra",
-      "matchPackagePatterns": ["@chakra-ui/*", "@emotion/*", "framer-motion"]
+      "matchPackagePrefixes": ["@chakra-ui/", "@emotion/", "framer-motion"]
     },
     {
       "groupName": "remix",
-      "matchPackagePatterns": ["@remix-run/*"]
+      "matchPackagePrefixes": ["@remix-run/"]
     },
     {
       "groupName": "react",
-      "matchPackagePatterns": ["react"]
+      "matchPackagePrefixes": ["react", "@types/react"]
     }
   ]
 }
