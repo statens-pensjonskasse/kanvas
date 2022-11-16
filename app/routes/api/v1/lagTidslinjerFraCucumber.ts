@@ -1,5 +1,5 @@
 import { ActionFunction } from "@remix-run/node";
-import { JSDOM } from 'jsdom';
+import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
 import { cache } from '~/util/cache.server';
@@ -32,14 +32,14 @@ export const action: ActionFunction = async ({ request }) => {
   const parser = new GherkinTidslinjeparser()
   const tidslinjer = parser.parse(tekst)
 
-  const document = new JSDOM(`
+  const { document } = parseHTML(`
       <div>
         <svg class="kanvas-wrapper">
           <g class="kanvas-tidslinjer" />
           <g class="kanvas-axis"/>
         </svg>
       </div>
-    `).window.document
+    `)
 
   const container = document.querySelector('.kanvas-wrapper') as SVGSVGElement
   const svg = document.querySelector('.kanvas-tidslinjer') as SVGSVGElement

@@ -1,5 +1,5 @@
 import { ActionFunction } from "@remix-run/node";
-import { JSDOM } from 'jsdom';
+import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import Colorparser from '~/parsers/CSVColorparser';
 import Filterparser from '~/parsers/CSVFilterparser';
@@ -49,14 +49,14 @@ export const action: ActionFunction = async ({ request }) => {
   const colors = colorParser.parse(data)
   const filters = filterParser.parse(data)
 
-  const document = new JSDOM(`
+  const { document } = parseHTML(`
       <div>
         <svg class="kanvas-wrapper">
           <g class="kanvas-tidslinjer" />
           <g class="kanvas-axis"/>
         </svg>
       </div>
-    `).window.document
+    `)
 
   const container = document.querySelector('.kanvas-wrapper') as SVGSVGElement
   const svg = document.querySelector('.kanvas-tidslinjer') as SVGSVGElement
