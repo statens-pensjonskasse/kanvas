@@ -2,16 +2,25 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
-      "matchPackagePatterns": ["@chakra-ui/*", "@emotion/*"],
-      "groupName": "chakra"
+      "matchDepTypes": ["test"],
+      "automerge": true
     },
     {
-      "matchPackagePatterns": ["@remix-run/*"],
-      "groupName": "remix"
+      "groupName": "automerge",
+      "matchPackagePatterns": ["cross-env", "d3", "lru-cache", "ts-invariant"],
+      "automerge": true
     },
     {
-      "matchPackagePatterns": ["react"],
-      "groupName": "react"
+      "groupName": "chakra",
+      "matchPackagePatterns": ["@chakra-ui/*", "@emotion/*", "framer-motion"]
+    },
+    {
+      "groupName": "remix",
+      "matchPackagePatterns": ["@remix-run/*"]
+    },
+    {
+      "groupName": "react",
+      "matchPackagePatterns": ["react"]
     }
   ]
 }
