@@ -3,7 +3,7 @@
   "extends": ["config:base", "docker:enableMajor"],
   "packageRules": [
     {
-      "matchDepTypes": ["test"],
+      "matchDepTypes": ["devDependencies"],
       "automerge": true
     },
     {
