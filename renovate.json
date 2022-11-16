@@ -8,7 +8,7 @@
     },
     {
       "groupName": "automerge",
-      "matchPackagePrefixes": ["cross-env", "d3", "lru-cache", "ts-invariant", "luxon"],
+      "matchPackagePrefixes": ["cross-env", "d3", "lru-cache", "ts-invariant", "luxon", "@types/luxon"],
       "automerge": true
     },
     {
