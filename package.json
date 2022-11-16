@@ -13,8 +13,8 @@
     "start": "cross-env NODE_ENV=production PORT=8080 remix-serve build"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.1.7",
-    "@chakra-ui/react": "^1.8.5",
+    "@chakra-ui/icons": "^2.0.0",
+    "@chakra-ui/react": "^2.0.0",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
     "@remix-run/node": "^1.4.0",
@@ -22,7 +22,7 @@
     "@remix-run/serve": "^1.4.0",
     "cross-env": "^7.0.3",
     "d3": "^7.3.0",
-    "framer-motion": "^6.2.8",
+    "framer-motion": "^7.0.0",
     "linkedom": "^0.14.20",
     "lru-cache": "^7.14.0",
     "luxon": "^3.0.0",
