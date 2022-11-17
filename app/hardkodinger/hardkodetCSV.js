@@ -9,7 +9,6 @@ Polise 2;2010;;Uførepensjon;100%;_200011
 HarDelvisPensjon;2000;;Nei
 HarDelvisPensjon;2005;;Ja
 HarDelvisPensjon;2010;;Nei
-HarDelvisPensjon;2010;;Nei
 
 # Farging av tidslinjer
 HarDelvisPensjon;color;grey

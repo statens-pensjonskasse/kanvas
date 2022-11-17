@@ -4,7 +4,7 @@ import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
 
 export default class Tidslinje {
-    readonly label: string;
+    readonly label: String;
     readonly perioder: Periode[];
     readonly datoer: Aksjonsdato[];
     readonly fraOgMed: Aksjonsdato;

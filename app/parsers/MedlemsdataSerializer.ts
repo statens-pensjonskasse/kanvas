@@ -7,7 +7,7 @@ export class MedlemsdataSerializer {
         const sortert: Periode[] = tidslinje.perioder
             .sort((a: Periode, b: Periode) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
 
-        if (tidslinje.label.startsWith("Person")) {
+        if (tidslinje.label.toLowerCase().startsWith("person")) {
             return sortert
                 .map(
                     periode => (
@@ -15,7 +15,7 @@ export class MedlemsdataSerializer {
                             personId,
                             "PERSON",
                             periode.fraOgMed.aksjonsdato.replace(/\./g, ""),
-                            "12345",
+                            periode.egenskap("Personnummer") || "58008",
                             periode.tilOgMed?.aksjonsdato,
                             periode.egenskap("Kjønn") || "Kvinne"
                         ]
@@ -23,7 +23,7 @@ export class MedlemsdataSerializer {
                     )
                 )
         }
-        else if (tidslinje.label.startsWith("Stilling")) {
+        else if (tidslinje.label.toLowerCase().startsWith("stilling")) {
             return [
                 [
                     personId,
@@ -74,7 +74,7 @@ export class MedlemsdataSerializer {
                 )
             ]
         }
-        else if (tidslinje.label.startsWith("Pensjonsvedtak")) {
+        else if (tidslinje.label.toLowerCase().startsWith("pensjonsvedtak")) {
             return sortert
                 .map(
                     periode => (
@@ -82,7 +82,7 @@ export class MedlemsdataSerializer {
                             personId,
                             "ISOLERTPENSJONSVEDTAK",
                             periode.fraOgMed.aksjonsdato,
-                            periode.tilOgMed?.aksjonsdato || "",
+                            periode.tilOgMed?.plussDager(-1).aksjonsdato || "",
                             periode.egenskap("Pensjonsart") || "343",
                             periode.egenskap("SPK beregnet pensjon") || "10000",
                             periode.egenskap("Pensjonsprodukt") || "UFO",
@@ -106,17 +106,114 @@ export class MedlemsdataSerializer {
                     )
                 )
         }
-        // TODO: Manglende oversettere:
-        // AVTALEBYTTE
-        // ETTERLATT
-        // FEILAVTALEBYTTE
-        // FOLKETRYGD
-        // MEDREGNING
-
+        else if (tidslinje.label.toLowerCase().startsWith("etterlatt")) {
+            return sortert
+                .map(
+                    periode => (
+                        [
+                            personId,
+                            "ETTERLATTE",
+                            periode.egenskap("Etterlatte PersonId") || "",
+                            periode.egenskap("Fødselsdato") || "19800101",
+                            periode.egenskap("Personnummer") || "58008",
+                            periode.egenskap("Dødsdato") || "",
+                            periode.egenskap("Kjønn") || "Kvinne"
+                        ]
+                            .join(";")
+                    )
+                )
+        }
+        else if (tidslinje.label.toLowerCase().startsWith("medregning")) {
+            return sortert
+                .map(
+                    (periode, i) => (
+                        [
+                            personId,
+                            "MEDREGNING",
+                            periode.fraOgMed.aksjonsdato,
+                            periode.tilOgMed?.plussDager(-1).aksjonsdato || "",
+                            periode.egenskap("Medregningskode") || "01",
+                            periode.egenskap("Medregningsbeløp") || "200000",
+                            periode.egenskap("Medregned deltid") || "50.000",
+                            periode.egenskap("Løpenummer") || `${i + 1}`,
+                        ]
+                            .join(";")
+                    )
+                )
+        }
+        else if (tidslinje.label.toLowerCase().startsWith("avtalebytte")) {
+            return sortert
+                .map(
+                    periode => (
+                        [
+                            personId,
+                            "AVTALEBYTTE",
+                            periode.egenskap("Avtalebyttedato") || periode.fraOgMed.aksjonsdato,
+                            periode.egenskap("Bytt fra avtale") || "203951",
+                            periode.egenskap("Bytt til avtale") || "203333",
+                            periode.egenskap("Avtalebyttetype") || "Pensjonist",
+                            periode.egenskap("Etterlatt") || "",
+                        ]
+                            .join(";")
+                    )
+                )
+        }
+        else if (tidslinje.label.toLowerCase().startsWith("avtalebytte")) {
+            return sortert
+                .map(
+                    periode => (
+                        [
+                            personId,
+                            "FEILAVTALEBYTTE",
+                            periode.egenskap("Avtalebyttedato") || periode.fraOgMed.aksjonsdato,
+                            periode.egenskap("Bytt fra avtale") || "203951",
+                            periode.egenskap("Bytt til avtale") || "203333",
+                            periode.egenskap("Avtalebyttetype") || "Pensjonist",
+                            periode.egenskap("Etterlatt") || "",
+                        ]
+                            .join(";")
+                    )
+                )
+        }
+        else if (tidslinje.label.toLowerCase().startsWith("feil avtalebytte")) {
+            return sortert
+                .map(
+                    periode => (
+                        [
+                            personId,
+                            "FEILAVTALEBYTTE",
+                            periode.fraOgMed.aksjonsdato,
+                            periode.tilOgMed?.plussDager(-1).aksjonsdato || "",
+                            periode.egenskap("Avtalebytte som oppsatt") || "0",
+                            periode.egenskap("Avtalebytte som pensjonist") || "1",
+                            periode.egenskap("Avtalebytte som på etterlatt") || "0",
+                        ]
+                            .join(";")
+                    )
+                )
+        }
+        else if (tidslinje.label.toLowerCase().startsWith("folketrygd")) {
+            return sortert
+                .map(
+                    periode => (
+                        [
+                            personId,
+                            "FOLKETRYGD",
+                            periode.fraOgMed.aksjonsdato,
+                            periode.tilOgMed?.plussDager(-1).aksjonsdato || "",
+                            periode.egenskap("T42") || "",
+                            periode.egenskap("T45") || "",
+                            periode.egenskap("Poengtall") || "",
+                            periode.egenskap("Ervervskoeffisient") || "",
+                            periode.egenskap("Vektet grunnbeløp") || "",
+                            periode.egenskap("Er gift") || "Ja",
+                        ]
+                            .join(";")
+                    )
+                )
+        }
         else {
             return []
         }
     }
-
-
 }
