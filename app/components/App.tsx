@@ -34,14 +34,6 @@ function App() {
             <Container>
               <Link
                 isExternal
-                href="mailto:jarle.mathiesen@spk.no?subject=kanvas"
-              >
-                tilbakemelding/forslag
-              </Link>
-            </Container>
-            <Container>
-              <Link
-                isExternal
                 href="http://git.spk.no/projects/INC/repos/kanvas/browse"
               >
                 kildekode
