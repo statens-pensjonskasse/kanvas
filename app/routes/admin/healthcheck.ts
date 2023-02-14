@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     }
 
-    return new Response('OK', {
+    return new Response('Healthy 1', {
         status: 200
     })
 }
