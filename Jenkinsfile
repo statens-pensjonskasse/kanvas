@@ -12,5 +12,5 @@ if ( env.BRANCH_NAME == 'master') {
     String[] deploy2env = ["lyn"]
     d.dockerDeployToTest( 'preprod', deploy2env )
 
-    msg = d.dockerProdsetting()
+    msg = d.dockerProdsetting( 'rhr,msu,lro,ohe,isb' )
 }
