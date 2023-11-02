@@ -3,7 +3,7 @@ services:
   kanvas:
     image: 'kanvas'
     environment:
-      VIRTUAL_HOST: kanvas
+      VIRTUAL_HOST: http://kanvas.{{environment.ENVIRONMENT_ADDRESS}},https://kanvas.{{environment.ENVIRONMENT_ADDRESS}}
       SERVICE_PORTS: 8080
       OPEN_AM_ENDPOINT: '[FROM_ENV: OPEN_AM_ENDPOINT]'
       ENVIRONMENT_NAME: '[FROM_ENV: ENVIRONMENT_NAME]'
