@@ -2,9 +2,9 @@
 
 Kanvas er en applikasjon for å raskt kunne tegne tidslinjer.
 
-Applikasjonen er tilgjengelig på http://kanvas.lyn.spk.no/
+Applikasjonen er tilgjengelig på http://kanvas.lyn.spk.no/.
 
-Jenkins-jobben ligger her: http://jenkins.spk.no/job/kanvas/
+Jenkins-jobben ligger her: http://jenkins.spk.no/job/team-sterope/job/kanvas/.
 
 ## API
 
@@ -72,9 +72,11 @@ I eksempelet over er en av egenskapene oppgitt med nøkkel "Polisestatus" og ver
 ### Ekstra
 
 Fargelegg en tidslinje:
+
 `Polise 1;color;red`
 
 Filtrer egenskaper:
+
 `Polise 1;filter;Polisestatus;Avtale`
 
 ## Lokal kjøring
@@ -86,6 +88,13 @@ npm install
 npm run dev
 ```
 
+Eventuelt med Docker:
+
+```bash
+docker build . -t kanvas # bygg
+docker run -it --rm --name=kanvas --network="host" kanvas # kjør
+```
+
 ## Produksjon
 
 I "produksjon" (Lyn) bygges først applikasjonen, før den serves på port 8080 med express. Se [Dockerfile](./Dockerfile) for mer.
@@ -95,4 +104,4 @@ npm run build
 npm run start
 ```
 
-Applikasjonen blir da tilgjengelig på http://localhost:8080/
+Applikasjonen blir da tilgjengelig på http://localhost:8080/.

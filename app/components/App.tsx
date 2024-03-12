@@ -34,7 +34,7 @@ function App() {
             <Container>
               <Link
                 isExternal
-                href="http://git.spk.no/projects/INC/repos/kanvas/browse"
+                href="https://git.spk.no/projects/INC/repos/kanvas/browse"
               >
                 kildekode
               </Link>
@@ -46,6 +46,5 @@ function App() {
   );
 
 }
-
 
 export default App;

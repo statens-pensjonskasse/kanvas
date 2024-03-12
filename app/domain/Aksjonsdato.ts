@@ -26,7 +26,11 @@ export class Aksjonsdato {
             .filter(s => !!s)
             .map(s => s.trim())
 
-        invariant([1, 3].includes(split.length), `${dato} er ikke en gyldig aksjonsdato, forventer "${this.FORMAT}" eller "yyyy"`)
+        // invariant([1, 3].includes(split.length), `${dato} er ikke en gyldig aksjonsdato, forventer "${this.FORMAT}" eller "yyyy"`)
+        if (![1, 3].includes(split.length)) {
+            return "2020.01.01" // Returnerer bare en dato om input er søppel. Slipper å miste alt man har tastet inn.
+        }
+
         if (split.length === 1) { //kun år oppgitt
             return `${split[0]}.01.01`
         }
