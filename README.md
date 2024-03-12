@@ -4,7 +4,7 @@ Kanvas er en applikasjon for å raskt kunne tegne tidslinjer.
 
 Applikasjonen er tilgjengelig på http://kanvas.lyn.spk.no/.
 
-Jenkins-jobben ligger her: http://jenkins.spk.no/job/team-sterope/job/kanvas/.
+Jenkins-jobben ligger her: http://jenkins/job/INC/job/CI/job/kanvas/.
 
 ## API
 
