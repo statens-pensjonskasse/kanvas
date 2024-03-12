@@ -1,15 +1,17 @@
 import { Box, Checkbox, FormControl, FormLabel, HStack, Tooltip, VStack } from "@chakra-ui/react";
 import { useContext, useEffect, useRef, useState } from "react";
 import Tidslinje from "../domain/Tidslinje";
-import { ColorContext } from "../state/ColorProvider";
-import { FilterContext } from "../state/FilterProvider";
-import { TidslinjeContext } from '../state/TidslinjerProvider';
+import { ColorContext } from "~/state/ColorProvider";
+import { LinestyleContext } from "~/state/LinestyleProvider";
+import { FilterContext } from "~/state/FilterProvider";
+import { TidslinjeContext } from '~/state/TidslinjerProvider';
 
 
 export default function TidslinjerView() {
   const { tidslinjer } = useContext(TidslinjeContext);
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
+  const { lineStyles } = useContext(LinestyleContext)
   const [screenshot, setScreenshot] = useState("")
   const [kompakteEgenskaper, setKompakteEgenskaper] = useState(false)
 
@@ -31,6 +33,7 @@ export default function TidslinjerView() {
         visningsTidslinjer || [],
         filters,
         colors,
+        lineStyles,
         4
       )
     }
@@ -39,6 +42,7 @@ export default function TidslinjerView() {
 
   }, [
     colors,
+    lineStyles,
     tidslinjer,
     filters,
     kompakteEgenskaper

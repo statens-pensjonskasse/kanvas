@@ -1,17 +1,20 @@
 import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
-import { hardkodet } from "../../hardkodinger/hardkodetCSV";
+import { hardkodet } from "~/hardkodinger/hardkodetCSV";
 import Colorparser from "../../parsers/CSVColorparser";
+import Linestyleparser from "../../parsers/CSVLinestyleparser";
 import CSVTidslinjeparser from "../../parsers/CSVTidslinjeparser";
-import { ColorContext } from "../../state/ColorProvider";
-import { InputTextContext } from "../../state/InputTextProvider";
-import { TidslinjeContext } from "../../state/TidslinjerProvider";
+import { ColorContext } from "~/state/ColorProvider";
+import { LinestyleContext } from "~/state/LinestyleProvider";
+import { InputTextContext } from "~/state/InputTextProvider";
+import { TidslinjeContext } from "~/state/TidslinjerProvider";
 
 export default function PeriodeInput() {
     const input = React.createRef<HTMLTextAreaElement>();
     const { inputText, parseInputText } = useContext(InputTextContext)
     const { setTidslinjer } = useContext(TidslinjeContext)
     const { setColors } = useContext(ColorContext)
+    const { setLinestyle } = useContext(LinestyleContext)
 
     const delimiter = ";"
     const fraOgMedIndex = 1
@@ -29,6 +32,9 @@ export default function PeriodeInput() {
         delimiter: delimiter
     });
 
+    const linestyleparser = new Linestyleparser({
+        delimiter: delimiter,
+    });
 
     useEffect(() => {
         if (inputText) {
@@ -52,6 +58,10 @@ export default function PeriodeInput() {
             colorparser.parse(content)
         )
 
+        setLinestyle(
+            linestyleparser.parse(content)
+        )
+
         setTidslinjer(
             tidslinjeparser.parse(content)
         )
@@ -71,6 +81,9 @@ export default function PeriodeInput() {
 
     const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
     const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
+    const linestyleHint1 = "CSV-format for linjestil (hele linja): [Identifikator];linestyle;[stil]"
+    const linestyleHint2 = "CSV-format for linjestil (en periode): [Identifikator];"
+        + csvHintArray[fraOgMedIndex] + ";" + csvHintArray[tilOgMedIndex] + ";linestyle;" + "[stil]"
 
     const longestLine = Math.max(...inputText?.split("\n").map(t => t.length), 50)
 
@@ -95,7 +108,7 @@ export default function PeriodeInput() {
             </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={[periodeHint, colorHint].map(t => <div>{t}</div>)}
+                label={[periodeHint, colorHint, linestyleHint1, linestyleHint2].map(t => <div>{t}</div>)}
             >
                 ?
             </Tooltip>
