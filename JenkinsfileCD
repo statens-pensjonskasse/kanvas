@@ -1,0 +1,10 @@
+#!groovy
+@Library('jenkins-pipeline-library')
+import no.spk.jenkins.pipeline.cd.config.CDPipelineConfig
+
+cdPipeline {
+    config = CDPipelineConfig.get()
+            .tagAndDeployToTest(fromBranches: 'develop', env: 'kpt')
+            .tagAndDeployToTest(fromBranches: 'master', env: 'lyn')
+            .withEmailNotifications(recipients: 'ITO-TeamPremie@spk.no')
+}
