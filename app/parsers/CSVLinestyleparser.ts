@@ -6,9 +6,9 @@ type LinestyleparserProps = {
 
 export class Tidsspenn {
 
-    constructor(fraOgMed: Aksjonsdato, tilOgMed: Aksjonsdato) {
+    constructor(fraOgMed: Aksjonsdato, tilOgMed?: Aksjonsdato) {
         this.fraOgMed = fraOgMed
-        this.tilOgMed = tilOgMed
+        this.tilOgMed = tilOgMed || Aksjonsdato.TIDENES_SLUTT
     }
 
     fraOgMed: Aksjonsdato
@@ -25,7 +25,7 @@ export class LinestyleKey {
             this.tilOgMed = tidsspenn.tilOgMed
             this.erPeriode = true
         } else {
-            this.fraOgMed = new Aksjonsdato("2020.01.01")
+            this.fraOgMed = Aksjonsdato.UKJENT_DATO
             this.tilOgMed = this.fraOgMed
             this.erPeriode = false
         }
@@ -94,14 +94,19 @@ export default class Linestyleparser {
     kanOversettes(rad: string[]): boolean {
         // Eksempler:
         //
-        // Polise 1;linestyle;dashed
-        // Polise 1;linestyle;dashed;2020;2023
+        // Polise 1;linestyle;dashed5
+        // Polise 1;linestyle;dashed5;2020;2023
+        // Polise 1;linestyle;dashed5;2020
 
-        const harInnhold = rad.length === 3 || rad.length === 5
+        const harInnhold = rad.length === 3 || rad.length === 4 || rad.length === 5
         const harTypeindikator = rad[this.identifikatorIndex]?.toLowerCase() === "linestyle"
         const harLinjestil = rad[this.stilIndex]?.length > 0
 
-        if (rad.length == 5) {
+        if (rad.length == 4) {
+            const erFraDato = Aksjonsdato.erGyldig(rad[this.fraOgMedIndex])
+
+            return harInnhold && harTypeindikator && harLinjestil && erFraDato
+        } else if (rad.length == 5) {
             const erFraDato = Aksjonsdato.erGyldig(rad[this.fraOgMedIndex])
             const erTilDato = Aksjonsdato.erGyldig(rad[this.tilOgMedIndex])
 
@@ -118,8 +123,12 @@ export default class Linestyleparser {
         if (rad.length === 3) {
             // uten periode, hele linja
             return [new LinestyleKey(label), linestyle]
+        } else if (rad.length === 4) {
+            // kun én periode, løpende
+            const fraOgMed = new Aksjonsdato(rad[this.fraOgMedIndex])
+            return [new LinestyleKey(label, new Tidsspenn(fraOgMed)), linestyle]
         } else {
-            // kun én periode
+            // kun én periode, fra og til
             const fraOgMed = new Aksjonsdato(rad[this.fraOgMedIndex])
             const tilOgMed = new Aksjonsdato(rad[this.tilOgMedIndex])
             return [new LinestyleKey(label, new Tidsspenn(fraOgMed, tilOgMed)), linestyle]

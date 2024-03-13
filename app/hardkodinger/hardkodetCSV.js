@@ -12,4 +12,7 @@ HarDelvisPensjon;2010;;Nei
 
 # Farging av tidslinjer
 HarDelvisPensjon;color;grey
+
+# Linjestil
+HarDelvisPensjon;linestyle;dashed3;2005;2010
 `.split('\n')

@@ -85,7 +85,9 @@ export default function PeriodeInput() {
     const linestyleHint1 = "CSV-format for linjestil (hele linja): [Identifikator];linestyle;[linjestil]"
     const linestyleHint2 = "CSV-format for linjestil (en periode): [Identifikator];linestyle;[linjestil];"
         + csvHintArray[fraOgMedIndex] + ";" + csvHintArray[tilOgMedIndex]
-    const linestyleHint3 = "linjestil er en av: solid, dashed2, dashed3, ..., dashed10"
+    const linestyleHint3 = "CSV-format for linjestil (en periode, siste løpende): [Identifikator];linestyle;[linjestil];"
+        + csvHintArray[fraOgMedIndex]
+    const linestyleHint4 = "linjestil er en av: solid, dashed2, dashed3, ..., dashed10"
 
     const longestLine = Math.max(...inputText?.split("\n").map(t => t.length), 50)
 
@@ -110,7 +112,8 @@ export default function PeriodeInput() {
             </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={[periodeHint, linjeskift, colorHint, linjeskift, linestyleHint1, linestyleHint2, linestyleHint3].map(t => <Text>{t}</Text>)}
+                label={[periodeHint, linjeskift, colorHint, linjeskift, linestyleHint1, linestyleHint2, linestyleHint3, linestyleHint4]
+                    .map(t => <Text>{t}</Text>)}
             >
                 ?
             </Tooltip>

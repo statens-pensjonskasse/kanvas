@@ -19,7 +19,7 @@ const filtrerEgenskaper = (egenskaper: string[], filter: RegExp): string[] => {
 
 const linestyleOppslag = (oppslagsverk: Map<string, string>, periode: Periode): string => {
     const tidslinjeKey = new LinestyleKey(periode.label).key()
-    const periodeKey = new LinestyleKey(periode.label, new Tidsspenn(periode.fraOgMed, periode.tilOgMed || new Aksjonsdato('2099.01.01'))).key()
+    const periodeKey = new LinestyleKey(periode.label, new Tidsspenn(periode.fraOgMed, periode.tilOgMed || Aksjonsdato.TIDENES_SLUTT)).key()
 
     const bruktKey = oppslagsverk.has(periodeKey) ? periodeKey : tidslinjeKey
 
