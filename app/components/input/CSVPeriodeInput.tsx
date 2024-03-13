@@ -1,4 +1,4 @@
-import { HStack, Textarea, Tooltip, VStack } from "@chakra-ui/react";
+import { HStack, Textarea, Tooltip, VStack, Text } from "@chakra-ui/react";
 import React, { useContext, useEffect } from "react";
 import { hardkodet } from "~/hardkodinger/hardkodetCSV";
 import Colorparser from "../../parsers/CSVColorparser";
@@ -79,11 +79,13 @@ export default function PeriodeInput() {
     csvHintArray[tilOgMedIndex] = "[Til og med]"
     csvHintArray.push(`[egenskaper separert med "${delimiter}"]`)
 
+    const linjeskift = <br/>
     const periodeHint = "CSV-format for tidsperioder: " + csvHintArray.join(delimiter)
     const colorHint = "CSV-format for farger: [Identifikator];color;[farge]"
-    const linestyleHint1 = "CSV-format for linjestil (hele linja): [Identifikator];linestyle;[stil]"
-    const linestyleHint2 = "CSV-format for linjestil (en periode): [Identifikator];"
-        + csvHintArray[fraOgMedIndex] + ";" + csvHintArray[tilOgMedIndex] + ";linestyle;" + "[stil]"
+    const linestyleHint1 = "CSV-format for linjestil (hele linja): [Identifikator];linestyle;[linjestil]"
+    const linestyleHint2 = "CSV-format for linjestil (en periode): [Identifikator];linestyle;[linjestil];"
+        + csvHintArray[fraOgMedIndex] + ";" + csvHintArray[tilOgMedIndex]
+    const linestyleHint3 = "linjestil er en av: solid, dashed2, dashed3, ..., dashed10"
 
     const longestLine = Math.max(...inputText?.split("\n").map(t => t.length), 50)
 
@@ -108,11 +110,10 @@ export default function PeriodeInput() {
             </HStack>
             <Tooltip
                 maxWidth={'container.xl'}
-                label={[periodeHint, colorHint, linestyleHint1, linestyleHint2].map(t => <div>{t}</div>)}
+                label={[periodeHint, linjeskift, colorHint, linjeskift, linestyleHint1, linestyleHint2, linestyleHint3].map(t => <Text>{t}</Text>)}
             >
                 ?
             </Tooltip>
         </VStack >
-
     );
 }

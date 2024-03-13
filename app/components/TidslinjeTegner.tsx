@@ -1,7 +1,7 @@
 import { Aksjonsdato } from '~/domain/Aksjonsdato';
 import Periode from '~/domain/Periode';
 import Tidslinje from '~/domain/Tidslinje';
-import {LinestyleKey} from "~/parsers/CSVLinestyleparser";
+import {LinestyleKey, Tidsspenn} from "~/parsers/CSVLinestyleparser";
 
 
 const kortNedEgenskap = (egenskap: string) => {
@@ -15,6 +15,15 @@ const kortNedEgenskap = (egenskap: string) => {
 const filtrerEgenskaper = (egenskaper: string[], filter: RegExp): string[] => {
     return egenskaper
         .filter(e => filter?.test(e) ?? true)
+}
+
+const linestyleOppslag = (oppslagsverk: Map<string, string>, periode: Periode): string => {
+    const tidslinjeKey = new LinestyleKey(periode.label).key()
+    const periodeKey = new LinestyleKey(periode.label, new Tidsspenn(periode.fraOgMed, periode.tilOgMed || new Aksjonsdato('2099.01.01'))).key()
+
+    const bruktKey = oppslagsverk.has(periodeKey) ? periodeKey : tidslinjeKey
+
+    return oppslagsverk.get(bruktKey) || "solid"
 }
 
 const konverterStroke = (linestyle: string)=> {
@@ -139,12 +148,10 @@ export async function tegnTidslinjer(
             .replace(/.{3}$/g, "...")
     }
 
-    console.log(lineStyles);
     const lineStylesKonvertert: Map<string, string> = new Map()
     lineStyles.forEach((value: string, key: LinestyleKey) => {
         lineStylesKonvertert.set(key.key(), value)
     })
-    console.log(lineStylesKonvertert);
 
     const tilpassedePerioder = tidslinjer
         .flatMap(
@@ -159,7 +166,7 @@ export async function tegnTidslinjer(
                                 fullTekstUnder: lagVisbarTekst(tidslinje, periode, egenskap => egenskap.startsWith("_")),
                                 erKonsolidert: periode.label.toUpperCase().includes("POLISE") && Boolean(periode.egenskaper.filter(egenskap => egenskap.toUpperCase().trim().match(/\b(KONSOLIDERT)|(DØD)|(KNS)|(DOD)\b/g)).length),
                                 color: colors.get(periode.label) || "black",
-                                linestyle: lineStylesKonvertert.get(new LinestyleKey(periode.label).key()) || "solid"
+                                linestyle: linestyleOppslag(lineStylesKonvertert, periode)
                             }
                         })
                     )
