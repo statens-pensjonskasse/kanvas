@@ -8,5 +8,5 @@ cdPipeline {
             .tagAndDeployToTest(fromBranches: 'master', env: 'lyn')
             .tagAndDeployToProd(fromBranches: 'master', approvers: 'team premie')
             .withEmailNotifications(recipients: 'ITO-TeamPremie@spk.no')
-            .withSlackNotifications(channels: 'panda-cd')
+            .withSlackNotifications(channels: 'panda-cd' )
 }
