@@ -1,11 +1,11 @@
 import { ChakraProvider, Container, Heading, HStack, Link, VStack } from '@chakra-ui/react';
 import ColorProvider from '../state/ColorProvider';
 import FilterProvider from '../state/FilterProvider';
+import LinestyleProvider from "~/state/LinestyleProvider";
 import InputTextProvider from '../state/InputTextProvider';
 import TidslinjerProvider from '../state/TidslinjerProvider';
 import InputComponent from './InputComponent';
 import TidslinjerView from './TidslinjeView';
-
 
 function App() {
 
@@ -16,25 +16,27 @@ function App() {
           kanvas <span role="img" aria-label="paint brush">🖌️</span>
         </Heading>
 
-        <ColorProvider>
-          <FilterProvider>
-            <TidslinjerProvider>
-              <InputTextProvider>
-                <TidslinjerView />
+        <LinestyleProvider>
+          <ColorProvider>
+            <FilterProvider>
+              <TidslinjerProvider>
+                <InputTextProvider>
+                  <TidslinjerView />
 
-                <InputComponent />
-              </InputTextProvider>
+                  <InputComponent />
+                </InputTextProvider>
 
-            </TidslinjerProvider>
-          </FilterProvider>
-        </ColorProvider>
+              </TidslinjerProvider>
+            </FilterProvider>
+          </ColorProvider>
+        </LinestyleProvider>
 
         <footer>
           <HStack margin={'5'}>
             <Container>
               <Link
                 isExternal
-                href="http://git.spk.no/projects/INC/repos/kanvas/browse"
+                href="https://git.spk.no/projects/INC/repos/kanvas/browse"
               >
                 kildekode
               </Link>
@@ -46,6 +48,5 @@ function App() {
   );
 
 }
-
 
 export default App;

@@ -3,6 +3,7 @@ import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import Colorparser from '~/parsers/CSVColorparser';
 import Filterparser from '~/parsers/CSVFilterparser';
+import Linestyleparser from '~/parsers/CSVLinestyleparser';
 import CSVTidslinjeparser from "~/parsers/CSVTidslinjeparser";
 import { cache } from "~/util/cache.server";
 
@@ -42,11 +43,13 @@ export const action: ActionFunction = async ({ request }) => {
   }
   const tidslinjeParser = new CSVTidslinjeparser(props)
   const colorParser = new Colorparser({ delimiter })
+  const lineStylesParser = new Linestyleparser({ delimiter })
   const filterParser = new Filterparser({ delimiter })
 
   const data = csv
   const tidslinjer = tidslinjeParser.parse(data)
   const colors = colorParser.parse(data)
+  const lineStyles = lineStylesParser.parse(data)
   const filters = filterParser.parse(data)
 
   const { document } = parseHTML(`
@@ -69,7 +72,8 @@ export const action: ActionFunction = async ({ request }) => {
     false,
     tidslinjer,
     filters,
-    colors
+    colors,
+    lineStyles
   )
 
   cache.set(cacheKey, container.outerHTML)

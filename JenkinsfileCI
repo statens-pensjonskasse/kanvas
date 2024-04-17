@@ -1,0 +1,14 @@
+#!groovy
+@Library('jenkins-pipeline-library')
+import no.spk.jenkins.pipeline.ci.config.CIPipelineConfig
+
+ciPipeline {
+    config = CIPipelineConfig.get()
+            .useDocker(branchPostfix: true)
+            .withPublish(latestTag: true, buildNumberTag: true, branches: 'develop, feature/')
+            .withRelease(branch: 'master', latestTag: true, buildNumberTag: true)
+            .withAutoDeployJob()
+            .withVersionStrategy(strategy: 'semver_patch')
+            .withGitTaggingStrategy(semantic: 'master')
+            .withEmailNotifications()
+}

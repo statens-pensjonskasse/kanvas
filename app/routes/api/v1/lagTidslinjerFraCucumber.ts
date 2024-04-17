@@ -52,6 +52,7 @@ export const action: ActionFunction = async ({ request }) => {
     kompakteEgenskaper,
     tidslinjer,
     new Map(),
+    new Map(),
     new Map()
   )
 
