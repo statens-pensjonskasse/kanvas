@@ -1,27 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "docker:enableMajor"],
-  "packageRules": [
-    {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": true
-    },
-    {
-      "groupName": "automerge",
-      "matchPackagePrefixes": ["cross-env", "d3", "lru-cache", "ts-invariant", "luxon", "@types/luxon"],
-      "automerge": true
-    },
-    {
-      "groupName": "chakra",
-      "matchPackagePrefixes": ["@chakra-ui/", "@emotion/", "framer-motion"]
-    },
-    {
-      "groupName": "remix",
-      "matchPackagePrefixes": ["@remix-run/"]
-    },
-    {
-      "groupName": "react",
-      "matchPackagePrefixes": ["react", "@types/react"]
-    }
-  ]
+  "extends": ["local>appark/renovate-preset:frontend"]
 }
