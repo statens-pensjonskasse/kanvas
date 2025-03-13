@@ -3,12 +3,11 @@
 import no.spk.jenkins.pipeline.ci.config.CIPipelineConfig
 
 ciPipeline {
-    config = CIPipelineConfig.get()
+    config = CIPipelineConfig
+            .getGitflowConfig(autoDeploy: true, useHarbor: true)
             .useDocker(branchPostfix: true)
-            .withPublish(latestTag: true, buildNumberTag: true, branches: 'develop, feature/')
-            .withRelease(branch: 'master', latestTag: true, buildNumberTag: true)
-            .withAutoDeployJob()
             .withVersionStrategy(strategy: 'semver_patch')
-            .withGitTaggingStrategy(semantic: 'master')
+            .withGit(developBranch: 'develop')
+            .withSlackNotifications(channels: 'panda-ci', prefix: ':panda_face:')
             .withEmailNotifications()
 }
