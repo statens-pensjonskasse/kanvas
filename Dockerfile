@@ -1,5 +1,5 @@
 # Bygg
-FROM old-dockerhub.spk.no:5000/base-node/node18-builder as builder
+FROM cr.spk.no/base/node:22-builder as builder
 
 COPY --chown=app:app package*.json ./
 RUN npm install --no-audit
@@ -10,7 +10,7 @@ RUN pwd
 RUN npm run build && npm prune --production
 
 # Sett opp runner
-FROM old-dockerhub.spk.no:5000/base-node/node18-runner
+FROM cr.spk.no/base/node:22-runner
 
 USER node
 

@@ -2,9 +2,7 @@
 
 Kanvas er en applikasjon for å raskt kunne tegne tidslinjer.
 
-Applikasjonen er tilgjengelig på http://kanvas.lyn.spk.no/.
-
-Jenkins-jobben ligger her: http://jenkins/job/INC/job/CI/job/kanvas/.
+Applikasjonen er tilgjengelig på https://kanvas.lyn.spk.no/.
 
 ## API
 
@@ -17,7 +15,7 @@ Endepunktet støtter POST, og krever et felt `data` som inneholder en array med 
 Eksempel:
 
 ```bash
-curl -X POST http://kanvas.kpt.spk.no/api/lagTidslinjer \
+curl -X POST https://kanvas.kpt.spk.no/api/lagTidslinjer \
    -H "Content-Type: application/json" \
    -d '{"data": ["Polise 1;2000;;", "Polise 1;2010;;"]}'
 ```
@@ -29,7 +27,7 @@ Endepunktet støtter POST, og krever et felt `data` som inneholder scenarioet so
 Eksempel:
 
 ```bash
-curl -X POST http://kanvas.kpt.spk.no/api/v1/lagTidslinjerFraCucumber \
+curl -X POST https://kanvas.kpt.spk.no/api/v1/lagTidslinjerFraCucumber \
    -H "Content-Type: application/json" \
    -d '
 {
