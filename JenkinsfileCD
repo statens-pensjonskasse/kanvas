@@ -5,7 +5,7 @@ import no.spk.jenkins.pipeline.cd.config.CDPipelineConfig
 cdPipeline {
     config = CDPipelineConfig
             .getSwarmConfig(branchPostfix: false, useHarbor: true)
-            .tagAndDeployToTest(fromBranches: 'develop', env: 'kpt')
-            .tagAndDeployToTest(fromBranches: 'master', env: 'lyn')
+            .tagAndDeployToTest(fromBranches: 'develop', env: 'kpt, lyn')
+            .tagAndDeployToProd(fromBranches: 'master', approvers: 'team premie')
             .withSlackNotifications(channels: 'panda-cd')
 }
