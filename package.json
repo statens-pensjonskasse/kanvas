@@ -1,5 +1,5 @@
 {
-  "name": "kanvas",
+  "name": "@statens-pensjonskasse/kanvas",
   "private": true,
   "description": "",
   "license": "",
@@ -46,5 +46,11 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "repository": {
+    "url": "https://github.com/statens-pensjonskasse/kanvas"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
