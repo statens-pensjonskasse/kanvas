@@ -12,6 +12,7 @@ jobs:
       packages: write
     secrets: inherit
     with:
-      slack-channel: '#panda-ci'
+      runner-tag: "spk-test-runner"
+      slack-channel: "#panda-ci"
       slack-bot-name: "GitHub Actions - Kanvas"
       slack-bot-icon: "panda-face"
