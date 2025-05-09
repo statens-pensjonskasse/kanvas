@@ -16,3 +16,25 @@ jobs:
       slack-channel: "#panda-ci"
       slack-bot-name: "GitHub Actions - Kanvas"
       slack-bot-icon: "panda-face"
+
+  deploy:
+    needs: build
+    uses: statens-pensjonskasse/github-actions-library/.github/workflows/deploy-to-swarm.yaml@13a01e223ed306018da095fc0e25fad0eb445fb8 # v1.22.0
+    permissions:
+      contents: read
+      packages: write
+      issues: write
+      deployments: write
+    secrets: inherit
+    with:
+      deploy-to-kpt: true
+      deploy-to-lyn: true
+      deploy-to-prod: true
+      branches-to-deploy-to-utv-and-test: 'main, feature/'
+      image-tag: ${{ needs.build.outputs.new-image-tag }}
+      deployment-config-repo: panda-deployments
+      slack-channel: '#panda-cd'
+      slack-bot-name: 'Kanvas-CD (Github actions)'
+      slack-bot-icon: ':panda_face:'
+      reviewers: 'team-reserveberegning'
+      ignore-freeze-check: true
