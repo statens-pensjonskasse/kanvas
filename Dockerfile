@@ -1,5 +1,5 @@
 # Bygg
-FROM cr.spk.no/base/node:22-builder as builder
+FROM ghcr.io/statens-pensjonskasse/nodejs:24 as builder
 
 COPY --chown=app:app package*.json ./
 RUN npm install --no-audit
