@@ -11,8 +11,6 @@ RUN npm run build && npm prune --production
 # Sett opp runner
 FROM ghcr.io/statens-pensjonskasse/nodejs:24
 
-USER node
-
 COPY --from=builder /home/app ./
 
 EXPOSE 8080
