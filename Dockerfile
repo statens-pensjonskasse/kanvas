@@ -1,5 +1,5 @@
 # Bygg
-FROM ghcr.io/statens-pensjonskasse/nodejs:24 as builder
+FROM ghcr.io/statens-pensjonskasse/nodejs:24-builder as builder
 
 COPY --chown=app:app package*.json ./
 RUN npm install --no-audit
@@ -10,7 +10,7 @@ RUN pwd
 RUN npm run build && npm prune --production
 
 # Sett opp runner
-FROM cr.spk.no/base/node:22-runner
+FROM ghcr.io/statens-pensjonskasse/nodejs:24
 
 USER node
 
