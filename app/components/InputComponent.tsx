@@ -1,4 +1,4 @@
-import { Heading, Tab, TabList, TabPanel, TabPanels, Tabs, Textarea, VStack } from "@chakra-ui/react";
+import {Heading, Tab, TabList, TabPanel, TabPanels, Tabs, Textarea, VStack} from "@chakra-ui/react";
 import { useContext } from "react";
 import { TidslinjeContext } from "~/state/TidslinjerProvider";
 import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser";

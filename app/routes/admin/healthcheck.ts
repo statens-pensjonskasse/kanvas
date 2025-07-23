@@ -1,7 +1,6 @@
-import { fetch } from "@remix-run/node"
-import { LoaderFunction } from "@remix-run/server-runtime"
+import type { LoaderFunctionArgs } from "@remix-run/node";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
     const host = new URL(request.url).host
 
     const response = await fetch(`http://${host}/api/lagTidslinjer`, {

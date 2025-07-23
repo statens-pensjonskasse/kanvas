@@ -10,9 +10,7 @@ export function MedlemsdataView() {
 
     return <VStack>
         <HStack>
-
             <VStack>
-
                 <Input
                     placeholder={`PersonId`}
                     defaultValue={personId}
