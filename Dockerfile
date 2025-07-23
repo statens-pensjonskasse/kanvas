@@ -13,4 +13,6 @@ FROM ghcr.io/statens-pensjonskasse/nodejs:24
 
 COPY --from=builder /home/app ./
 
+ENV PORT="8080"
+EXPOSE 8080
 CMD ["npm", "--no-update-notifier", "run", "start"]

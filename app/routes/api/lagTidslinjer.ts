@@ -1,4 +1,4 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import Colorparser from '~/parsers/CSVColorparser';
@@ -7,7 +7,7 @@ import Linestyleparser from '~/parsers/CSVLinestyleparser';
 import CSVTidslinjeparser from "~/parsers/CSVTidslinjeparser";
 import { cache } from "~/util/cache.server";
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.json()
   const csv = body.data
   const delimiter = body.delimiter || ";"

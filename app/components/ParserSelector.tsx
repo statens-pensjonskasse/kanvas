@@ -1,14 +1,20 @@
-import { Radio, RadioGroup, Stack, Tooltip } from "@chakra-ui/react"
-import { useContext } from "react"
-import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser"
-import { InputTextContext } from "../state/InputTextProvider"
+import { Radio, RadioGroup, Stack, Tooltip } from "@chakra-ui/react";
+import { useContext } from "react";
+import { CSV_PARSER, GHERKIN_PARSER } from "~/parsers/Parser";
+import { InputTextContext } from '~/state/InputTextProvider';
 
 export default function ParserSelector() {
-    const { parser, setParser, parseInputText } = useContext(InputTextContext)
+    const context = useContext(InputTextContext);
 
-    function handleParserChange(value) {
-        parseInputText("")
-        setParser(value)
+    if (!context) {
+        throw new Error('ParserSelector must be used within an InputTextProvider');
+    }
+
+    const { parser, setParser, parseInputText } = context;
+
+    function handleParserChange(value: string) {
+        parseInputText("");
+        setParser(value);
     }
 
     return (
@@ -20,5 +26,5 @@ export default function ParserSelector() {
                 </Stack>
             </Tooltip>
         </RadioGroup>
-    )
+    );
 }

@@ -1,10 +1,10 @@
-import { ActionFunction } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import GherkinTidslinjeparser from '~/parsers/GherkinTidslinjeparser';
 import { cache } from '~/util/cache.server';
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.json()
   const tekst = body.data
   const { kompakteEgenskaper = false } = body
