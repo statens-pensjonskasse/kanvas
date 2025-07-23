@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    uses: statens-pensjonskasse/github-actions-library/.github/workflows/build-app-podman.yaml@a0f39748c4334c55fa297dd1434dcf17b2b1049a # v1.28.6
+    uses: statens-pensjonskasse/github-actions-library/.github/workflows/build-app-containerfile.yaml@4bb1015794d4980c090085447975317c11cb7b7a # v1.28.13
     permissions:
       contents: read
       packages: write
@@ -18,12 +18,10 @@ jobs:
 
   deploy:
     needs: build
-    uses: statens-pensjonskasse/github-actions-library/.github/workflows/deploy-to-swarm.yaml@a0f39748c4334c55fa297dd1434dcf17b2b1049a # v1.28.6
+    uses: statens-pensjonskasse/github-actions-library/.github/workflows/deploy-to-swarm.yaml@4bb1015794d4980c090085447975317c11cb7b7a # v1.28.13
     permissions:
       contents: read
       packages: write
-      issues: write
-      deployments: write
     secrets: inherit
     with:
       deploy-to-kpt: true

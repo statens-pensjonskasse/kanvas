@@ -12,7 +12,6 @@ export default function TidslinjerView() {
   const { filters } = useContext(FilterContext)
   const { colors } = useContext(ColorContext)
   const { lineStyles } = useContext(LinestyleContext)
-  const [screenshot, setScreenshot] = useState("")
   const [kompakteEgenskaper, setKompakteEgenskaper] = useState(false)
 
   const visningsTidslinjer: Tidslinje[] = tidslinjer
@@ -37,9 +36,7 @@ export default function TidslinjerView() {
         4
       )
     }
-
     visualiser()
-
   }, [
     colors,
     lineStyles,
