@@ -1,9 +1,7 @@
 name: Build with Docker
-
 on:
   push:
   workflow_dispatch:
-
 jobs:
   build:
     uses: statens-pensjonskasse/github-actions-library/.github/workflows/build-app-containerfile.yaml@4bb1015794d4980c090085447975317c11cb7b7a # v1.28.13
@@ -22,6 +20,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      deployments: write
     secrets: inherit
     with:
       deploy-to-kpt: true
