@@ -1,6 +1,6 @@
 import {ChakraProvider} from "@chakra-ui/react";
-import {MetaFunction} from "@remix-run/node";
-import {Links, Meta, Outlet, Scripts, ScrollRestoration,} from "@remix-run/react";
+import { MetaFunction } from "react-router";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 export const meta: MetaFunction = () => [
     {charSet: "utf-8"},

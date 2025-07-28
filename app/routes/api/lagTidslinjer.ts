@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from 'react-router';
 import { parseHTML } from "linkedom";
 import { tegnTidslinjer } from '~/components/TidslinjeTegner';
 import Colorparser from '~/parsers/CSVColorparser';
