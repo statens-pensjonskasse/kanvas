@@ -36,7 +36,7 @@ function App() {
             <Container>
               <Link
                 isExternal
-                href="https://git.spk.no/projects/INC/repos/kanvas/browse"
+                href="https://github.com/statens-pensjonskasse/kanvas"
               >
                 kildekode
               </Link>
@@ -46,7 +46,6 @@ function App() {
       </VStack>
     </ChakraProvider>
   );
-
 }
 
 export default App;

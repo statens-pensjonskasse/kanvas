@@ -1,11 +1,10 @@
 import {Heading, Tab, TabList, TabPanel, TabPanels, Tabs, Textarea, VStack} from "@chakra-ui/react";
 import { useContext } from "react";
 import { TidslinjeContext } from "~/state/TidslinjerProvider";
-import { CSV_PARSER, GHERKIN_PARSER } from "../parsers/Parser";
-import { InputTextContext } from '../state/InputTextProvider';
+import { CSV_PARSER, GHERKIN_PARSER } from "~/parsers/Parser";
+import { InputTextContext } from '~/state/InputTextProvider';
 import CSVPeriodeInput from './input/CSVPeriodeInput';
 import GherkinPeriodeInput from './input/GherkinPeriodeInput';
-import { MedlemsdataView } from "./MedlemsdataView";
 import ParserSelector from "./ParserSelector";
 
 export default function InputComponent() {
@@ -31,7 +30,6 @@ export default function InputComponent() {
                 <TabList>
                     <Tab>✏️ Input</Tab>
                     <Tab>📃 Kjørende dokumentasjon</Tab>
-                    <Tab>🧪 Syntetiske medlemsdata</Tab>
                 </TabList>
 
                 <TabPanels>
@@ -52,12 +50,6 @@ export default function InputComponent() {
                                 fontFamily={'mono'}
                                 minH={'50em'}
                             />
-                        </>
-                    </TabPanel>
-                    <TabPanel>
-                        <>
-                            <Heading size={'sm'}>Generert syntetisk medlemsdata</Heading>
-                            <MedlemsdataView />
                         </>
                     </TabPanel>
                 </TabPanels>

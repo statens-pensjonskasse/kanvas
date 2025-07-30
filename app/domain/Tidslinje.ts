@@ -1,5 +1,4 @@
 import { unikeVerdier } from "~/util/utils";
-import { MedlemsdataSerializer } from "../parsers/MedlemsdataSerializer";
 import { Aksjonsdato } from "./Aksjonsdato";
 import Periode from "./Periode";
 
@@ -86,27 +85,6 @@ export default class Tidslinje {
         )
     }
 
-    somCSV(): String[] {
-        return this.perioder
-            .sort((a: Periode, b: Periode) => a.fraOgMed.getTime() - b.fraOgMed.getTime())
-            .map(
-                periode => (
-                    [
-                        periode.label,
-                        periode.fraOgMed.aksjonsdato,
-                        periode.tilOgMed?.aksjonsdato || "",
-                        ...periode.egenskaper
-                    ]
-                        .join(";")
-                )
-            )
-
-    }
-
-    somMedlemsdata(personId: String): String[] {
-        return MedlemsdataSerializer.serialize(personId, this)
-    }
-
     somCucumber(): String[] {
         const header = this.label
         const periodenesFraOgmed = this.perioder.map(p => p.fraOgMed?.aksjonsdato || "")
@@ -181,7 +159,6 @@ export default class Tidslinje {
             .map(
                 (rad: string[]) => "| " + rad.map(cell => cell.padEnd(kolonnebredde)).join("| ") + "|"
             )
-
         return parsedResultat
     }
 }
